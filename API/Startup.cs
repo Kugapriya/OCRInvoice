@@ -56,7 +56,6 @@ namespace API
             services.AddScoped<UploadRepository>();
             services.AddScoped<StoreRepository>();
             services.AddScoped<AuthRepository>();
-            services.AddScoped<VendorRepository>();
             services.AddScoped<ActivityRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
