@@ -1,0 +1,77 @@
+ion-card-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+ion-card-content {
+    font-size: 14px;
+    color: #666;
+}
+
+ion-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+
+}
+
+ion-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.store-grid ion-col {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.store-grid ion-card {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+ion-card {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    margin: 0;
+}
+
+ion-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.sticky-searchbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  --background: #2a5298;         
+  --color: #ffffff;               
+  --placeholder-color: #ffffff;  
+  --icon-color: #ffffff;          
+  padding-top: env(safe-area-inset-top);
+  border-radius: 8px;             
+  margin: 8px;                    
+}
+
+ion-searchbar::part(input) {
+  border-bottom: 1px solid #cccccc;
+  border-radius: 0;
+  transition: border-color 0.3s, border-width 0.3s, background-color 0.3s;
+}
+
+ion-searchbar::part(input):focus {
+  border-bottom: 2px solid #032346;
+  background-color: #06234e;
+}
+
+.store-grid {
+    padding-bottom: 120px;
+}
+
+ion-content {
+    padding-top: env(safe-area-inset-top);
+}

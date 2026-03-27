@@ -1,0 +1,27 @@
+<ion-content fullscreen class="login-content">
+  <div class="login-wrapper">
+    <ion-card class="login-card">
+      <ion-card-header>
+        <ion-card-title class="heading">Welcome Back</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form>
+          <ion-item lines="none" class="input-item">
+            <ion-label position="stacked" class="label-colored">Email</ion-label>
+            <ion-input [(ngModel)]="model.username" name="username" type="email" class="input-colored"
+              placeholder="Enter your email"></ion-input>
+          </ion-item>
+
+          <ion-item lines="none" class="input-item">
+            <ion-label position="stacked" class="label-colored">Password</ion-label>
+            <ion-input [(ngModel)]="model.password" name="password" type="password" class="input-colored"
+              placeholder="Enter your password"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" class="login-btn"  type="button" (click)="login()">Login</ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

@@ -1,0 +1,13 @@
+# Build folders
+bin/
+obj/
+
+# Secrets
+invoice-service-key.json
+
+# Environment config
+appsettings.Development.json
+
+# IDE
+.vs/
+.vscode/

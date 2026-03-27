@@ -1,0 +1,512 @@
+<ion-content>
+  <ion-header class="sticky-header">
+    <ion-toolbar class="top-bar">
+      <div class="center-content">
+        <div class="brand">
+          <span class="docmate">DocMate</span>
+          <span class="capture">Capture</span>
+        </div>
+
+        <div class="sub-info">
+          <div class="version-date">
+            <span class="version">v1.01</span>
+            <span class="divider">|</span>
+            <span>{{ ukDate }}</span>
+          </div>
+
+          <div class="time-info">
+            <span>{{ ukDay }}</span> |
+            <span>{{ ukTime }} GMT</span>
+          </div>
+        </div>
+      </div>
+
+      <ion-buttons slot="end">
+        <ion-button class="admin-btn" fill="solid" color="danger" (click)="goToHome()">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <span class="role-text">{{ role }}</span>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+  <ion-card class="photo-card">
+    <ion-card-content>
+      <ion-item lines="full" class="customer-id-item center-text">
+        <ion-label position="floating">Customer ID</ion-label>
+        <ion-input type="text" [(ngModel)]="customerId" readonly></ion-input>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+  <ion-card class="supplier-card">
+    <ion-card-content>
+
+      <ion-card-header>
+        <ion-card-title class="card-title">
+          SELECT SUPPLIER
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-item>
+        <ion-label>Supplier Name</ion-label>
+        <ion-select [(ngModel)]="selectedVendor" interface="popover" size="small" (click)="$event.stopPropagation()">
+
+          <ion-select-option value="BOOKER">
+            BOOKER
+          </ion-select-option>
+
+          <ion-select-option value="NISA">
+            NISA
+          </ion-select-option>
+
+        </ion-select>
+      </ion-item>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card class="photo-card">
+    <ion-card-content>
+      <ion-card-header>
+        <ion-card-title class="card-title">
+          CAPTURE METHOD
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-button expand="block" class="capture-btn" (click)="capturePhoto()">
+              <ion-icon name="camera" slot="start"></ion-icon>
+              Capture
+            </ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <input type="file" multiple accept="image/*,application/pdf" (change)="uploadFromDrive($event)" hidden
+              #fileInput>
+            <ion-button expand="block" class="upload-btn" (click)="fileInput.click()">
+              <ion-icon name="cloud-upload" slot="start"></ion-icon>
+              Upload
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+  <!-- <ion-card class="photo-card">
+    <ion-card-content>
+      <ion-card-header>
+        <ion-card-title class="card-title">
+          SELECT DOCUMENT STRATEGY
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6">
+            <ion-card class="doc-card purchase">
+              <ion-card-content class="ion-text-center">
+                <ion-icon name="document-text-outline" size="large"></ion-icon>
+                <p>Purchase Invoice</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="6">
+            <ion-card class="doc-card service">
+              <ion-card-content class="ion-text-center">
+                <ion-icon name="settings-outline" size="large"></ion-icon>
+                <p>Service Invoice</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="6">
+            <ion-card class="doc-card sales">
+              <ion-card-content class="ion-text-center">
+                <ion-icon name="cash-outline" size="large"></ion-icon>
+                <p>Sales Invoice</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <ion-col size="6">
+            <ion-card class="doc-card commission">
+              <ion-card-content class="ion-text-center">
+                <ion-icon name="people-outline" size="large"></ion-icon>
+                <p>Commission Invoice</p>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card> -->
+
+  <ion-card class="invoice-card">
+    <ion-card-content>
+
+      <ion-card-header>
+        <ion-card-title class="card-title">
+          SELECT DOCUMENT STRATEGY
+        </ion-card-title>
+      </ion-card-header>
+
+      <ion-item>
+        <ion-label>Invoice Type</ion-label>
+        <ion-select [(ngModel)]="selectedInvoice" interface="popover" size="small" (click)="$event.stopPropagation()"
+          interface="popover">
+
+          <ion-select-option value="PURCHASE">
+            Purchase Invoice
+          </ion-select-option>
+
+          <ion-select-option value="SERVICE">
+            Service Invoice
+          </ion-select-option>
+
+          <ion-select-option value="SALES">
+            Sales Invoice
+          </ion-select-option>
+
+          <ion-select-option value="COMMISSION">
+            Commission Invoice
+          </ion-select-option>
+
+        </ion-select>
+      </ion-item>
+
+    </ion-card-content>
+  </ion-card>
+  <ion-card class="photo-card">
+
+    <ion-card-header>
+      <ion-card-title class="card-title">
+        DOCUMENT COMMAND CENTER
+      </ion-card-title>
+      <div class="badge-wrapper">
+        <ion-badge class="assets-badge">
+          {{ completedCount }} Assets Registered
+        </ion-badge>
+      </div>
+    </ion-card-header>
+
+    <div class="action-row">
+      <ion-button class="process-all-btn">
+        <ion-icon name="play-circle-outline" slot="start"></ion-icon>
+        Process All
+      </ion-button>
+
+      <ion-button class="refresh-btn">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
+
+    </div>
+
+    <ion-card-content class="command-content">
+      <ion-card class="inner-list-card">
+
+        <ion-card-content>
+
+          <div class="file-item" *ngFor="let file of uploadedFiles; let i = index"
+            [class.selected]="selectedIndex === i" (click)="selectFile(i)">
+
+            <div class="file-row">
+
+              <ion-icon name="document-text-outline" class="file-icon"></ion-icon>
+
+              <div class="file-info">
+                {{ file.name }}
+              </div>
+              <div class="badge-row">
+                <ion-badge [color]="
+                      file.status === 'PENDING' ? 'warning' :
+                      file.status === 'PROCESSING' ? 'medium' :
+                      file.status === 'COMPLETED' ? 'success' :
+                      'danger'
+  ">
+                  {{ file.status }}
+                </ion-badge>
+                <ion-badge color="primary">
+                  {{ file.invoiceType }}
+                </ion-badge>
+              </div>
+              <div class="file-actions">
+
+                <ion-button size="small" fill="clear" [color]="file.status === 'PROCESSING' ? 'medium' : 'success'"
+                  (click)="processFile(file.file, i); $event.stopPropagation()"
+                  [disabled]="file.status === 'PROCESSING' || file.status === 'COMPLETED'">
+
+                  <ion-spinner *ngIf="file.status === 'PROCESSING'" name="dots"></ion-spinner>
+
+                  <ion-icon *ngIf="file.status !== 'PROCESSING'" name="play-outline"></ion-icon>
+                </ion-button>
+
+                <ion-button size="small" fill="clear" color="primary"
+                  (click)="inspectFile(file.file, i); $event.stopPropagation()">
+                  <ion-icon name="eye-outline"></ion-icon>
+                </ion-button>
+
+                <ion-button size="small" fill="clear" color="danger" (click)="removeFile(i); $event.stopPropagation()">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ion-card-content>
+    <div class="node-target-section">
+
+      <!-- <div class="node-title">
+    NODE TARGET
+  </div> -->
+
+      <div class="badge-wrapper">
+        <div class="single-target-badge">
+          <span [class.active]="selectedTarget === 'upload'" (click)="selectTarget('upload')">
+            <!-- <ion-icon name="logo-google"></ion-icon> -->
+            Upload
+          </span>
+          <span [class.active]="selectedTarget === 'azure'" (click)="selectTarget('azure')">
+            <ion-icon name="cloud-outline"></ion-icon>
+            Azure
+          </span>
+          <span [class.active]="selectedTarget === 'email'" (click)="selectTarget('email')">
+            <ion-icon name="mail-outline"></ion-icon>
+            Email
+          </span>
+          <span [class.active]="selectedTarget === 'sql'" (click)="selectTarget('sql')">
+            <ion-icon name="server-outline"></ion-icon>
+            SQL
+          </span>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="transmit-section" *ngIf="selectedTarget">
+      <ion-badge class="transmit-badge" [class.disabled]="uploadedFiles.length === 0"
+        (click)="uploadedFiles.length > 0 && transmit()" style="cursor:pointer">
+        <ion-icon [name]="getTransmitIcon()"></ion-icon>
+        TRANSMIT TO {{ selectedTarget | uppercase }}
+      </ion-badge>
+    </div> -->
+    <div class="transmit-section" *ngIf="selectedTarget">
+
+      <ion-badge class="dashboard-success-badge" *ngIf="showSuccessBadge">
+        Successfully sent to {{ selectedTarget | titlecase }}
+      </ion-badge>
+
+      <ion-badge class="transmit-badge" [class.disabled]="uploadedFiles.length === 0" (click)="openConfirmModal()"
+        style="cursor:pointer">
+
+        <ion-icon [name]="getTransmitIcon()"></ion-icon>
+        {{ selectedTarget | titlecase }} Transmit
+
+      </ion-badge>
+
+    </div>
+    <ion-modal [isOpen]="isConfirmModalOpen" cssClass="small-centered-modal">
+      <ng-template>
+        <ion-card class="dispatch-modal-card">
+
+          <!-- Circular icon -->
+          <div class="icon-circle">
+            <ion-icon name="send-outline"></ion-icon>
+          </div>
+
+          <!-- Title & Subtitle -->
+          <div class="modal-header">
+            <div class="modal-title">Confirm Dispatch</div>
+            <div class="modal-subtitle">
+              Transmitting {{ uploadedFiles.length }} assets to {{ selectedTarget }} node.<br>
+              Finalizing package...
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <ion-card-content class="modal-actions">
+            <ion-badge class="action-badge" [ngClass]="{
+            'primary-badge': !dispatching,
+            'transmitting-badge': dispatching
+          }" (click)="startDispatch()">
+              {{ dispatching ? 'Transmitting...' : 'COMMENCE DISPATCH' }}
+            </ion-badge>
+
+            <ion-badge class="action-badge abort" color="medium" (click)="closeConfirmModal()">
+              ABORT
+            </ion-badge>
+          </ion-card-content>
+
+        </ion-card>
+      </ng-template>
+    </ion-modal>
+    <ion-card class="uplink-card">
+      <ion-card-content>
+        <div class="uplink-row">
+          <span class="uplink-label">UPLINK:</span>
+          <ion-input [(ngModel)]="uplinkValue" [readonly]="!isEditable" class="uplink-input">
+          </ion-input>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </ion-card>
+  <!-- DOCUMENT INSPECTOR -->
+  <ion-card class="photo-card">
+    <ion-card-header>
+      <ion-card-title class="card-title">
+        DOCUMENT INSPECTOR
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card class="uplink-card">
+      <ion-card-content class="badge-container">
+        <ion-badge class="filename-badge" (click)="openEditModal()" *ngIf="selectedFileUrl">
+          <ion-icon name="document-outline"></ion-icon>
+          <span class="file-text">{{ fileName }}</span>
+          <ion-icon name="create-outline" class="edit-icon"></ion-icon>
+        </ion-badge>
+      </ion-card-content>
+    </ion-card>
+    <ion-card-content>
+      <!-- PDF View -->
+      <div class="pdf-container" *ngIf="selectedFileUrl && isPdf">
+        <ngx-extended-pdf-viewer [src]="selectedFileUrl" [(page)]="currentPage" [pageViewMode]="'single'"
+          (pagesLoaded)="onPagesLoaded($event)" [height]="'80vh'">
+        </ngx-extended-pdf-viewer>
+      </div>
+
+      <!-- Image View -->
+      <div class="image-container" *ngIf="selectedFileUrl && isImage">
+        <img [src]="selectedFileUrl" [style.transform]="'scale(' + zoomLevel + ') rotate(' + rotation + 'deg)'"
+          style="width:100%; max-height:500px; object-fit:contain;" />
+      </div>
+
+      <div class="inspector-controls" *ngIf="selectedFileUrl">
+        <ng-container *ngIf="isPdf">
+          <ion-button size="small" style="--background: white; --color: black;" (click)="prevPage()"
+            [disabled]="currentPage <= 1">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+          </ion-button>
+
+          <span style="--background: white; --color: black;margin:0 10px;">Page {{ currentPage }} / {{ totalPages
+            }}</span>
+          <ion-button size="small" style="--background: white; --color: black;" (click)="nextPage()"
+            [disabled]="currentPage >= totalPages">
+            <ion-icon name="arrow-forward-outline"></ion-icon>
+          </ion-button>
+        </ng-container>
+
+        <!-- Image Controls -->
+        <ng-container *ngIf="isImage">
+          <ion-button size="small" style="--background: white; --color: black;" (click)="zoomIn()">
+            <ion-icon name="add-outline"></ion-icon>
+          </ion-button>
+
+          <ion-button size="small" style="--background: white; --color: black;" (click)="zoomOut()">
+            <ion-icon name="remove-outline"></ion-icon>
+          </ion-button>
+          <ion-button size="small" style="--background: white; --color: black;" (click)="rotateLeft()">
+            <ion-icon name="refresh-outline"></ion-icon>
+          </ion-button>
+
+          <ion-button size="small" style="--background: white; --color: black;" (click)="rotateRight()">
+            <ion-icon name="reload-outline"></ion-icon>
+          </ion-button>
+        </ng-container>
+      </div>
+    </ion-card-content>
+  </ion-card>
+  <ion-modal [isOpen]="isEditModalOpen" cssClass="partial-modal" (didDismiss)="onModalDismiss()">
+    <ng-template>
+      <ion-card class="modal-card">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <div class="modal-title">Manual Document Label</div>
+          <div class="modal-subtitle">Identify Supplier & Metadata</div>
+        </div>
+
+        <ion-card-content class="modal-content">
+
+          <!-- Targeting File -->
+          <ion-card class="input-card" style="background-color: #dad4d4;">
+            <ion-card-content class="card-content-row">
+              <div class="card-label-input" style="display:flex; flex-direction:column;">
+                <span class="card-label">TARGETING FILE:</span>
+                <span class="card-value">{{ fileName }}</span>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Supplier Name -->
+          <ion-card class="input-card">
+            <ion-card-content class="card-content-row">
+              <div class="card-label-input">
+                <span class="card-label">SUPPLIER NAME</span>
+                <ion-input [(ngModel)]="supplierName" placeholder="Booker, NISA" class="badge-input"
+                  (ionInput)="onInputChange()"></ion-input>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Invoice Number & Date -->
+          <ion-card class="input-card">
+            <ion-card-content class="card-content-row invoice-row">
+
+              <!-- Invoice Number -->
+              <div class="invoice-field invoice-number">
+                <span class="card-label">INVOICE NUMBER</span>
+                <ion-input [(ngModel)]="invoiceNumber" placeholder="INV-12345" class="badge-input"
+                  (ionInput)="onInputChange()"></ion-input>
+              </div>
+
+              <!-- Invoice Date -->
+              <div class="invoice-field invoice-date">
+                <span class="card-label">INVOICE DATE</span>
+                <ion-datetime-button datetime="invoicePicker"></ion-datetime-button>
+                <ion-datetime id="invoicePicker" [(ngModel)]="invoiceDate" (ionInput)="onInputChange()"
+                  presentation="date" display-format="DD-MM-YYYY" picker-format="DD-MM-YYYY"></ion-datetime>
+              </div>
+
+            </ion-card-content>
+          </ion-card>
+
+          <!-- Verify & Standardize Button -->
+          <ion-card class="input-card action-card-wrapper">
+
+            <!-- Optional warning above button -->
+            <div *ngIf="verificationStatus === 'error'" class="warning-text">
+              {{ ErrorMessage }}
+            </div>
+
+            <ion-card class="input-card action-card"
+              [ngClass]="{pending: verificationStatus === 'pending',success: verificationStatus === 'success',error: verificationStatus === 'error'}"
+              (click)="verifyAndStandardize()">
+              <ion-card-content class="card-content-row">
+                <ion-icon [name]="
+                  verificationStatus === 'success'
+                    ? 'checkmark-circle-outline'
+                    : verificationStatus === 'pending'
+                    ? 'hourglass-outline'
+                    : verificationStatus === 'error'
+                    ? 'warning-outline'
+                    : 'checkmark-done-outline'
+                " class="card-icon"></ion-icon>
+                <span class="card-value">
+                  {{
+                  verificationStatus === 'success'
+                  ? 'VERIFIED'
+                  : verificationStatus === 'pending'
+                  ? 'VERIFYING...'
+                  : verificationStatus === 'error'
+                  ? 'FILL ALL FIELDS'
+                  : 'VERIFY & STANDARDIZE'
+                  }}
+                </span>
+              </ion-card-content>
+            </ion-card>
+          </ion-card>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
+  </ion-modal>
+</ion-content>

@@ -1,0 +1,33 @@
+<ion-app>
+<ion-menu side="start" menuId="home-menu" contentId="home-page-content">
+  <ion-header>
+    <ion-toolbar class="menu">
+      <ion-title>Menu</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <ion-list>
+      <ion-item button *ngFor="let item of menuItems" (click)="navigateTo(item.url)">
+        <ion-icon [name]="item.icon" slot="start"></ion-icon>
+        <ion-label>{{ item.title }}</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<!-- Main Page Header -->
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button menu="home-menu"></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Home</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Main Content -->
+<ion-content id="home-page-content" class="ion-padding">
+  <h2>Welcome Home!</h2>
+  <p>Click the menu to navigate to Dashboard or other pages.</p>
+</ion-content>
