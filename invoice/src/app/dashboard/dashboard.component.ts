@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    const userData = localStorage.getItem('cust');
+    const userData = localStorage.getItem('customer');
 
     if (userData) {
       const parsed = JSON.parse(userData);
@@ -89,7 +89,7 @@ export class DashboardComponent implements OnInit {
       this.googleUrl = user.googleUrl ?? '';
       this.role = user.role ?? '';
     }
-    localStorage.removeItem('cust')
+    // localStorage.removeItem('cust')
 
     this.updateUKTime();
     setInterval(() => this.updateUKTime(), 1000);

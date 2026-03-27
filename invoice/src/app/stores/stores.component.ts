@@ -52,20 +52,20 @@ export class StoresComponent implements OnInit {
     );
   }
 
-  // setStore(store: Store) {
-  //   const selSite = this.repository.selectedStore;
-  //   this.repository.setStore(store);
+  setStore(store: Store) {
+    const selSite = this.repository.selectedStore;
+    this.repository.setStore(store);
 
-  //   if (selSite && selSite.storeId !== store.storeId) {
-  //     localStorage.clear();
+    if (selSite && selSite.storeId !== store.storeId) {
+      // localStorage.clear();
 
-  //     this.router.navigate(['/site/dashboard']).then(() => {
-  //       location.reload();
-  //     });
-  //   } else {
-  //     this.router.navigate(['/site/dashboard']);
-  //   }
-  // }
+      this.router.navigate(['/site/dashboard']).then(() => {
+        location.reload();
+      });
+    } else {
+      this.router.navigate(['/site/dashboard']);
+    }
+  }
 
   // setStore(store: Store) {
   //   const selSite = this.repository.selectedStore;
@@ -84,32 +84,32 @@ export class StoresComponent implements OnInit {
   //       console.error(error);
   //     });
   // }
-  setStore(store: Store) {
-    const selSite = this.repository.selectedStore;
-    this.repository.setStore(store);
+  // setStore(store: Store) {
+  //   const selSite = this.repository.selectedStore;
+  //   this.repository.setStore(store);
 
-    const username = this.repository.loggedInUser?.username;
+  //   const username = this.repository.loggedInUser?.username;
 
-    if (!username || !store.storeId) {
-      console.error('Missing username or storeId');
-      return;
-    }
+  //   if (!username || !store.storeId) {
+  //     console.error('Missing username or storeId');
+  //     return;
+  //   }
 
-    this.repository.getCustomerByStore(username, store.storeId).subscribe((res: Customer | null) => {
-        if (!res) {
-          console.log('Customer not found for selected store');
-          return;
-        }
+  //   this.repository.getCustomerByStore(username, store.storeId).subscribe((res: Customer | null) => {
+  //       if (!res) {
+  //         console.log('Customer not found for selected store');
+  //         return;
+  //       }
 
-        localStorage.setItem('cust', JSON.stringify(res));
-        if (selSite && selSite.storeId !== store.storeId) {
-          this.router.navigate(['/site/dashboard']);
-        } else {
-          this.router.navigate(['/site/dashboard']);
-        }
+  //       localStorage.setItem('cust', JSON.stringify(res));
+  //       if (selSite && selSite.storeId !== store.storeId) {
+  //         this.router.navigate(['/site/dashboard']);
+  //       } else {
+  //         this.router.navigate(['/site/dashboard']);
+  //       }
 
-      }, error => {
-        console.error(error);
-      });
-  }
+  //     }, error => {
+  //       console.error(error);
+  //     });
+  // }
 }
