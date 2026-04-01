@@ -70,3 +70,7 @@ ios/
 # System files
 .DS_Store
 Thumbs.db
+
+#images
+assets/
+

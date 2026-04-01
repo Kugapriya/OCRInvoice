@@ -346,7 +346,7 @@ export class DashboardComponent implements OnInit {
   getTransmitIcon(): string {
 
     if (this.selectedTarget === 'upload') {
-      return 'logo-google';
+      return 'cloud-upload';
     }
 
     if (this.selectedTarget === 'gmail') {

@@ -1,6 +1,7 @@
 # Build folders
 bin/
 obj/
+wwwroot
 
 # Secrets
 invoice-service-key.json

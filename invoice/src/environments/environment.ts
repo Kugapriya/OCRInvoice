@@ -5,8 +5,8 @@
 export const environment = {
   production: false,
   //apiUrl : 'http://localhost:5000/api/',
-  apiUrl :'http://192.168.1.6:5000/api/',
-  apiDomain: '192.168.1.6:5000'
+  apiUrl :'https://invoice.subango.com/api/',
+  apiDomain: 'invoice.subango.com'
 };
 /*
  * For easier debugging in development mode, you can import the following file
