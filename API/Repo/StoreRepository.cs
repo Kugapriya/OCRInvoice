@@ -23,11 +23,5 @@ namespace API.Repo
             var stores = await ob.GetStoresByUsername(username);
             return stores;
         }
-
-        public async Task<Customer?> GetCustomerByStore(string username,string StoreId)
-        {
-            CustomerDA ob = new CustomerDA(connectionString);
-            return await ob.GetCustomerByStore(username,StoreId);
-        }
     }
 }

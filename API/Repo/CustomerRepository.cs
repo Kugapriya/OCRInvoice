@@ -21,12 +21,6 @@ namespace API.Repo
             connectionString = config.GetConnectionString("DefaultConnection")
                         ?? throw new InvalidOperationException("Connection string not configured.");
         }
-
-        public async Task<LoginResponseDto?> Login(UserForLoginDto user)
-        {
-            CustomerDA ob = new CustomerDA(connectionString);
-            return await ob.Login(user);
-        }
         public async Task<EmailSetup?> GetEmailSetup()
         {
             CustomerDA ob = new CustomerDA(connectionString);
@@ -90,47 +84,47 @@ namespace API.Repo
 
                     return true;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Console.WriteLine("Email sending failed: " + ex.Message);
                     return false;
                 }
             }
         }
 
-        public async Task<List<string>> UploadInvoicesAsync(List<IFormFile> files)
+        public async Task<bool> SendEmail(string mailTo, string subject, string body)
         {
-            var uploadedUrls = new List<string>();
-
-            var connectionString = _config["AzureStorage:ConnectionString"];
-            var containerName = _config["AzureStorage:ContainerName"];
-
-            var blobServiceClient = new BlobServiceClient(connectionString);
-            var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-
-            await containerClient.CreateIfNotExistsAsync();
-
-            string folderName = "invoice";
-
-            foreach (var file in files)
+            EmailSetup? emailSetup = await GetEmailSetup();
+            if (emailSetup == null)
             {
-                if (file != null && file.Length > 0)
-                {
-                    string uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
-                    string blobPath = $"{folderName}/{uniqueFileName}";
-
-                    var blobClient = containerClient.GetBlobClient(blobPath);
-
-                    using (var stream = file.OpenReadStream())
-                    {
-                        await blobClient.UploadAsync(stream, overwrite: true);
-                    }
-
-                    uploadedUrls.Add(blobClient.Uri.ToString());
-                }
+                return false;
             }
 
-            return uploadedUrls;
+            try
+            {
+                using (var mail = new MailMessage())
+                {
+                    mail.From = new MailAddress(emailSetup.Username);
+                    mail.To.Add(mailTo);
+                    mail.Subject = subject;
+                    mail.Body = body;
+                    mail.IsBodyHtml = true;
+
+                    using (var smtp = new SmtpClient(emailSetup.SmtpServer))
+                    {
+                        smtp.Port = emailSetup.Port;
+                        smtp.Credentials = new NetworkCredential(emailSetup.Username, emailSetup.Password);
+                        smtp.EnableSsl = emailSetup.EnableSsl;
+
+                        await smtp.SendMailAsync(mail);
+                    }
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

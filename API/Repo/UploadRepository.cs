@@ -1,5 +1,6 @@
 using System.Globalization;
 using API;
+using API.Models;
 
 public class UploadRepository
 {
@@ -45,5 +46,11 @@ public class UploadRepository
         }
 
         return savedPaths;
+    }
+
+    public async Task<List<UploadedFiles>> GetFilesByCustomerAndSupplierAsync(string customerId)
+    {
+        UploadDA ob = new UploadDA(connectionString);
+        return await ob.GetFilesByCustomerAndSupplierAsync(customerId);
     }
 }

@@ -1,0 +1,12 @@
+export class UploadedFiles {
+    constructor(
+        public id: number,
+        public customerId: string,
+        public supplierName: string,
+        public fileName: string = '',
+        public filePath: string,
+        public processType?: string,
+        public uploadedTime: string = '',
+        public isProcess: boolean = false,
+    ) { }
+}

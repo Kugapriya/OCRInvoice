@@ -22,10 +22,4 @@ public class StoresController : ControllerBase
         var stores = await _repo.GetStoresForUserAsync(username);
         return Ok(stores);
     }
-    [HttpGet("getCustomerByStore/{username}/{storeId}")]
-    public async Task<IActionResult> GetCustomerByStore(string username, string storeId)
-    {
-        var customer = await _repo.GetCustomerByStore(username, storeId);
-        return Ok(customer);
-    }
 }

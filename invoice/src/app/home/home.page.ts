@@ -12,10 +12,7 @@ export class HomePage {
   constructor(private router: Router) {}
   menuItems = [
     { title: 'Dashboard', icon: 'speedometer-outline', url: '/site/dashboard' },
-    // title: 'Invoices', icon: 'document-text-outline', url: '/invoices' },
-    { title: 'Customers', icon: 'people-outline', url: '/customers' },
-    // { title: 'Settings', icon: 'settings-outline', url: '/settings' },
-    // { title: 'Profile', icon: 'person-outline', url: '/profile' }
+    // { title: 'Customers', icon: 'people-outline', url: '/site/customers' }
   ];
 
 

@@ -38,5 +38,12 @@ export class AuthService {
   getLoggedInUsername() {
     return localStorage.getItem('username') || '';
   }
-}
+  forgotPassword(email: string): Observable<any> {
+    const url = `${this.baseUrl}forgot-password/${email}`;
+    return this.http.post(url, { email }); // send email in body too if needed
+  }
 
+  resetPassword(data: { token: string, newPassword: string, confirmPassword: string }) {
+    return this.http.post(`${this.baseUrl}reset-password`, data);
+  }
+}

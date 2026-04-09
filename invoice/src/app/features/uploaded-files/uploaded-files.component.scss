@@ -1,0 +1,43 @@
+.file-card {
+    border: 2px solid #888;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    padding: 2px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    font-size: 11px;
+}
+
+.file-card-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1px;
+}
+
+.file-icon {
+    font-size: 14px;
+    margin-top: 0;
+    color: #555;
+}
+
+.file-details {
+    flex: 1;
+    overflow: hidden;
+    line-height: 1.2;
+}
+
+.file-name {
+    font-weight: 600;
+    margin: 0 0 1px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.file-details p {
+    margin: 0;
+    font-size: 11px;
+}
+ion-content {
+  --padding-top: 60px; 
+}

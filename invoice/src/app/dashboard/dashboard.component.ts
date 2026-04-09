@@ -11,6 +11,7 @@ import { Capacitor } from '@capacitor/core';
 import { PDFDocument } from 'pdf-lib';
 import { Filesystem } from '@capacitor/filesystem';
 import { AlertService } from '../core/services/alert.service';
+import { RepositoryService } from '../core/services/repository.service';
 
 @Component({
   standalone: true,
@@ -57,7 +58,7 @@ export class DashboardComponent implements OnInit {
 
   showDatePicker: boolean = false;
   selectedIndex: number | null = null;
-  selectedVendor: string = 'BOOKER';
+  selectedVendor: string = '';
   uploadedFiles: {
     name: string;
     file: File;
@@ -67,9 +68,10 @@ export class DashboardComponent implements OnInit {
   }[] = [];
 
   selectedTarget: string | null = null;
+  isPdf: boolean = false;
 
   constructor(private http: HttpClient, private router: Router,
-    private zone: NgZone, private alertService: AlertService
+    private zone: NgZone, private alertService: AlertService, public repository: RepositoryService
   ) { }
 
   ngOnInit() {
@@ -79,18 +81,19 @@ export class DashboardComponent implements OnInit {
       const parsed = JSON.parse(userData);
       const user = parsed.user ?? parsed;
 
-      this.userna = user.username ?? '';
-      this.customerId = user.customerId ?? '';
-      this.dealerId = user.dealerId ?? '';
-      this.storeId = user.storeId ?? '';
-      this.name = user.name ?? '';
-      this.azureUrl = user.azureUrl ?? '';
-      this.email = user.email ?? '';
-      this.googleUrl = user.googleUrl ?? '';
+      //   this.userna = user.username ?? '';
+      //   this.customerId = user.customerId ?? '';
+      //   this.repository.customerId = user.customerId;
+      //   this.dealerId = user.dealerId ?? '';
+      //   this.storeId = user.storeId ?? '';
+      //   this.name = user.name ?? '';
+      //   this.azureUrl = user.azureUrl ?? '';
+      //   this.email = user.email ?? '';
+      //   this.googleUrl = user.googleUrl ?? '';
       this.role = user.role ?? '';
     }
     // localStorage.removeItem('cust')
-
+    this.customerId = this.repository.customerId ?? '';
     this.updateUKTime();
     setInterval(() => this.updateUKTime(), 1000);
   }
@@ -178,6 +181,10 @@ export class DashboardComponent implements OnInit {
     return new Blob([buffer], { type });
   }
   async capturePhoto() {
+    if (!this.selectedVendor || this.selectedVendor.trim() === '') {
+      this.alertService.showToast('Please select a Supplier first', 3000, 'top');
+      return;
+    }
     try {
       const platform = Capacitor.getPlatform();
       const isWeb = platform === 'web';
@@ -284,10 +291,6 @@ export class DashboardComponent implements OnInit {
     }, 2000);
   }
 
-  // removeFile(index: number) {
-  //   this.uploadedFiles.splice(index, 1);
-  //   this.selectedIndex = null;
-  // }
   removeFile(index: number) {
     const removedFile = this.uploadedFiles[index];
     URL.revokeObjectURL(removedFile.url);
@@ -485,79 +488,13 @@ export class DashboardComponent implements OnInit {
       });
     }
   }
-
-  // sendMail(): Promise<void> {
-  //   const formData = new FormData();
-
-  //   for (let item of this.uploadedFiles) {
-  //     formData.append('files', item.file);
-  //   }
-
-  //   const sendUrl = environment.apiUrl + 'File/sendzip/' + this.email + '/' + this.customerId + '/' + this.selectedVendor;
-  //   return new Promise((resolve, reject) => {
-  //     this.http.post(sendUrl, formData).subscribe({
-  //       next: () => {
-  //         resolve();
-  //       },
-  //       error: err => {
-  //         reject(err);
-  //       }
-  //     });
-  //   });
-  // }
-  // GoogleuploadFiles() {
-
-  //   if (this.uploadedFiles.length === 0) {
-  //     alert("No files selected");
-  //     return;
-  //   }
-
-  //   const formData = new FormData();
-
-  //   for (let item of this.uploadedFiles) {
-  //     formData.append('files', item.file);
-  //   }
-  //   const uploadUrl = environment.apiUrl + 'file/uploadgoogle/' + this.customerId + '/' + this.selectedVendor;
-  //   this.http.post(uploadUrl,
-  //     formData).subscribe({
-  //       next: (res) => {
-  //         console.log(res);
-  //         alert("Uploaded Successfully");
-  //       },
-  //       error: (err) => {
-  //         console.log(err);
-  //         alert("Upload Failed");
-  //       }
-  //     });
-  // }
-
-  // uploadAzureFiles() {
-
-  //   if (!this.uploadedFiles || this.uploadedFiles.length === 0) {
-  //     alert("Please select files");
-  //     return;
-  //   }
-
-  //   const formData = new FormData();
-
-  //   for (let i = 0; i < this.uploadedFiles.length; i++) {
-  //     formData.append('files', this.uploadedFiles[i].file);
-  //   }
-
-  //   const uploadAzureurl = environment.apiUrl + 'file/uploadAzure';
-
-  //   this.http.post<any>(uploadAzureurl, formData)
-  //     .subscribe({
-  //       next: (res) => {
-  //         console.log("Upload Success", res);
-  //       },
-  //       error: (err) => {
-  //         console.error("Upload Failed", err);
-  //       }
-  //     });
-  // }
-
-  isPdf: boolean = false;
+  onUploadClick(fileInput: any) {
+    if (!this.selectedVendor || this.selectedVendor.trim() === '') {
+      this.alertService.showToast('Please select a Supplier first', 3000, 'top');
+    } else {
+      fileInput.click();
+    }
+  }
 
   inspectFile(file: File, index: number) {
     this.selectFile(index);
@@ -687,7 +624,6 @@ export class DashboardComponent implements OnInit {
       }, 500);
 
     } else {
-      // No file selected
       this.verificationStatus = 'error';
       this.ErrorMessage = 'No file selected to verify.';
     }
@@ -725,12 +661,6 @@ export class DashboardComponent implements OnInit {
 
   showSuccessBadge = false;
 
-  // Open modal
-  // openConfirmModal() {
-  //   this.isConfirmModalOpen = true;
-  //   this.dispatching = false;
-  //   this.success = false;
-  // }
   openConfirmModal() {
     if (this.uploadedFiles.length === 0) return;
     this.isConfirmModalOpen = true;
@@ -768,7 +698,7 @@ export class DashboardComponent implements OnInit {
       this.dispatching = false;
     }
   }
-  // Send files via Email
+
   async sendMail(): Promise<void> {
     if (this.uploadedFiles.length === 0) {
       throw new Error("No files selected");
@@ -793,7 +723,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Upload files to Google Drive
   async GoogleuploadFiles(): Promise<void> {
     if (this.uploadedFiles.length === 0) {
       throw new Error("No files selected");
@@ -804,7 +733,7 @@ export class DashboardComponent implements OnInit {
       formData.append('files', item.file);
     }
 
-    const uploadUrl = `${environment.apiUrl}file/uploadgoogle/${this.customerId}/${this.selectedVendor}`;
+    const uploadUrl = `${environment.apiUrl}file/upload/${this.customerId}/${this.selectedVendor}`;
 
     return new Promise<void>((resolve, reject) => {
       this.http.post(uploadUrl, formData).subscribe({
@@ -819,7 +748,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Upload files to Azure
   async uploadAzureFiles(): Promise<void> {
     if (this.uploadedFiles.length === 0) {
       throw new Error("No files selected");
@@ -845,7 +773,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // Upload files to SQL (if applicable)
   async uploadSQLFiles(): Promise<void> {
     if (this.uploadedFiles.length === 0) {
       throw new Error("No files selected");

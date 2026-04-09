@@ -1,0 +1,9 @@
+ion-toolbar ion-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+ion-toolbar .toolbar-title {
+  text-align: center;
+}

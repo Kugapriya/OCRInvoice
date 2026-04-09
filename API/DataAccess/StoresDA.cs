@@ -22,7 +22,7 @@ namespace API
             SELECT s.StoreId, s.StoreName, s.CustomerId, s.DealerId, s.IsBlocked
             FROM Stores s
             INNER JOIN AssignedStores a ON a.StoreId = s.StoreId
-            WHERE a.Username = @Username AND s.IsBlocked = 0";
+            WHERE a.Username = @Username ";
 
                 await using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
@@ -46,24 +46,5 @@ namespace API
 
             return stores;
         }
-
-        // public DataRow GetUser(string username)
-        // {
-        //     using (SqlConnection conn = new SqlConnection(connectionString))
-        //     {
-        //         conn.Open();
-        //         using (SqlCommand cmd = new SqlCommand(
-        //             "SELECT Username, AccessLevel, IsSuperUser, CustomerId, DealerId FROM Users WHERE Username=@Username", conn))
-        //         {
-        //             cmd.Parameters.AddWithValue("@Username", username);
-        //             using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-        //             {
-        //                 DataTable dt = new DataTable();
-        //                 da.Fill(dt);
-        //                 return dt.Rows.Count > 0 ? dt.Rows[0] : null;
-        //             }
-        //         }
-        //     }
-        // }
     }
 }

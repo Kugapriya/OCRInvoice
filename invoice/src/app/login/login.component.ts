@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { IonicModule, LoadingController } from '@ionic/angular';
 import { RepositoryService } from '../core/services/repository.service';
 import { AuthService } from '../core/services/auth.service';
@@ -10,7 +10,7 @@ import { AlertService } from '../core/services/alert.service';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, RouterModule],
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -31,18 +31,6 @@ export class LoginComponent implements OnInit {
   }
   ngOnInit() { }
 
-  // login() {
-  //   this.authService.login(this.model).subscribe({
-  //     next: (res: any) => {
-  //       localStorage.setItem('user', JSON.stringify(res));
-  //       if (this.repository.loggedInUser) {
-  //         this.repository.loggedInUser.username = this.model.username;
-  //       }
-  //       this.router.navigate(['/site']);
-  //     },
-  //     error: (err) => console.error('Login failed', err)
-  //   });
-  // }
   login() {
     if (!this.model.username || this.model.username.trim() === '') {
       this.alertService.showErrorAlert('Error!!', 'Username is required');

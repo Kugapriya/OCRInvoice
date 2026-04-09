@@ -1,103 +1,9 @@
-// .is-invalid {
-//   border-bottom: 2px solid red;
-// }
-
-// .text-danger {
-//   color: red;
-//   margin-left: 10px;
-// }
-
-// .heading{
-//     font-size: 32px;
-//     font-weight: bold;
-//     padding-left: 20px;
-//     margin-top: 70px;
-//     margin-bottom: -60px;
-// }
-// .para{
-//     font-size: 22px;
-//     font-weight: 500;
-//     padding-left: 20px;
-//     margin-bottom: 70px;
-//     color: #A6ABB1;
-// }
-// .input-item{
-//     padding-left: 20px;
-//     width: 100%;
-//     border-radius: 12px;
-//     border: 2px solid #e2e2e2;
-//     height: 70px;
-//     ion-input{
-//         margin-top: -12px;
-//     }
-// }
-// .ion-item{
-//     margin-top: 20px;
-// }
-// .forget-text{
-//     a{
-//         text-decoration: none;
-//         color: black;
-//     }
-//     text-align: end;
-//     margin-bottom: -10px;
-//     padding-right: 20px;
-// }
-// .login-button{
-//     padding-left: 20px;
-//     padding-right: 20px;
-//     height: 50px;
-//     --border-radius: 12px;
-//     margin-top: 60px;
-//     --box-shadow: none;
-// }
-// .google-button{
-//     padding-left: 20px;
-//     padding-right: 20px;
-//     height: 50px;
-//     --border-radius: 12px;
-//     margin-top: 20px;
-//     margin-bottom: 40px;
-//     --box-shadow: none;
-// }
-// .signup-text{
-//     a{
-//         text-decoration: none;
-//         color: var(--ion-color-primary);
-//     }
-//     padding-right: 20px;
-//     text-align: end;
-// }
-// ion-footer {
-//     display: block;
-//     // position: relative;
-//     -ms-flex-order: 1;
-//     order: 1;
-//     width: 100%;
-//     z-index: 10;
-// }
-// .copyright{
-//     text-align: center;
-// }   
-/* Full page gradient background and center card */
-/* Full page background and center wrapper */
-/* Full page background and center card */
-/* Full page gradient background */
-/* Full screen background and flex centering */
-/* Remove default ion-content padding and center everything */
-/* Full screen background and center card */
-/* Full page background and center card */
-/* Full page background and center card */
-/* Full page background and center card */
-/* Full page background and center card */
 .login-content {
     --background: none !important;
-    /* remove default white */
     --padding: 0;
     height: 100vh;
     background: linear-gradient(135deg,#2a5298, #c7d0e0);
     position: relative;
-    /* important */
 }
 
 .login-wrapper {
@@ -158,34 +64,46 @@
     box-shadow: none !important;
 }
 
-/* Remove ion-item default highlight */
 ion-item.input-item {
     --highlight-color-focused: transparent !important;
     --ripple-color: transparent !important;
 }
 
-/* Button */
+
 .login-btn {
     margin-top: 10px;
     --background: #2575fc;
     --color: #ffffff;
     border-radius: 8px;
 }
-/* Remove ion-item background completely */
+
 ion-item.input-item {
-  --background: transparent !important;   /* removes black background */
+  --background: transparent !important;   
   background: transparent !important;
   --highlight-color-focused: transparent !important;
   --ripple-color: transparent !important;
 }
 
-/* Force label color to white (no blue) */
 ion-label.label-colored {
-  color: #ffffff !important;   /* force white */
+  color: #ffffff !important;  
 }
 
-/* Also fix stacked label internally */
 ion-item.input-item ion-label {
   color: #ffffff !important;
   background: transparent !important;
+}
+
+.forgot-password-link {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.link-btn {
+  --color: #e0e0ff;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.link-btn:hover {
+  --color: #ffffff;
 }

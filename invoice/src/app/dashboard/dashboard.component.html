@@ -18,6 +18,12 @@
             <span>{{ ukDay }}</span> |
             <span>{{ ukTime }} GMT</span>
           </div>
+
+          <div class="time-info">
+            <span>{{this.repository.selectedStore?.storeId}}</span> |
+            <span>{{this.repository.selectedStore?.storeName}}</span>
+          </div>
+
         </div>
       </div>
 
@@ -48,7 +54,7 @@
 
       <ion-item>
         <ion-label>Supplier Name</ion-label>
-        <ion-select [(ngModel)]="selectedVendor" interface="popover" size="small" (click)="$event.stopPropagation()">
+        <!-- <ion-select [(ngModel)]="selectedVendor" interface="popover" size="small" (click)="$event.stopPropagation()">
 
           <ion-select-option value="BOOKER">
             BOOKER
@@ -58,6 +64,10 @@
             NISA
           </ion-select-option>
 
+        </ion-select> -->
+        <ion-select [(ngModel)]="selectedVendor" interface="popover" placeholder="Select Supplier" size="small">
+          <ion-select-option value="BOOKER">BOOKER</ion-select-option>
+          <ion-select-option value="NISA">NISA</ion-select-option>
         </ion-select>
       </ion-item>
 
@@ -82,7 +92,11 @@
           <ion-col size="6">
             <input type="file" multiple accept="image/*,application/pdf" (change)="uploadFromDrive($event)" hidden
               #fileInput>
-            <ion-button expand="block" class="upload-btn" (click)="fileInput.click()">
+            <!-- <ion-button expand="block" class="upload-btn" (click)="fileInput.click()">
+              <ion-icon name="cloud-upload" slot="start"></ion-icon>
+              Upload
+            </ion-button> -->
+            <ion-button expand="block" class="upload-btn" (click)="onUploadClick(fileInput)">
               <ion-icon name="cloud-upload" slot="start"></ion-icon>
               Upload
             </ion-button>
@@ -191,7 +205,7 @@
       </div>
     </ion-card-header>
 
-    <div class="action-row">
+    <!-- <div class="action-row">
       <ion-button class="process-all-btn">
         <ion-icon name="play-circle-outline" slot="start"></ion-icon>
         Process All
@@ -201,7 +215,7 @@
         <ion-icon name="refresh-outline"></ion-icon>
       </ion-button>
 
-    </div>
+    </div> -->
 
     <ion-card-content class="command-content">
       <ion-card class="inner-list-card">
@@ -219,28 +233,28 @@
                 {{ file.name }}
               </div>
               <div class="badge-row">
-                <ion-badge [color]="
+                <!-- <ion-badge [color]="
                       file.status === 'PENDING' ? 'warning' :
                       file.status === 'PROCESSING' ? 'medium' :
                       file.status === 'COMPLETED' ? 'success' :
                       'danger'
   ">
                   {{ file.status }}
-                </ion-badge>
+                </ion-badge> -->
                 <ion-badge color="primary">
                   {{ file.invoiceType }}
                 </ion-badge>
               </div>
               <div class="file-actions">
 
-                <ion-button size="small" fill="clear" [color]="file.status === 'PROCESSING' ? 'medium' : 'success'"
+                <!-- <ion-button size="small" fill="clear" [color]="file.status === 'PROCESSING' ? 'medium' : 'success'"
                   (click)="processFile(file.file, i); $event.stopPropagation()"
                   [disabled]="file.status === 'PROCESSING' || file.status === 'COMPLETED'">
 
                   <ion-spinner *ngIf="file.status === 'PROCESSING'" name="dots"></ion-spinner>
 
                   <ion-icon *ngIf="file.status !== 'PROCESSING'" name="play-outline"></ion-icon>
-                </ion-button>
+                </ion-button> -->
 
                 <ion-button size="small" fill="clear" color="primary"
                   (click)="inspectFile(file.file, i); $event.stopPropagation()">
@@ -292,9 +306,9 @@
     </div> -->
     <div class="transmit-section" *ngIf="selectedTarget">
 
-      <ion-badge class="dashboard-success-badge" *ngIf="showSuccessBadge">
+      <!-- <ion-badge class="dashboard-success-badge" *ngIf="showSuccessBadge">
         Successfully sent to {{ selectedTarget | titlecase }}
-      </ion-badge>
+      </ion-badge> -->
 
       <ion-badge class="transmit-badge" [class.disabled]="uploadedFiles.length === 0" (click)="openConfirmModal()"
         style="cursor:pointer">

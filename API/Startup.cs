@@ -33,7 +33,9 @@ namespace API
 
             services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions => sqlOptions.EnableRetryOnFailure()
+                    //want to check
                 ));
 
             services.Configure<GoogleDriveSettings>(
@@ -45,16 +47,16 @@ namespace API
                 options.AddPolicy("AllowAll", builder =>
                 {
                     builder
-                        .AllowAnyOrigin()    
-                        .AllowAnyMethod()    
-                        .AllowAnyHeader();  
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
                 });
             });
 
             services.AddScoped<CustomerRepository>();
-            services.AddScoped<OneDriveRepository>();
             services.AddScoped<UploadRepository>();
             services.AddScoped<StoreRepository>();
+            services.AddScoped<AuthRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

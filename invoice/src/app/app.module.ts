@@ -16,6 +16,9 @@ import { AuthGuard } from './core/_guards/auth.guard';
 import { AuthUserResolver } from './_resolvers/auth-user.resolver';
 import { AuthService } from './core/services/auth.service';
 import { RepositoryService } from './core/services/repository.service';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { FormsModule } from '@angular/forms';
 
 
 export function tokenGetter() {
@@ -32,12 +35,15 @@ export function tokenGetter() {
 
 @NgModule({
   declarations: [AppComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
     // StoresComponent
   ],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule,
     HttpClientModule,
     CoreModule,
     SharedModule,
+    FormsModule,
     JwtModule.forRoot({
       config: {
         tokenGetter,

@@ -1,3 +1,30 @@
-<p>
-  base works!
-</p>
+<ion-app>
+  <ion-menu side="start" menuId="site-menu" contentId="site-content" type="overlay">
+    <ion-header>
+      <ion-toolbar class="menu">
+        <ion-title>Menu</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <ion-list>
+        <ion-item button *ngFor="let item of menuItems" (click)="navigateTo(item.url)">
+          <ion-icon [name]="item.icon" slot="start"></ion-icon>
+          <ion-label>{{ item.title }}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button menu="site-menu"></ion-menu-button>
+      </ion-buttons>
+      <ion-title>{{ repository.selectedStore ? (repository.selectedStore.storeId + ' | ' +
+        repository.selectedStore.storeName) : '' }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-router-outlet id="site-content"></ion-router-outlet>
+</ion-app>

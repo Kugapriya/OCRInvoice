@@ -21,6 +21,7 @@ export class RepositoryService {
   selectedStore?: Store;
   selectedStoreId?: string;
   previousUser?: User;
+  customerId?: string;
 
   getStores(username: string): Observable<Store[]> {
     return this.http.get<Store[]>(this.baseUrl + 'stores/getStores/' + username);

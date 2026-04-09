@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { Store } from '../_model/store';
-import { Customer } from '../_model/customer';
 
 @Component({
   standalone: true,
@@ -52,64 +51,27 @@ export class StoresComponent implements OnInit {
     );
   }
 
-  setStore(store: Store) {
-    const selSite = this.repository.selectedStore;
-    this.repository.setStore(store);
-
-    if (selSite && selSite.storeId !== store.storeId) {
-      // localStorage.clear();
-
-      this.router.navigate(['/site/dashboard']).then(() => {
-        location.reload();
-      });
-    } else {
-      this.router.navigate(['/site/dashboard']);
-    }
-  }
-
   // setStore(store: Store) {
   //   const selSite = this.repository.selectedStore;
-
   //   this.repository.setStore(store);
-  //   this.repository.getCustomerByStore(this.repository.loggedInUser!.username, store.storeId!).subscribe((res: Customer) => {
-  //       localStorage.setItem('cust', JSON.stringify(res));
-  //       if (selSite && selSite.storeId !== store.storeId) {
-  //         this.router.navigate(['/site/dashboard']).then(() => {
-  //           location.reload();
-  //         });
-  //       } else {
-  //         this.router.navigate(['/site/dashboard']);
-  //       }
-  //     }, error => {
-  //       console.error(error);
+
+  //   if (selSite && selSite.storeId !== store.storeId) {
+  //     // localStorage.clear();
+
+  //     this.router.navigate(['/site/dashboard']).then(() => {
+  //       location.reload();
   //     });
-  // }
-  // setStore(store: Store) {
-  //   const selSite = this.repository.selectedStore;
-  //   this.repository.setStore(store);
-
-  //   const username = this.repository.loggedInUser?.username;
-
-  //   if (!username || !store.storeId) {
-  //     console.error('Missing username or storeId');
-  //     return;
+  //   } else {
+  //     this.router.navigate(['/site/dashboard']);
   //   }
-
-  //   this.repository.getCustomerByStore(username, store.storeId).subscribe((res: Customer | null) => {
-  //       if (!res) {
-  //         console.log('Customer not found for selected store');
-  //         return;
-  //       }
-
-  //       localStorage.setItem('cust', JSON.stringify(res));
-  //       if (selSite && selSite.storeId !== store.storeId) {
-  //         this.router.navigate(['/site/dashboard']);
-  //       } else {
-  //         this.router.navigate(['/site/dashboard']);
-  //       }
-
-  //     }, error => {
-  //       console.error(error);
-  //     });
   // }
+
+  setStore(store: Store) {
+    this.repository.selectedStore = store;
+
+    this.repository.customerId = store.customerId;
+    localStorage.setItem('selectedStore', JSON.stringify(store));
+    localStorage.setItem('cust', JSON.stringify({ customerId: store.customerId }));
+    this.router.navigate(['/site/dashboard']);
+  }
 }
