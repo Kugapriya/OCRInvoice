@@ -1,4 +1,4 @@
-import { NgModule, isDevMode } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
@@ -8,7 +8,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
@@ -19,6 +19,7 @@ import { RepositoryService } from './core/services/repository.service';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { FormsModule } from '@angular/forms';
+import { LoaderInterceptor } from './core/interceptors/loader-interceptor.service';
 
 
 export function tokenGetter() {
@@ -63,7 +64,12 @@ export function tokenGetter() {
     AuthService,
     RepositoryService,
     AuthUserResolver,
-    AuthGuard
+    AuthGuard,
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: LoaderInterceptor,
+    multi: true
+  }
   ],
   bootstrap: [AppComponent],
 })
