@@ -1,4 +1,4 @@
-<ion-app>
+<!-- <ion-app>
   <ion-menu side="start" menuId="home-menu" contentId="main-content" type="overlay">
     <ion-header>
       <ion-toolbar class="menu">
@@ -17,4 +17,42 @@
   </ion-menu>
 
   <ion-router-outlet id="main-content"></ion-router-outlet>
-</ion-app>
+</ion-app> -->
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Home</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="card-grid">
+
+    <ion-card
+      *ngFor="let item of menuItems"
+      (click)="navigateTo(item.url)"
+      class="menu-card"
+      button
+      [ngStyle]="{
+        'background': item.bgColor,
+        'border': '2px solid ' + item.borderColor
+      }"
+    >
+
+      <ion-card-content class="card-content">
+
+        <ion-icon
+          [name]="item.icon"
+          class="card-icon"
+          [ngStyle]="{ color: '#fff' }"
+        ></ion-icon>
+
+        <h2>{{ item.title }}</h2>
+
+      </ion-card-content>
+
+    </ion-card>
+
+  </div>
+
+</ion-content>

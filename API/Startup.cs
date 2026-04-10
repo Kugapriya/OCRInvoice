@@ -37,9 +37,6 @@ namespace API
                     sqlOptions => sqlOptions.EnableRetryOnFailure()
                     //want to check
                 ));
-
-            services.Configure<GoogleDriveSettings>(
-                Configuration.GetSection("GoogleDrive"));
             //remove the comment
             //services.AddCors();
             services.AddCors(options =>
