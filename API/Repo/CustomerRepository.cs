@@ -26,67 +26,128 @@ namespace API.Repo
             CustomerDA ob = new CustomerDA(connectionString);
             return await ob.GetEmailList();
         }
-        public async Task<bool> SendZipMail(List<IFormFile> files, string mailTo, string customerId, string supplierName)
+        // public async Task<bool> SendZipMail(List<IFormFile> files, string mailTo, string customerId, string supplierName)
+        // {
+        //     UploadDA ob = new UploadDA(connectionString);
+        //     if (files == null || files.Count == 0)
+        //         return false;
+
+        //     EmailSetup? emailSetup = await GetEmailSetup();
+        //     if (emailSetup == null)
+        //     {
+        //         return false;
+        //     }
+
+        //     using (var memoryStream = new MemoryStream())
+        //     {
+        //         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+        //         {
+        //             foreach (var file in files)
+        //             {
+        //                 var entry = archive.CreateEntry(file.FileName);
+        //                 using (var entryStream = entry.Open())
+        //                 using (var fileStream = file.OpenReadStream())
+        //                 {
+        //                     await fileStream.CopyToAsync(entryStream);
+        //                 }
+        //             }
+        //         }
+
+        //         memoryStream.Position = 0;
+
+        //         try
+        //         {
+        //             using (var mail = new MailMessage())
+        //             {
+        //                 mail.From = new MailAddress(emailSetup.Username);
+        //                 mail.To.Add(mailTo);
+        //                 mail.Subject = "Invoices ZIP Folder";
+        //                 mail.Body = "Please find attached invoices.";
+
+        //                 var attachment = new Attachment(memoryStream, "Invoices.zip", "application/zip");
+        //                 mail.Attachments.Add(attachment);
+
+        //                 using (var smtp = new SmtpClient(emailSetup.SmtpServer))
+        //                 {
+        //                     smtp.Port = emailSetup.Port;
+        //                     smtp.Credentials = new NetworkCredential(emailSetup.Username, emailSetup.Password);
+        //                     smtp.EnableSsl = emailSetup.EnableSsl;
+
+        //                     await smtp.SendMailAsync(mail);
+        //                 }
+        //             }
+
+        //             // foreach (var file in files)
+        //             // {
+        //             //     await ob.InsertUploadRecordAsync(customerId, supplierName, file.FileName, "", "EMAIL");
+        //             // }
+
+        //             return true;
+        //         }
+        //         catch
+        //         {
+        //             return false;
+        //         }
+        //     }
+        // }
+        public async Task<bool> SendZipMail(List<IFormFile> files, string mailTo)
         {
-            UploadDA ob = new UploadDA(connectionString);
             if (files == null || files.Count == 0)
                 return false;
 
             EmailSetup? emailSetup = await GetEmailSetup();
             if (emailSetup == null)
+                return false;
+
+            var zipPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.zip");
+
+            try
             {
+                using (var zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+                {
+                    foreach (var file in files)
+                    {
+                        var entry = zip.CreateEntry(file.FileName, CompressionLevel.Fastest);
+
+                        using var entryStream = entry.Open();
+                        using var fileStream = file.OpenReadStream();
+
+                        await fileStream.CopyToAsync(entryStream);
+                    }
+                }
+                using var mail = new MailMessage();
+                mail.From = new MailAddress(emailSetup.Username);
+                mail.To.Add(mailTo);
+                mail.Subject = "Invoices ZIP Folder";
+                mail.Body = "Please find attached invoices.";
+
+                using (var zipStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read))
+                {
+                    var attachment = new Attachment(zipStream, "Invoices.zip", "application/zip");
+                    mail.Attachments.Add(attachment);
+
+                    using var smtp = new SmtpClient(emailSetup.SmtpServer)
+                    {
+                        Port = emailSetup.Port,
+                        Credentials = new NetworkCredential(emailSetup.Username, emailSetup.Password),
+                        EnableSsl = emailSetup.EnableSsl
+                    };
+
+                    await smtp.SendMailAsync(mail);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EMAIL ERROR: " + ex.Message);
                 return false;
             }
-
-            using (var memoryStream = new MemoryStream())
+            finally
             {
-                using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                if (File.Exists(zipPath))
                 {
-                    foreach (var file in files)
-                    {
-                        var entry = archive.CreateEntry(file.FileName);
-                        using (var entryStream = entry.Open())
-                        using (var fileStream = file.OpenReadStream())
-                        {
-                            await fileStream.CopyToAsync(entryStream);
-                        }
-                    }
-                }
-
-                memoryStream.Position = 0;
-
-                try
-                {
-                    using (var mail = new MailMessage())
-                    {
-                        mail.From = new MailAddress(emailSetup.Username);
-                        mail.To.Add(mailTo);
-                        mail.Subject = "Invoices ZIP Folder";
-                        mail.Body = "Please find attached invoices.";
-
-                        var attachment = new Attachment(memoryStream, "Invoices.zip", "application/zip");
-                        mail.Attachments.Add(attachment);
-
-                        using (var smtp = new SmtpClient(emailSetup.SmtpServer))
-                        {
-                            smtp.Port = emailSetup.Port;
-                            smtp.Credentials = new NetworkCredential(emailSetup.Username, emailSetup.Password);
-                            smtp.EnableSsl = emailSetup.EnableSsl;
-
-                            await smtp.SendMailAsync(mail);
-                        }
-                    }
-
-                    foreach (var file in files)
-                    {
-                        await ob.InsertUploadRecordAsync(customerId, supplierName, file.FileName, "", "EMAIL");
-                    }
-
-                    return true;
-                }
-                catch
-                {
-                    return false;
+                    File.Delete(zipPath);
                 }
             }
         }

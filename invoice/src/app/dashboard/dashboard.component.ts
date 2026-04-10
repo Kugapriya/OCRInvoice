@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { AlertController, IonicModule } from '@ionic/angular';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
@@ -71,7 +71,7 @@ export class DashboardComponent implements OnInit {
   isPdf: boolean = false;
 
   constructor(private http: HttpClient, private router: Router,
-    private zone: NgZone, private alertService: AlertService, public repository: RepositoryService
+    private zone: NgZone, private alertService: AlertService, public repository: RepositoryService, private alertCtrl: AlertController
   ) { }
 
   ngOnInit() {
@@ -88,7 +88,7 @@ export class DashboardComponent implements OnInit {
       //   this.storeId = user.storeId ?? '';
       //   this.name = user.name ?? '';
       //   this.azureUrl = user.azureUrl ?? '';
-      //   this.email = user.email ?? '';
+      this.email = user.email ?? '';
       //   this.googleUrl = user.googleUrl ?? '';
       this.role = user.role ?? '';
     }
@@ -504,14 +504,23 @@ export class DashboardComponent implements OnInit {
 
     this.fileName = uploaded.name;
 
-    this.selectedFileUrl = uploaded.url;
+    // this.selectedFileUrl = uploaded.url;
+    this.selectedFileUrl = uploaded.url || URL.createObjectURL(uploaded.file);
+    const type = uploaded.file?.type || '';
 
-    if (uploaded.file?.type === 'application/pdf') {
+    // PDF check (safe)
+    if (type === 'application/pdf') {
       this.isPdf = true;
       this.isImage = false;
-    } else {
+    }
+    // Image check (safe for jpg/jpeg/png)
+    else if (type.startsWith('image/')) {
       this.isPdf = false;
       this.isImage = true;
+    }
+    else {
+      this.isPdf = false;
+      this.isImage = false;
     }
 
     this.zoomLevel = 1;
@@ -523,7 +532,7 @@ export class DashboardComponent implements OnInit {
     }, 100);
   }
 
-  transmit() {
+  async transmit(): Promise<void> {
     if (!this.selectedTarget) {
       alert('Please select a target');
       return;
@@ -531,19 +540,16 @@ export class DashboardComponent implements OnInit {
     switch (this.selectedTarget) {
 
       case 'email':
-        this.sendMail();
-        break;
+        return await this.sendMail();
 
       case 'upload':
-        this.GoogleuploadFiles();
-        break;
+        return await this.GoogleuploadFiles();
 
       case 'azure':
-        this.uploadAzureFiles();
-        break;
+        return await this.uploadAzureFiles();
 
       default:
-        alert('Invalid target');
+        throw new Error('Invalid target');
     }
   }
   goToHome() {
@@ -675,33 +681,43 @@ export class DashboardComponent implements OnInit {
     if (this.uploadedFiles.length === 0) return;
 
     this.dispatching = true;
-    this.showSuccessBadge = false;
+    // this.showSuccessBadge = false;
 
     try {
       await this.transmit();
 
-      this.uploadedFiles.forEach(f => f.status = 'COMPLETED');
+      // this.uploadedFiles.forEach(f => f.status = 'COMPLETED');
 
-      this.showSuccessBadge = true;
+      // this.showSuccessBadge = false;
+      // this.isConfirmModalOpen = false;
 
-      this.isConfirmModalOpen = false;
-
-      setTimeout(() => {
-        this.showSuccessBadge = false;
-        this.dispatching = false;
-      }, 5000);
+      // setTimeout(() => {
+      //   this.showSuccessBadge = false;
+      //   this.dispatching = false;
+      // }, 5000);
+      this.alertService.showSuccessToast("Transmission successful");
+      // this.isConfirmModalOpen = true;
 
     } catch (err: any) {
-      console.error('Transmit failed:', err);
-      alert('Transmit failed: ' + (err.message || err));
+      this.alertService.showErrorToast(err.message || "Transmission failed");
     } finally {
       this.dispatching = false;
+      this.isConfirmModalOpen = false;
     }
   }
 
   async sendMail(): Promise<void> {
     if (this.uploadedFiles.length === 0) {
-      throw new Error("No files selected");
+      this.alertService.showErrorAlert("Error", "No files selected");
+      return;
+    }
+    if (!this.customerId) {
+      this.alertService.showErrorToast("Customer ID is required");
+      return;
+    }
+    if (!this.email) {
+      this.alertService.showErrorToast("Email is required");
+      return;
     }
 
     const formData = new FormData();
@@ -709,23 +725,33 @@ export class DashboardComponent implements OnInit {
       formData.append('files', item.file);
     }
 
-    const sendUrl = `${environment.apiUrl}File/sendzip/${this.email}/${this.customerId}/${this.selectedVendor}`;
+    const sendUrl = `${environment.apiUrl}File/sendzip/${this.email}`;
 
     return new Promise<void>((resolve, reject) => {
-      this.http.post(sendUrl, formData).subscribe({
-        next: () => {
-          resolve();
+
+      this.http.post<any>(sendUrl, formData).subscribe({
+
+        next: (res: any) => {
+          if (res?.success === true) {
+            resolve();
+          } else {
+            reject(new Error(res?.message || "Mail sending failed"));
+          }
         },
         error: (err) => {
-          reject(err);
+          reject(new Error(err?.message || "Server error"));
         }
       });
     });
   }
-
   async GoogleuploadFiles(): Promise<void> {
     if (this.uploadedFiles.length === 0) {
-      throw new Error("No files selected");
+      alert("No files selected");
+      return;
+    }
+    if (!this.customerId) {
+      this.alertService.showErrorToast("Customer ID is required");
+      return;
     }
 
     const formData = new FormData();
@@ -736,18 +762,23 @@ export class DashboardComponent implements OnInit {
     const uploadUrl = `${environment.apiUrl}file/upload/${this.customerId}/${this.selectedVendor}`;
 
     return new Promise<void>((resolve, reject) => {
-      this.http.post(uploadUrl, formData).subscribe({
-        next: (res) => {
-          resolve(); // resolve promise on success
-        },
-        error: (err) => {
-          console.error(err);
-          reject(err); // reject promise on error
-        }
+      this.http.post<any>(uploadUrl, formData).subscribe({
+        next: (res) => resolve(),
+        error: (err) => reject(err)
       });
     });
   }
 
+  async showAlert(message: string, header: string) {
+    this.alertCtrl.create({
+      header: header,
+      message: message,
+      cssClass: 'center-alert',
+      buttons: ['OK']
+    }).then(alert => {
+      alert.present();
+    });
+  }
   async uploadAzureFiles(): Promise<void> {
     if (this.uploadedFiles.length === 0) {
       throw new Error("No files selected");

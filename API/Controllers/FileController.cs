@@ -47,12 +47,46 @@ public class FileController : ControllerBase
         return Ok(new { message = "Invoice folder created & zipped", zipPath });
     }
 
-    [HttpPost("sendzip/{mailTo}/{CustomerId}/{SupplierName}")]
-    public async Task<IActionResult> SendZip(List<IFormFile> files, string mailTo, string CustomerId, string SupplierName)
-    {
-        var result = await _repo.SendZipMail(files, mailTo, CustomerId, SupplierName);
+    // [HttpPost("sendzip/{mailTo}/{CustomerId}/{SupplierName}")]
+    // public async Task<IActionResult> SendZip([FromForm] List<IFormFile> files, string mailTo, string CustomerId, string SupplierName)
+    // {
+    //     try
+    //     {
+    //         if (files == null || files.Count == 0)
+    //             return BadRequest(new { success = false, message = "No files received" });
 
-        return Ok(new { success = result });
+    //         var result = await _repo.SendZipMail(files, mailTo, CustomerId, SupplierName);
+
+    //         if (!result)
+    //             return BadRequest(new { success = false, message = "Mail sending failed" });
+
+    //         return Ok(new { success = true, message = "Mail sent successfully" });
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         return StatusCode(500, new { success = false, message = ex.Message });
+    //     }
+    // }
+
+    [HttpPost("sendzip/{mailTo}")]
+    public async Task<IActionResult> SendZip([FromForm] List<IFormFile> files, string mailTo)
+    {
+        try
+        {
+            if (files == null || files.Count == 0)
+                return BadRequest(new { success = false, message = "No files received" });
+
+            var result = await _repo.SendZipMail(files, mailTo);
+
+            if (!result)
+                return BadRequest(new { success = false, message = "Mail sending failed" });
+
+            return Ok(new { success = true, message = "Mail sent successfully" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
     }
 
     [HttpPost("upload/{customerId}/{supplierName}")]
