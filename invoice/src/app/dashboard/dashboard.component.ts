@@ -93,7 +93,9 @@ export class DashboardComponent implements OnInit {
       this.role = user.role ?? '';
     }
     // localStorage.removeItem('cust')
-    this.customerId = this.repository.customerId ?? '';
+    // this.customerId = this.repository.customerId ?? '';
+    const cutom = localStorage.getItem('cust') ?? '';
+    this.customerId = cutom ? JSON.parse(cutom).customerId : '';
     this.updateUKTime();
     setInterval(() => this.updateUKTime(), 1000);
   }

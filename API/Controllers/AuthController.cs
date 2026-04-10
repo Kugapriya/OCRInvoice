@@ -124,7 +124,11 @@ namespace API.Controllers
             {
                 return BadRequest(new { success = false, message = "Passwords do not match" });
             }
-
+            
+            if (string.IsNullOrWhiteSpace(dto.NewPassword) ||  dto.NewPassword.Length < 6)
+            {
+                return BadRequest(new { success = false, message = "Password must be at least 6 digits" });
+            }
             if (string.IsNullOrEmpty(dto.Token))
             {
                 return BadRequest(new { success = false, message = "Invalid token" });
