@@ -20,5 +20,8 @@ namespace API.Models
         public string? ProcessType { get; set; }
         public DateTime UploadedTime { get; set; }
         public bool IsProcess { get; set; }
+        public int HeaderId { get; set; }
+        public int LineIdStart { get; set; }
+        public int LineIdEnd { get; set; }
     }
 }

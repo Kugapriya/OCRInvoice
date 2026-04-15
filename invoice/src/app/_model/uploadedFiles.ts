@@ -8,5 +8,8 @@ export class UploadedFiles {
         public processType?: string,
         public uploadedTime: string = '',
         public isProcess: boolean = false,
+        public headerId: number = 0,
+        public lineIdStart: number = 0,
+        public lineIdEnd: number = 0
     ) { }
 }

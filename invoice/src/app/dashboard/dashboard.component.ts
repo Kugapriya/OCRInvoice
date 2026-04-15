@@ -92,10 +92,16 @@ export class DashboardComponent implements OnInit {
       //   this.googleUrl = user.googleUrl ?? '';
       this.role = user.role ?? '';
     }
-    // localStorage.removeItem('cust')
-    // this.customerId = this.repository.customerId ?? '';
-    const cutom = localStorage.getItem('cust') ?? '';
-    this.customerId = cutom ? JSON.parse(cutom).customerId : '';
+    
+    // Get customerId from repository (which loads from localStorage if set)
+    this.customerId = this.repository.customerId ?? '';
+    
+    // Fallback to localStorage if not in repository
+    if (!this.customerId) {
+      const cutom = localStorage.getItem('cust') ?? '';
+      this.customerId = cutom ? JSON.parse(cutom).customerId : '';
+    }
+    
     this.updateUKTime();
     setInterval(() => this.updateUKTime(), 1000);
   }

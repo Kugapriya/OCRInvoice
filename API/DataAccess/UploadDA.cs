@@ -40,9 +40,9 @@ namespace API
             var files = new List<UploadedFiles>();
 
             const string sql = @"
-                    SELECT Id, CustomerId, SupplierName, FileName, FilePath, 
-                        ProcessType, UploadedTime, IsProcess
-                    FROM UploadedFiles
+                    SELECT  [Id],[CustomerId],[SupplierName],[FileName],[FilePath],[ProcessType]
+                    ,[UploadedTime],[IsProcess],[HeaderId],[LineIdStart],[LineIdEnd]
+                    FROM [DocmateTest].[dbo].[UploadedFiles]
                     WHERE CustomerId = @customerId
                     ORDER BY UploadedTime DESC; ";
 
@@ -66,7 +66,10 @@ namespace API
                     FilePath = reader.IsDBNull(4) ? null : reader.GetString(4),
                     ProcessType = reader.IsDBNull(5) ? null : reader.GetString(5),
                     UploadedTime = reader.GetDateTime(6),
-                    IsProcess = reader.GetBoolean(7)
+                    IsProcess = reader.GetBoolean(7),
+                    HeaderId = reader.IsDBNull(8) ? 0 : reader.GetInt32(8),
+                    LineIdStart = reader.IsDBNull(9) ? 0 : reader.GetInt32(9),
+                    LineIdEnd = reader.IsDBNull(10) ? 0 : reader.GetInt32(10)
                 });
             }
             return files;

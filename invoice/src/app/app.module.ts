@@ -20,6 +20,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { FormsModule } from '@angular/forms';
 import { LoaderInterceptor } from './core/interceptors/loader-interceptor.service';
+import { FeaturesModule } from './features/features.module';
 
 
 export function tokenGetter() {
@@ -45,6 +46,7 @@ export function tokenGetter() {
     CoreModule,
     SharedModule,
     FormsModule,
+    FeaturesModule,
     JwtModule.forRoot({
       config: {
         tokenGetter,

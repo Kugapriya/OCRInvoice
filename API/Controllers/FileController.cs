@@ -1,5 +1,6 @@
 using API.Models;
 using API.Repo;
+using API.Dtos;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
@@ -108,14 +109,22 @@ public class FileController : ControllerBase
         return await _upload.GetFilesByCustomerAndSupplierAsync(customerId);
     }
 
+    [HttpGet("getuploadedFileDetails/{customerId}")]
+    public async Task<ActionResult<List<InvoiceFileDetailDto>>> GetUploadedFileDetails(string customerId)
+    {
+        var details = await _upload.GetUploadedFileDetailsAsync(customerId);
+        return Ok(details);
+    }
+
     [HttpGet("download/{customerId}/{supplier}/{fileName}")]
     public IActionResult DownloadFile(string customerId, string supplier, string fileName)
     {
-        var basePath = @"E:\Invoice";
+        var basePath = Path.GetFullPath(@"E:\Invoice");
+        var basePathWithSeparator = basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
 
-        var filePath = Path.Combine(basePath, customerId, supplier, fileName);
+        var filePath = Path.GetFullPath(Path.Combine(basePath, customerId, supplier, fileName));
 
-        if (!filePath.StartsWith(basePath))
+        if (!filePath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase))
             return BadRequest("Invalid path");
 
         if (!System.IO.File.Exists(filePath))
@@ -129,5 +138,49 @@ public class FileController : ControllerBase
 
         var bytes = System.IO.File.ReadAllBytes(filePath);
         return File(bytes, mimeType, fileName);
+    }
+
+    [HttpGet("preview/{customerId}/{supplier}/{fileName}")]
+    public IActionResult PreviewFile(string customerId, string supplier, string fileName)
+    {
+        var basePath = Path.GetFullPath(@"E:\Invoice");
+        var basePathWithSeparator = basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+        var filePath = Path.GetFullPath(Path.Combine(basePath, customerId, supplier, fileName));
+
+        if (!filePath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase))
+            return BadRequest("Invalid path");
+
+        if (!System.IO.File.Exists(filePath))
+            return NotFound("File not found");
+
+        var mimeType = "application/octet-stream";
+        if (fileName.EndsWith(".pdf"))
+            mimeType = "application/pdf";
+        else if (fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png"))
+            mimeType = "image/jpeg";
+
+        var bytes = System.IO.File.ReadAllBytes(filePath);
+        return File(bytes, mimeType);
+    }
+
+    [HttpPut("updateLineBarcode/{lineId}")]
+    public async Task<IActionResult> UpdateLineBarcode(int lineId, [FromBody] dynamic? request)
+    {
+        try
+        {
+            string? barcode = request?.barcode;
+
+            var success = await _upload.UpdateLineBarcodeAsync(lineId, barcode);
+
+            if (!success)
+                return NotFound(new { success = false, message = "Line not found." });
+
+            return Ok(new { success = true, message = "Barcode updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
     }
 }

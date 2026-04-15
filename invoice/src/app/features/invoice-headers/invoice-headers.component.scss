@@ -1,0 +1,259 @@
+.invoice-page {
+    --background: #ffffff;
+    color: #1f2937;
+}
+
+.page-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 2rem;
+}
+
+.page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.page-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.72rem;
+    color: #4f46e5;
+    margin: 0 0 0.4rem;
+}
+
+.page-head h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+}
+
+.subhead {
+    margin: 0.45rem 0 0;
+    max-width: 56rem;
+    color: #6b7280;
+}
+
+.state-card {
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    border-radius: 16px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.state-card.error {
+    border-color: #fecaca;
+    color: #b91c1c;
+}
+
+.accordion-body {
+    padding: 1rem;
+    display: grid;
+    gap: 1rem;
+    background: #ffffff;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.meta-grid div {
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 14px;
+    padding: 0.9rem;
+}
+
+.meta-grid span {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6b7280;
+    margin-bottom: 0.4rem;
+}
+
+.meta-grid strong {
+    font-size: 0.96rem;
+}
+
+.table-section {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: auto;
+}
+
+.table-scroll {
+    overflow: auto;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+.data-table th,
+.data-table td {
+    padding: 0.8rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.data-table th {
+    position: sticky;
+    top: 0;
+    background: #35415c;
+    color: #ffffff;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.data-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.empty-state {
+    padding: 1rem;
+    border-radius: 14px;
+    border: 1px dashed #cbd5e1;
+    color: #6b7280;
+}
+
+@media (max-width: 900px) {
+    .page-head {
+        flex-direction: column;
+    }
+
+    .meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .accordion-body {
+        padding: 0.75rem;
+    }
+}
+
+.barcode-display {
+    cursor: pointer;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    display: inline-block;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    transition: 0.2s ease;
+}
+
+.barcode-display:hover {
+    background: #e0e0e0;
+    border-color: #999;
+}
+
+.barcode-input {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #35415c;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    width: 120px;
+    margin-right: 0.3rem;
+}
+
+.barcode-input:focus {
+    outline: none;
+    border-color: #1e88e5;
+    box-shadow: 0 0 4px rgba(30, 136, 229, 0.3);
+}
+
+.save-btn,
+.cancel-btn {
+    padding: 0.3rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-right: 0.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+    min-width: 28px;
+    height: 28px;
+}
+
+.save-btn {
+    background: #4caf50;
+    color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+    background: #45a049;
+}
+
+.save-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.cancel-btn {
+    background: #f44336;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #da190b;
+}
+
+.barcode-cell {
+    white-space: nowrap;
+    padding: 0.5rem !important;
+}
+
+.line-row {
+    padding: 0.4rem 0 !important;
+}
+
+.line-row.empty-barcode-row {
+    background: #fef08a !important;
+    border-left: 4px solid #ea580c !important;
+    box-shadow: inset 0 0 8px rgba(234, 88, 12, 0.15);
+}
+
+.line-row.empty-barcode-row:hover {
+    background: #fcd34d !important;
+    box-shadow: inset 0 0 12px rgba(234, 88, 12, 0.25);
+}

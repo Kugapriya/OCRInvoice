@@ -19,6 +19,7 @@ export class BaseComponent implements OnInit {
   menuItems = [
     { title: 'Dashboard', icon: 'speedometer-outline', url: '/site/dashboard' },
     { title: 'Uploaded Files', icon: 'document-outline', url: '/site/home/uploadedfiles' },
+    { title: 'Invoice Headers', icon: 'receipt-outline', url: '/site/home/invoiceheaders' },
 
   ];
 

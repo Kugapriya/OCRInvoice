@@ -40,6 +40,14 @@ export class HomePage {
     bgColor: '#2dd36f',
     borderColor: '#1ca64b',
     url: '/site/home/uploadedfiles'
+  },
+  {
+    title: 'Invoice Headers',
+    icon: 'receipt-outline',
+    color: '#ffffff',
+    bgColor: '#ff9f1c',
+    borderColor: '#d98200',
+    url: '/site/home/invoiceheaders'
   }
 ];
 

@@ -1,0 +1,244 @@
+<ion-content class="ion-padding invoice-page">
+  <div class="page-shell">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">Invoice Headers</p>
+        <h1>Uploaded file header and line data</h1>
+        <p class="subhead">Recent uploads from the uploaded files response, resolved against the Docmate header and line tables.</p>
+      </div>
+      <div class="page-actions">
+        <ion-button fill="outline" color="medium" (click)="toggleUploadWindow()" [disabled]="loading">
+          {{ showAllUploads ? 'Showing all uploads' : 'Last 7 days' }}
+        </ion-button>
+        <ion-button fill="outline" color="light" (click)="loadInvoiceDetails()" [disabled]="loading">
+          Refresh
+        </ion-button>
+      </div>
+    </div>
+
+    <div class="state-card" *ngIf="loading">
+      Loading invoice data...
+    </div>
+
+    <div class="state-card error" *ngIf="error">
+      {{ error }}
+    </div>
+
+    <ion-accordion-group *ngIf="!loading && !error">
+      <ion-accordion *ngFor="let detail of invoiceDetails; let index = index" value="item-{{ index }}">
+        <ion-item slot="header" color="light">
+          <ion-label>
+            <h2>{{ detail.uploadedFile.fileName }}</h2>
+            <p>{{ detail.uploadedFile.supplierName || 'No supplier' }} | Header: {{ detail.uploadedFile.headerId || 'N/A' }}</p>
+          </ion-label>
+          <ion-buttons slot="end" class="header-actions">
+            <ion-button fill="clear" size="small" (click)="previewFile(detail, $event)" title="Preview">
+              <ion-icon name="eye"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" size="small" (click)="downloadFile(detail, $event)" title="Download">
+              <ion-icon name="download"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-item>
+
+        <div class="accordion-body" slot="content">
+          <section class="meta-grid">
+            <div>
+              <span>Customer</span>
+              <strong>{{ detail.uploadedFile.customerId }}</strong>
+            </div>
+            <div>
+              <span>Supplier</span>
+              <strong>{{ detail.uploadedFile.supplierName || 'N/A' }}</strong>
+            </div>
+            <div>
+              <span>Processed</span>
+              <strong>{{ detail.uploadedFile.isProcess ? 'Yes' : 'No' }}</strong>
+            </div>
+            <div>
+              <span>Uploaded</span>
+              <strong>{{ detail.uploadedFile.uploadedTime | date:'medium' }}</strong>
+            </div>
+          </section>
+
+          <section class="table-section">
+            <div class="section-title">Docmate Header</div>
+            <div class="table-scroll" *ngIf="detail.header; else noHeader">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Created UTC</th>
+                    <th>Filename</th>
+                    <th>Doc Type</th>
+                    <th>Supplier Name</th>
+                    <th>Customer Name</th>
+                    <th>CMS Customer ID</th>
+                    <th>Doc Number</th>
+                    <th>Doc Date</th>
+                    <th>Total Ex VAT</th>
+                    <th>Total VAT</th>
+                    <th>Total Inc VAT</th>
+                    <th>Currency</th>
+                    <th>Compared</th>
+                    <th>Generated</th>
+                    <th>Start Sync</th>
+                    <th>End Sync</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ valueText(detail.header.id) }}</td>
+                    <td>{{ valueText(detail.header.createdUtc) }}</td>
+                    <td>{{ valueText(detail.header.filename) }}</td>
+                    <td>{{ valueText(detail.header.docType) }}</td>
+                    <td>{{ valueText(detail.header.supplierName) }}</td>
+                    <td>{{ valueText(detail.header.customerName) }}</td>
+                    <td>{{ valueText(detail.header.cmsCustomerId) }}</td>
+                    <td>{{ valueText(detail.header.docNumber) }}</td>
+                    <td>{{ valueText(detail.header.docDate) }}</td>
+                    <td>{{ valueText(detail.header.totalExVat) }}</td>
+                    <td>{{ valueText(detail.header.totalVat) }}</td>
+                    <td>{{ valueText(detail.header.totalIncVat) }}</td>
+                    <td>{{ valueText(detail.header.currency) }}</td>
+                    <td>{{ valueText(detail.header.compared) }}</td>
+                    <td>{{ valueText(detail.header.generated) }}</td>
+                    <td>{{ valueText(detail.header.startSync) }}</td>
+                    <td>{{ valueText(detail.header.endSync) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #noHeader>
+              <div class="empty-state">No header row found for this upload.</div>
+            </ng-template>
+          </section>
+
+          <section class="table-section">
+            <div class="section-title">Docmate Lines</div>
+            <div class="table-scroll" *ngIf="detail.lines.length > 0; else noLines">
+              <table class="data-table lines-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Created UTC</th>
+                    <th>Filename</th>
+                    <th>Doc Type</th>
+                    <th>Supplier Name</th>
+                    <th>Customer Name</th>
+                    <th>CMS Customer ID</th>
+                    <th>Doc Number</th>
+                    <th>Doc Date</th>
+                    <th>Line No</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>Case Pack</th>
+                    <th>Unit Size</th>
+                    <th>Total Units</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Line Net</th>
+                    <th>VAT Code</th>
+                    <th>VAT Rate</th>
+                    <th>VAT Amount</th>
+                    <th>Line Gross</th>
+                    <th>Std RRP</th>
+                    <th>POR</th>
+                    <th>Is Void</th>
+                    <th>Void Note</th>
+                    <th>PMP</th>
+                    <th>Raw</th>
+                    <th>Barcode</th>
+                    <th>Unit Cost</th>
+                    <th>Compared</th>
+                    <th>Generated</th>
+                    <th>Start Sync</th>
+                    <th>End Sync</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let line of detail.lines" class="line-row" [ngClass]="{ 'empty-barcode-row': isBarcodeEmpty(line.barcode) }">
+                    <td>{{ valueText(line.id) }}</td>
+                    <td>{{ valueText(line.createdUtc) }}</td>
+                    <td>{{ valueText(line.filename) }}</td>
+                    <td>{{ valueText(line.docType) }}</td>
+                    <td>{{ valueText(line.supplierName) }}</td>
+                    <td>{{ valueText(line.customerName) }}</td>
+                    <td>{{ valueText(line.cmsCustomerId) }}</td>
+                    <td>{{ valueText(line.docNumber) }}</td>
+                    <td>{{ valueText(line.docDate) }}</td>
+                    <td>{{ valueText(line.lineNo) }}</td>
+                    <td>{{ valueText(line.code) }}</td>
+                    <td>{{ valueText(line.description) }}</td>
+                    <td>{{ valueText(line.casePack) }}</td>
+                    <td>{{ valueText(line.unitSize) }}</td>
+                    <td>{{ valueText(line.totalUnits) }}</td>
+                    <td>{{ valueText(line.qty) }}</td>
+                    <td>{{ valueText(line.unitPrice) }}</td>
+                    <td>{{ valueText(line.lineNet) }}</td>
+                    <td>{{ valueText(line.vatCode) }}</td>
+                    <td>{{ valueText(line.vatRate) }}</td>
+                    <td>{{ valueText(line.vatAmount) }}</td>
+                    <td>{{ valueText(line.lineGross) }}</td>
+                    <td>{{ valueText(line.stdRrp) }}</td>
+                    <td>{{ valueText(line.por) }}</td>
+                    <td>{{ valueText(line.isVoid) }}</td>
+                    <td>{{ valueText(line.voidNote) }}</td>
+                    <td>{{ valueText(line.pmp) }}</td>
+                    <td>{{ valueText(line.raw) }}</td>
+                    <td class="barcode-cell">
+                      <span 
+                        *ngIf="editingBarcodeId !== line.id" 
+                        class="barcode-display"
+                        (click)="toggleBarcodeEdit(line.id)"
+                        title="Click to edit"
+                      >
+                        {{ valueText(line.barcode) }}
+                      </span>
+                      <input 
+                        *ngIf="editingBarcodeId === line.id"
+                        type="text" 
+                        [(ngModel)]="line.barcode" 
+                        class="barcode-input"
+                        placeholder="Enter barcode"
+                      />
+                      <button 
+                        *ngIf="editingBarcodeId === line.id"
+                        (click)="saveBarcode(line, $event)"
+                        [disabled]="savingBarcodeId === line.id"
+                        class="save-btn"
+                        title="Save"
+                      >
+                        <ion-icon name="checkmark"></ion-icon>
+                      </button>
+                      <button 
+                        *ngIf="editingBarcodeId === line.id"
+                        (click)="toggleBarcodeEdit(line.id)"
+                        class="cancel-btn"
+                        title="Cancel"
+                      >
+                        <ion-icon name="close"></ion-icon>
+                      </button>
+                    </td>
+                    <td>{{ valueText(line.unitCost) }}</td>
+                    <td>{{ valueText(line.compared) }}</td>
+                    <td>{{ valueText(line.generated) }}</td>
+                    <td>{{ valueText(line.startSync) }}</td>
+                    <td>{{ valueText(line.endSync) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #noLines>
+              <div class="empty-state">No line rows found for the configured line range.</div>
+            </ng-template>
+          </section>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+
+    <div class="state-card" *ngIf="!loading && !error && invoiceDetails.length === 0">
+      {{ showAllUploads ? 'No invoice uploads were found for this store.' : 'No invoice uploads were found in the last 7 days. Show all uploads to review older files.' }}
+    </div>
+  </div>
+</ion-content>

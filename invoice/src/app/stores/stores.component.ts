@@ -68,10 +68,13 @@ export class StoresComponent implements OnInit {
 
   setStore(store: Store) {
     this.repository.selectedStore = store;
-
-    this.repository.customerId = store.customerId;
+    this.repository.setStore(store);
+    
+    if (store.customerId) {
+      this.repository.setCustomerIdFromStore(store.customerId);
+    }
+    
     localStorage.setItem('selectedStore', JSON.stringify(store));
-    localStorage.setItem('cust', JSON.stringify({ customerId: store.customerId }));
     this.router.navigate(['/site/dashboard']);
   }
 }

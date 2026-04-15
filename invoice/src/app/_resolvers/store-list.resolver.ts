@@ -24,6 +24,8 @@ export class StoreListResolver implements Resolve<Store[]> {
                     this.repositoryService.selectedStore = selected;
                 }
             }
+            // Load customer ID from storage
+            this.repositoryService.loadCustomerIdFromStorage();
             return of(this.repositoryService.stores);
         } else {
             this.repositoryService.previousUser = this.repositoryService.loggedInUser;
@@ -38,6 +40,8 @@ export class StoreListResolver implements Resolve<Store[]> {
                             this.repositoryService.selectedStore = selected;
                         }
                     }
+                    // Load customer ID from storage
+                    this.repositoryService.loadCustomerIdFromStorage();
                     return stores;
                 }),
                 catchError(error => {
