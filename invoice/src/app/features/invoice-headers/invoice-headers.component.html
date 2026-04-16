@@ -1,41 +1,36 @@
 <ion-content class="ion-padding invoice-page">
   <div class="page-shell">
     <div class="page-head">
-      <div>
-        <p class="eyebrow">Invoice Headers</p>
-        <h1>Uploaded file header and line data</h1>
-        <p class="subhead">Recent uploads from the uploaded files response, resolved against the Docmate header and line tables.</p>
-      </div>
       <div class="page-actions">
-        <ion-button fill="outline" color="medium" (click)="toggleUploadWindow()" [disabled]="loading">
-          {{ showAllUploads ? 'Showing all uploads' : 'Last 7 days' }}
-        </ion-button>
-        <ion-button fill="outline" color="light" (click)="loadInvoiceDetails()" [disabled]="loading">
+        <ion-item lines="none" class="filter-dropdown" [disabled]="loading">
+          <ion-select [(ngModel)]="showAllUploads" interface="popover" aria-label="File filter">
+            <ion-select-option [value]="true">Show all files</ion-select-option>
+            <ion-select-option [value]="false">Show recent files</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-button class="refresh-btn" color="primary" fill="solid" (click)="loadInvoiceDetails()" [disabled]="loading">
+          <ion-icon name="refresh" slot="start"></ion-icon>
           Refresh
         </ion-button>
       </div>
     </div>
 
-    <div class="state-card" *ngIf="loading">
-      Loading invoice data...
+    <div class="loading-wrap" *ngIf="loading">
+      <ion-spinner name="crescent"></ion-spinner>
     </div>
 
-    <div class="state-card error" *ngIf="error">
-      {{ error }}
-    </div>
-
-    <ion-accordion-group *ngIf="!loading && !error">
-      <ion-accordion *ngFor="let detail of invoiceDetails; let index = index" value="item-{{ index }}">
-        <ion-item slot="header" color="light">
+    <ion-accordion-group *ngIf="!loading">
+      <ion-accordion *ngFor="let detail of invoiceDetails; let index = index" value="item-{{ index }}" class="file-accordion">
+        <ion-item slot="header" class="file-header">
           <ion-label>
             <h2>{{ detail.uploadedFile.fileName }}</h2>
-            <p>{{ detail.uploadedFile.supplierName || 'No supplier' }} | Header: {{ detail.uploadedFile.headerId || 'N/A' }}</p>
+            <p>{{ detail.uploadedFile.supplierName }}</p>
           </ion-label>
-          <ion-buttons slot="end" class="header-actions">
-            <ion-button fill="clear" size="small" (click)="previewFile(detail, $event)" title="Preview">
+          <ion-buttons slot="end" class="header-actions" *ngIf="isRecentUpload(detail.uploadedFile.uploadedTime)">
+            <ion-button fill="clear" color="primary" size="small" (click)="previewFile(detail, $event)" title="Preview">
               <ion-icon name="eye"></ion-icon>
             </ion-button>
-            <ion-button fill="clear" size="small" (click)="downloadFile(detail, $event)" title="Download">
+            <ion-button fill="clear" color="primary" size="small" (click)="downloadFile(detail, $event)" title="Download">
               <ion-icon name="download"></ion-icon>
             </ion-button>
           </ion-buttons>
@@ -237,7 +232,7 @@
       </ion-accordion>
     </ion-accordion-group>
 
-    <div class="state-card" *ngIf="!loading && !error && invoiceDetails.length === 0">
+    <div class="state-card" *ngIf="!loading && invoiceDetails.length === 0">
       {{ showAllUploads ? 'No invoice uploads were found for this store.' : 'No invoice uploads were found in the last 7 days. Show all uploads to review older files.' }}
     </div>
   </div>

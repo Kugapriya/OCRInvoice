@@ -18,9 +18,8 @@ export class InvoiceHeadersComponent implements OnInit {
   constructor(public repository: RepositoryService, private alertService: AlertService) { }
 
   loading = false;
-  error: string | null = null;
   private allInvoiceDetails: InvoiceFileDetail[] = [];
-  showAllUploads = false;
+  showAllUploads = true;
   readonly recentWindowDays = 7;
   editingBarcodeId: number | null = null;
   savingBarcodeId: number | null = null;
@@ -34,19 +33,17 @@ export class InvoiceHeadersComponent implements OnInit {
       return this.allInvoiceDetails;
     }
 
-    return this.allInvoiceDetails.filter((detail) => this.isWithinRecentWindow(detail.uploadedFile.uploadedTime));
+    return this.allInvoiceDetails.filter((detail) => this.isRecentUpload(detail.uploadedFile.uploadedTime));
   }
 
   loadInvoiceDetails() {
     if (!this.repository.customerId) {
       this.allInvoiceDetails = [];
-      this.error = null;
-      this.alertService.showErrorAlert('Select a store', 'Please select a store first to load invoice headers and lines.');
+      this.alertService.showErrorToast('Please select a store first');
       return;
     }
 
     this.loading = true;
-    this.error = null;
 
     this.repository.getUploadedFileDetails(this.repository.customerId).subscribe({
       next: (details) => {
@@ -55,8 +52,8 @@ export class InvoiceHeadersComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.error = 'Failed to load invoice headers and lines';
         this.loading = false;
+        this.alertService.showErrorToast('Failed to load invoice headers and lines');
       }
     });
   }
@@ -74,7 +71,19 @@ export class InvoiceHeadersComponent implements OnInit {
       return JSON.stringify(value);
     }
 
-    return String(value);
+    const stringValue = String(value);
+
+    // Check if it's a date string and format it as UTC
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(stringValue)) {
+      try {
+        const date = new Date(stringValue);
+        return date.toISOString();
+      } catch {
+        return stringValue;
+      }
+    }
+
+    return stringValue;
   }
 
   toggleUploadWindow() {
@@ -84,15 +93,20 @@ export class InvoiceHeadersComponent implements OnInit {
   downloadFile(detail: InvoiceFileDetail, event: Event) {
     event.stopPropagation();
 
-    const url = this.repository.getDownloadUrl(
-      detail.uploadedFile.customerId,
-      detail.uploadedFile.supplierName || '',
-      detail.uploadedFile.fileName
-    );
+    const customerId = detail.uploadedFile.customerId;
+    const supplierName = detail.uploadedFile.supplierName || '';
+    const fileName = detail.uploadedFile.fileName;
+
+    if (!customerId || !supplierName || !fileName) {
+      this.alertService.showErrorToast('File data is missing');
+      return;
+    }
+
+    const url = this.repository.getDownloadUrl(customerId, supplierName, fileName);
 
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = detail.uploadedFile.fileName;
+    anchor.download = fileName;
     anchor.rel = 'noopener';
     document.body.appendChild(anchor);
     anchor.click();
@@ -102,16 +116,21 @@ export class InvoiceHeadersComponent implements OnInit {
   previewFile(detail: InvoiceFileDetail, event: Event) {
     event.stopPropagation();
 
-    const url = this.repository.getPreviewUrl(
-      detail.uploadedFile.customerId,
-      detail.uploadedFile.supplierName || '',
-      detail.uploadedFile.fileName
-    );
+    const customerId = detail.uploadedFile.customerId;
+    const supplierName = detail.uploadedFile.supplierName || '';
+    const fileName = detail.uploadedFile.fileName;
+
+    if (!customerId || !supplierName || !fileName) {
+      this.alertService.showErrorToast('File data is missing');
+      return;
+    }
+
+    const url = this.repository.getPreviewUrl(customerId, supplierName, fileName);
 
     window.open(url, '_blank', 'noopener');
   }
 
-  private isWithinRecentWindow(uploadedTime: string): boolean {
+  isRecentUpload(uploadedTime: string): boolean {
     const parsedDate = new Date(uploadedTime);
 
     if (Number.isNaN(parsedDate.getTime())) {

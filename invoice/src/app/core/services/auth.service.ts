@@ -11,7 +11,12 @@ export class AuthService {
   baseUrl = environment.apiUrl + 'auth/';
   jwtHelper = new JwtHelperService();
   decodedToken: any;
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.decodedToken = this.jwtHelper.decodeToken(token);
+    }
+  }
 
   login(model: any): Observable<void> {
     return this.http.post(this.baseUrl + 'login', model)

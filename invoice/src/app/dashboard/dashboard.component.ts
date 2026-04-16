@@ -70,11 +70,22 @@ export class DashboardComponent implements OnInit {
   selectedTarget: string | null = null;
   isPdf: boolean = false;
 
+  get selectedStoreIdDisplay(): string {
+    return this.repository.selectedStore?.storeId || localStorage.getItem('storeId') || '';
+  }
+
+  get selectedStoreNameDisplay(): string {
+    return this.repository.selectedStore?.storeName || localStorage.getItem('storeName') || '';
+  }
+
   constructor(private http: HttpClient, private router: Router,
     private zone: NgZone, private alertService: AlertService, public repository: RepositoryService, private alertCtrl: AlertController
   ) { }
 
   ngOnInit() {
+    this.repository.loadSelectedStoreFromStorage();
+    this.repository.loadCustomerIdFromStorage();
+
     const userData = localStorage.getItem('customer');
 
     if (userData) {

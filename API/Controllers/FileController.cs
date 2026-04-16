@@ -122,22 +122,23 @@ public class FileController : ControllerBase
         var basePath = Path.GetFullPath(@"E:\Invoice");
         var basePathWithSeparator = basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
 
-        var filePath = Path.GetFullPath(Path.Combine(basePath, customerId, supplier, fileName));
+        var fullPath = Path.GetFullPath(Path.Combine(basePath, customerId, supplier, fileName));
+        var resolvedFileName = Path.GetFileName(fullPath);
 
-        if (!filePath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase))
+        if (!fullPath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase))
             return BadRequest("Invalid path");
 
-        if (!System.IO.File.Exists(filePath))
+        if (!System.IO.File.Exists(fullPath))
             return NotFound("File not found");
 
         var mimeType = "application/octet-stream";
-        if (fileName.EndsWith(".pdf"))
+        if (resolvedFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
             mimeType = "application/pdf";
-        else if (fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png"))
+        else if (resolvedFileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
             mimeType = "image/jpeg";
 
-        var bytes = System.IO.File.ReadAllBytes(filePath);
-        return File(bytes, mimeType, fileName);
+        var bytes = System.IO.File.ReadAllBytes(fullPath);
+        return File(bytes, mimeType, resolvedFileName);
     }
 
     [HttpGet("preview/{customerId}/{supplier}/{fileName}")]
@@ -146,21 +147,22 @@ public class FileController : ControllerBase
         var basePath = Path.GetFullPath(@"E:\Invoice");
         var basePathWithSeparator = basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
 
-        var filePath = Path.GetFullPath(Path.Combine(basePath, customerId, supplier, fileName));
+        var fullPath = Path.GetFullPath(Path.Combine(basePath, customerId, supplier, fileName));
+        var resolvedFileName = Path.GetFileName(fullPath);
 
-        if (!filePath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase))
+        if (!fullPath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase))
             return BadRequest("Invalid path");
 
-        if (!System.IO.File.Exists(filePath))
+        if (!System.IO.File.Exists(fullPath))
             return NotFound("File not found");
 
         var mimeType = "application/octet-stream";
-        if (fileName.EndsWith(".pdf"))
+        if (resolvedFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
             mimeType = "application/pdf";
-        else if (fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png"))
+        else if (resolvedFileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
             mimeType = "image/jpeg";
 
-        var bytes = System.IO.File.ReadAllBytes(filePath);
+        var bytes = System.IO.File.ReadAllBytes(fullPath);
         return File(bytes, mimeType);
     }
 
@@ -177,6 +179,20 @@ public class FileController : ControllerBase
                 return NotFound(new { success = false, message = "Line not found." });
 
             return Ok(new { success = true, message = "Barcode updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+    }
+
+    [HttpGet("getInvoiceLines/{lineIdStart}/{lineIdEnd}")]
+    public async Task<ActionResult<List<DocMateInvoiceLineDto>>> GetInvoiceLines(int lineIdStart, int lineIdEnd)
+    {
+        try
+        {
+            var lines = await _upload.GetInvoiceLinesAsync(lineIdStart, lineIdEnd);
+            return Ok(lines);
         }
         catch (Exception ex)
         {

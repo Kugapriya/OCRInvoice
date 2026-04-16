@@ -4,12 +4,10 @@ const config: CapacitorConfig = {
   appId: 'com.docmate.invoice',
   appName: 'DocMate',
   webDir: '../API/wwwroot',
-  // server: {
-  //   // androidScheme: 'https'
-  //   url: 'https://invoice.subango.com',  
-  //   cleartext: false                 
-    
-  // }
+  server: {
+    url: 'http://192.168.1.68:5000',  
+    cleartext: true
+  }
 };
 
 export default config;

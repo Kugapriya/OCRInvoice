@@ -304,4 +304,9 @@ public class UploadRepository
         var rowsAffected = await cmd.ExecuteNonQueryAsync();
         return rowsAffected > 0;
     }
+
+    public async Task<List<DocMateInvoiceLineDto>> GetInvoiceLinesAsync(int lineIdStart, int lineIdEnd)
+    {
+        return await ReadLinesAsync(lineIdStart, lineIdEnd);
+    }
 }

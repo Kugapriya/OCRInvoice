@@ -14,6 +14,26 @@ export class StoreListResolver implements Resolve<Store[]> {
         private router: Router) { }
 
     resolve(): Observable<Store[]> {
+        const storedCustomerRaw = localStorage.getItem('customer');
+        let customerUserName = '';
+        if (storedCustomerRaw) {
+            try {
+                const parsed = JSON.parse(storedCustomerRaw);
+                customerUserName = parsed?.user?.username || parsed?.username || '';
+            } catch {
+                customerUserName = '';
+            }
+        }
+
+        const username = this.authService.decodedToken?.nameid
+            || this.repositoryService.loggedInUser?.username
+            || customerUserName;
+
+        if (!username) {
+            this.router.navigate(['/login']);
+            return of([]);
+        }
+
         if (this.repositoryService.stores && this.repositoryService.previousUser &&
             this.repositoryService.previousUser === this.repositoryService.loggedInUser) {
             // Always set selectedStore based on stored storeId
@@ -30,7 +50,7 @@ export class StoreListResolver implements Resolve<Store[]> {
         } else {
             this.repositoryService.previousUser = this.repositoryService.loggedInUser;
 
-            return this.repositoryService.getStores(this.authService.decodedToken.nameid).pipe(
+            return this.repositoryService.getStores(username).pipe(
                 map(stores => {
                     this.repositoryService.stores = stores;
                     const storedStoreId = localStorage.getItem('storeId');

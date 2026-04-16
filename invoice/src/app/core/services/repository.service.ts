@@ -6,6 +6,7 @@ import { Customer } from 'src/app/_model/customer';
 import { Store } from 'src/app/_model/store';
 import { User } from 'src/app/_model/user';
 import { InvoiceFileDetail } from '../../_model/invoice-file-detail';
+import { DocMateInvoiceLine } from '../../_model/docmate-invoice-line';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -15,7 +16,10 @@ export class RepositoryService {
 
   baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) {
+    this.loadSelectedStoreFromStorage();
+    this.loadCustomerIdFromStorage();
+  }
 
   loggedInUser?: User;
   stores?: Store[];
@@ -31,6 +35,7 @@ export class RepositoryService {
     if (!store) return;
     if (this.selectedStore !== store) {
       this.selectedStore = store;
+      localStorage.setItem('selectedStore', JSON.stringify(store));
       if (store.storeId) {
         localStorage.setItem('storeId', store.storeId);
         localStorage.setItem('storeName', store.storeName || '');
@@ -40,10 +45,37 @@ export class RepositoryService {
     }
   }
 
+  loadSelectedStoreFromStorage() {
+    const storedStore = localStorage.getItem('selectedStore');
+    if (storedStore) {
+      try {
+        const parsedStore = JSON.parse(storedStore) as Store;
+        this.selectedStore = parsedStore;
+        this.selectedStoreId = parsedStore.storeId;
+        return;
+      } catch {
+        localStorage.removeItem('selectedStore');
+      }
+    }
+
+    const storeId = localStorage.getItem('storeId');
+    const storeName = localStorage.getItem('storeName');
+    if (storeId) {
+      this.selectedStore = {
+        storeId,
+        storeName: storeName || '',
+        customerId: '',
+        address: ''
+      } as Store;
+      this.selectedStoreId = storeId;
+    }
+  }
+
   setCustomerIdFromStore(customerId: string) {
     this.customerId = customerId;
     if (customerId) {
       localStorage.setItem('customerId', customerId);
+      localStorage.setItem('cust', JSON.stringify({ customerId }));
     }
   }
 
@@ -78,6 +110,10 @@ export class RepositoryService {
     const encodedFileName = encodeURIComponent(fileName);
 
     return `${this.baseUrl}file/preview/${encodedCustomerId}/${encodedSupplierName}/${encodedFileName}`;
+  }
+
+  getInvoiceLines(lineIdStart: number, lineIdEnd: number): Observable<DocMateInvoiceLine[]> {
+    return this.http.get<DocMateInvoiceLine[]>(`${this.baseUrl}file/getInvoiceLines/${lineIdStart}/${lineIdEnd}`);
   }
 
   updateLineBarcode(lineId: number, barcode: string): Observable<any> {

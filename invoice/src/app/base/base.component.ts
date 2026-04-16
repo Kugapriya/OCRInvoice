@@ -14,7 +14,10 @@ export class BaseComponent implements OnInit {
 
   constructor(private router: Router, public repository: RepositoryService) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.repository.loadSelectedStoreFromStorage();
+    this.repository.loadCustomerIdFromStorage();
+  }
 
   menuItems = [
     { title: 'Dashboard', icon: 'speedometer-outline', url: '/site/dashboard' },
