@@ -24,14 +24,14 @@ export class ForgotPasswordComponent {
       this.showToast('Please enter your email', 'danger');
       return;
     }
-console.log(this.email);
+
     this.loading = true;
 
     try {
       const response = await this.authService.forgotPassword(this.email).toPromise();
       
       if (response?.success) {
-        this.showToast(response.message || 'Check your email for the reset link', 'success');
+        this.showToast(response.message || 'Reset link sent to your email', 'success');
         this.email = '';
       } else {
         this.showToast(response?.message || 'Email not found', 'danger');

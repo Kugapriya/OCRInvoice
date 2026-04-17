@@ -36,7 +36,7 @@ namespace API.Repo
 
         public async Task<User?> FindUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Username == email);
+            return await _context.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
 
         public async Task<bool> UpdatePasswordAsync(string username, string newPassword)

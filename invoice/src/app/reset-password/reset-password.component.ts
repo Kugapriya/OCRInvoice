@@ -26,12 +26,6 @@ export class ResetPasswordComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // this.token = this.route.snapshot.queryParams['token'] || '';
-
-    // if (!this.token) {
-    //   this.showToast('Invalid reset link', 'danger');
-    //   this.router.navigate(['/login']);
-    // }
     this.token = decodeURIComponent(this.route.snapshot.queryParams['token'] || '');
     if (!this.token) {
       this.showToast('Invalid reset link', 'danger');

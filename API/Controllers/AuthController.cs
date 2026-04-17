@@ -88,7 +88,7 @@ namespace API.Controllers
 
             var claims = new[]
             {
-            new Claim(ClaimTypes.NameIdentifier, user.Username),
+            new Claim(ClaimTypes.Email, user.Email),
             new Claim("reset", "true")
         };
 
@@ -124,8 +124,8 @@ namespace API.Controllers
             {
                 return BadRequest(new { success = false, message = "Passwords do not match" });
             }
-            
-            if (string.IsNullOrWhiteSpace(dto.NewPassword) ||  dto.NewPassword.Length < 6)
+
+            if (string.IsNullOrWhiteSpace(dto.NewPassword) || dto.NewPassword.Length < 6)
             {
                 return BadRequest(new { success = false, message = "Password must be at least 6 digits" });
             }
@@ -159,13 +159,24 @@ namespace API.Controllers
             }
 
             var jwt = tokenHandler.ReadJwtToken(dto.Token);
-            var username = jwt.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+            var email = jwt.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
             var resetClaim = jwt.Claims.FirstOrDefault(c => c.Type == "reset")?.Value;
 
-            if (resetClaim != "true" || string.IsNullOrEmpty(username))
-                return BadRequest(new { success = false, message = "Invalid token" });
+            // Debug: Log what we found
+            System.Console.WriteLine($"Email from token: {email}");
+            System.Console.WriteLine($"Reset claim: {resetClaim}");
+            System.Console.WriteLine($"All claims: {string.Join(", ", jwt.Claims.Select(c => $"{c.Type}={c.Value}"))}");
 
-            var updated = await _repo.UpdatePasswordAsync(username, dto.NewPassword);
+            if (resetClaim != "true" || string.IsNullOrEmpty(email))
+                return BadRequest(new { success = false, message = "Invalid token - email or reset claim missing" });
+
+            var user = await _repo.FindUserByEmailAsync(email);
+            if (user == null)
+            {
+                return BadRequest(new { success = false, message = $"User not found for email: {email}" });
+            }
+
+            var updated = await _repo.UpdatePasswordAsync(user.Username, dto.NewPassword);
 
             if (!updated) return BadRequest(new { success = false, message = "User not found" });
 
