@@ -43,45 +43,76 @@ export class UploadedFilesComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error(err);
         this.error = 'Failed to load files';
         this.loading = false;
       }
     });
   }
 
-  isRecent(uploadedTime: string | Date): boolean {
-    const fileDate = new Date(uploadedTime);
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    return fileDate >= sevenDaysAgo;
+  // isRecent(uploadedTime: string | Date): boolean {
+  //   const fileDate = new Date(uploadedTime);
+  //   const sevenDaysAgo = new Date();
+  //   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  //   return fileDate >= sevenDaysAgo;
+  // }
+
+  downloadFile(file: UploadedFiles) {
+    if (!file.filePath || !file.fileName) {
+      this.alertService.showErrorToast('File data is missing', 3000, 'top');
+      return;
+    }
+
+    const url = this.repository.getDownloadUrl(file.filePath);
+
+    fetch(url, { method: 'GET' })
+      .then((response) => {
+        if (response.ok) {
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = file.fileName;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        } else if (response.status === 404) {
+          this.alertService.showErrorToast('File not found', 3000, 'top');
+        } else if (response.status === 500) {
+          this.alertService.showErrorToast('Server error - file path may be invalid', 3000, 'top');
+        } else {
+          this.alertService.showErrorToast(`Failed to download file (${response.status})`, 3000, 'top');
+        }
+      })
+      .catch((error) => {
+        this.alertService.showErrorToast('File not found or path is invalid', 3000, 'top');
+      });
   }
 
- downloadFile(file: UploadedFiles) {
-  if (!file.customerId || !file.supplierName || !file.fileName) {
-    this.alertService.showErrorToast('Missing file data', 3000, 'top');
-    return;
+  previewFile(file: UploadedFiles) {
+    if (!file.filePath) {
+      this.alertService.showErrorToast('File data is missing', 3000, 'top');
+      return;
+    }
+
+    const url = this.repository.getPreviewUrl(file.filePath);
+
+    fetch(url, { method: 'GET' })
+      .then((response) => {
+        if (response.ok) {
+          window.open(url, '_blank', 'noopener');
+        } else if (response.status === 404) {
+          this.alertService.showErrorToast('File not found', 3000, 'top');
+        } else if (response.status === 500) {
+          this.alertService.showErrorToast('Server error - file path may be invalid', 3000, 'top');
+        } else {
+          this.alertService.showErrorToast(`Failed to preview file (${response.status})`, 3000, 'top');
+        }
+      })
+      .catch((error) => {
+        this.alertService.showErrorToast('File not found or path is invalid', 3000, 'top');
+      });
   }
-
-  const url = `${baseurl}file/download/${encodeURIComponent(file.customerId)}/${encodeURIComponent(file.supplierName)}/${encodeURIComponent(file.fileName)}`;
-
-  this.http.get(url, {
-    responseType: 'blob'
-  }).subscribe(blob => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = file.fileName;
-    link.click();
-    URL.revokeObjectURL(link.href); 
-  }, error => {
-    this.alertService.showErrorToast('Download failed', 3000, 'top');
-    console.error(error);
-  });
-}
-getFormattedDateWithMs(date: string): string {
-  const d = new Date(date);
-  const ms = d.getMilliseconds().toString().padStart(3, '0');
-  return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ` +
-         `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}.${ms}`;
-}
+  getFormattedDateWithMs(date: string): string {
+    const d = new Date(date);
+    const ms = d.getMilliseconds().toString().padStart(3, '0');
+    return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ` +
+      `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}.${ms}`;
+  }
 }

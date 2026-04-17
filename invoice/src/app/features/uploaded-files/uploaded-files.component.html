@@ -13,10 +13,16 @@
               <p><strong>Uploaded:</strong> {{ getFormattedDateWithMs(file.uploadedTime) }}</p>
             </div>
 
-            <ion-button *ngIf="isRecent(file.uploadedTime)" (click)="downloadFile(file)" fill="clear" color="primary"
-              style="min-width: auto;">
-              <ion-icon name="download-outline" slot="icon-only"></ion-icon>
-            </ion-button>
+            <div style="display: flex; gap: 8px;">
+              <ion-button (click)="previewFile(file)" fill="clear" color="primary"
+                style="min-width: auto;" title="Preview file">
+                <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+              <ion-button (click)="downloadFile(file)" fill="clear" color="primary"
+                style="min-width: auto;" title="Download file">
+                <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
           </ion-card-content>
         </ion-card>
       </ion-col>

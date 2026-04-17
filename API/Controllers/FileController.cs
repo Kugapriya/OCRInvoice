@@ -1,10 +1,6 @@
 using API.Models;
 using API.Repo;
 using API.Dtos;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Drive.v3;
-using Google.Apis.Services;
-using Google.Apis.Upload;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -116,54 +112,72 @@ public class FileController : ControllerBase
         return Ok(details);
     }
 
-    [HttpGet("download/{customerId}/{supplier}/{fileName}")]
-    public IActionResult DownloadFile(string customerId, string supplier, string fileName)
+    [HttpGet("download/{encodedFilePath}")]
+    public IActionResult DownloadFile(string encodedFilePath)
     {
-        var basePath = Path.GetFullPath(@"E:\Invoice");
-        var basePathWithSeparator = basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        try
+        {
+            var decodedBytes = Convert.FromBase64String(encodedFilePath);
+            var decodedFilePath = System.Text.Encoding.UTF8.GetString(decodedBytes);
+            var fullPath = Path.GetFullPath(decodedFilePath);
+            var resolvedFileName = Path.GetFileName(fullPath);
 
-        var fullPath = Path.GetFullPath(Path.Combine(basePath, customerId, supplier, fileName));
-        var resolvedFileName = Path.GetFileName(fullPath);
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound("File not found");
 
-        if (!fullPath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase))
-            return BadRequest("Invalid path");
+            var mimeType = "application/octet-stream";
+            if (resolvedFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+                mimeType = "application/pdf";
+            else if (resolvedFileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+                mimeType = "image/jpeg";
+            else if (resolvedFileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+                mimeType = "image/png";
 
-        if (!System.IO.File.Exists(fullPath))
-            return NotFound("File not found");
-
-        var mimeType = "application/octet-stream";
-        if (resolvedFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
-            mimeType = "application/pdf";
-        else if (resolvedFileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-            mimeType = "image/jpeg";
-
-        var bytes = System.IO.File.ReadAllBytes(fullPath);
-        return File(bytes, mimeType, resolvedFileName);
+            var bytes = System.IO.File.ReadAllBytes(fullPath);
+            return File(bytes, mimeType, resolvedFileName);
+        }
+        catch (FormatException)
+        {
+            return BadRequest("Invalid file path encoding");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
     }
 
-    [HttpGet("preview/{customerId}/{supplier}/{fileName}")]
-    public IActionResult PreviewFile(string customerId, string supplier, string fileName)
+    [HttpGet("preview/{encodedFilePath}")]
+    public IActionResult PreviewFile(string encodedFilePath)
     {
-        var basePath = Path.GetFullPath(@"E:\Invoice");
-        var basePathWithSeparator = basePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        try
+        {
+            var decodedBytes = Convert.FromBase64String(encodedFilePath);
+            var decodedFilePath = System.Text.Encoding.UTF8.GetString(decodedBytes);
+            var fullPath = Path.GetFullPath(decodedFilePath);
+            var resolvedFileName = Path.GetFileName(fullPath);
 
-        var fullPath = Path.GetFullPath(Path.Combine(basePath, customerId, supplier, fileName));
-        var resolvedFileName = Path.GetFileName(fullPath);
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound("File not found");
 
-        if (!fullPath.StartsWith(basePathWithSeparator, StringComparison.OrdinalIgnoreCase))
-            return BadRequest("Invalid path");
+            var mimeType = "application/octet-stream";
+            if (resolvedFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+                mimeType = "application/pdf";
+            else if (resolvedFileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+                mimeType = "image/jpeg";
+            else if (resolvedFileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+                mimeType = "image/png";
 
-        if (!System.IO.File.Exists(fullPath))
-            return NotFound("File not found");
-
-        var mimeType = "application/octet-stream";
-        if (resolvedFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
-            mimeType = "application/pdf";
-        else if (resolvedFileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) || resolvedFileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-            mimeType = "image/jpeg";
-
-        var bytes = System.IO.File.ReadAllBytes(fullPath);
-        return File(bytes, mimeType);
+            var bytes = System.IO.File.ReadAllBytes(fullPath);
+            return File(bytes, mimeType);
+        }
+        catch (FormatException)
+        {
+            return BadRequest("Invalid file path encoding");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
     }
 
     [HttpPut("updateLineBarcode/{lineId}")]

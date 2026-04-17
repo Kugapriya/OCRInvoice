@@ -96,20 +96,14 @@ export class RepositoryService {
     return this.http.get<InvoiceFileDetail[]>(`${this.baseUrl}file/getuploadedFileDetails/${customerId}`);
   }
 
-  getDownloadUrl(customerId: string, supplierName: string, fileName: string): string {
-    const encodedCustomerId = encodeURIComponent(customerId);
-    const encodedSupplierName = encodeURIComponent(supplierName);
-    const encodedFileName = encodeURIComponent(fileName);
-
-    return `${this.baseUrl}file/download/${encodedCustomerId}/${encodedSupplierName}/${encodedFileName}`;
+  getDownloadUrl(filePath: string): string {
+    const encodedFilePath = btoa(filePath);
+    return `${this.baseUrl}file/download/${encodedFilePath}`;
   }
 
-  getPreviewUrl(customerId: string, supplierName: string, fileName: string): string {
-    const encodedCustomerId = encodeURIComponent(customerId);
-    const encodedSupplierName = encodeURIComponent(supplierName);
-    const encodedFileName = encodeURIComponent(fileName);
-
-    return `${this.baseUrl}file/preview/${encodedCustomerId}/${encodedSupplierName}/${encodedFileName}`;
+  getPreviewUrl(filePath: string): string {
+    const encodedFilePath = btoa(filePath);
+    return `${this.baseUrl}file/preview/${encodedFilePath}`;
   }
 
   getInvoiceLines(lineIdStart: number, lineIdEnd: number): Observable<DocMateInvoiceLine[]> {

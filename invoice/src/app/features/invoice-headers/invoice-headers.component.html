@@ -26,7 +26,7 @@
             <h2>{{ detail.uploadedFile.fileName }}</h2>
             <p>{{ detail.uploadedFile.supplierName }}</p>
           </ion-label>
-          <ion-buttons slot="end" class="header-actions" *ngIf="isRecentUpload(detail.uploadedFile.uploadedTime)">
+          <ion-buttons slot="end" class="header-actions">
             <ion-button fill="clear" color="primary" size="small" (click)="previewFile(detail, $event)" title="Preview">
               <ion-icon name="eye"></ion-icon>
             </ion-button>

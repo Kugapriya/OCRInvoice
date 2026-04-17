@@ -19,7 +19,7 @@ export class InvoiceHeadersComponent implements OnInit {
 
   loading = false;
   private allInvoiceDetails: InvoiceFileDetail[] = [];
-  showAllUploads = true;
+  showAllUploads = true; // Show all files by default
   readonly recentWindowDays = 7;
   editingBarcodeId: number | null = null;
   savingBarcodeId: number | null = null;
@@ -51,7 +51,6 @@ export class InvoiceHeadersComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error(err);
         this.loading = false;
         this.alertService.showErrorToast('Failed to load invoice headers and lines');
       }
@@ -93,41 +92,66 @@ export class InvoiceHeadersComponent implements OnInit {
   downloadFile(detail: InvoiceFileDetail, event: Event) {
     event.stopPropagation();
 
-    const customerId = detail.uploadedFile.customerId;
-    const supplierName = detail.uploadedFile.supplierName || '';
+    const filePath = detail.uploadedFile.filePath;
     const fileName = detail.uploadedFile.fileName;
 
-    if (!customerId || !supplierName || !fileName) {
+    if (!filePath || !fileName) {
       this.alertService.showErrorToast('File data is missing');
       return;
     }
 
-    const url = this.repository.getDownloadUrl(customerId, supplierName, fileName);
+    const url = this.repository.getDownloadUrl(filePath);
 
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.rel = 'noopener';
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
+    fetch(url, { method: 'GET' })
+      .then((response) => {
+        if (response.ok) {
+          const anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = fileName;
+          anchor.rel = 'noopener';
+          document.body.appendChild(anchor);
+          anchor.click();
+          document.body.removeChild(anchor);
+        } else if (response.status === 404) {
+          this.alertService.showErrorToast('File not found');
+        } else if (response.status === 500) {
+          this.alertService.showErrorToast('Server error - file path may be invalid');
+        } else {
+          this.alertService.showErrorToast(`Failed to download file (${response.status})`);
+        }
+      })
+      .catch((error) => {
+        this.alertService.showErrorToast('File not found or path is invalid');
+      });
   }
 
   previewFile(detail: InvoiceFileDetail, event: Event) {
     event.stopPropagation();
 
-    const customerId = detail.uploadedFile.customerId;
-    const supplierName = detail.uploadedFile.supplierName || '';
-    const fileName = detail.uploadedFile.fileName;
+    const filePath = detail.uploadedFile.filePath;
 
-    if (!customerId || !supplierName || !fileName) {
+    if (!filePath) {
       this.alertService.showErrorToast('File data is missing');
       return;
     }
 
-    const url = this.repository.getPreviewUrl(customerId, supplierName, fileName);
+    const url = this.repository.getPreviewUrl(filePath);
 
-    window.open(url, '_blank', 'noopener');
+    fetch(url, { method: 'GET' })
+      .then((response) => {
+        if (response.ok) {
+          window.open(url, '_blank', 'noopener');
+        } else if (response.status === 404) {
+          this.alertService.showErrorToast('File not found');
+        } else if (response.status === 500) {
+          this.alertService.showErrorToast('Server error - file path may be invalid');
+        } else {
+          this.alertService.showErrorToast(`Failed to preview file (${response.status})`);
+        }
+      })
+      .catch((error) => {
+        this.alertService.showErrorToast('File not found or path is invalid');
+      });
   }
 
   isRecentUpload(uploadedTime: string): boolean {
@@ -161,7 +185,6 @@ export class InvoiceHeadersComponent implements OnInit {
         this.savingBarcodeId = null;
       },
       error: (err) => {
-        console.error('Error saving barcode:', err);
         this.alertService.showErrorToast('Failed to save barcode');
         this.savingBarcodeId = null;
       }
