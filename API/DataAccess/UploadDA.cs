@@ -42,7 +42,7 @@ namespace API
             const string sql = @"
                     SELECT  [Id],[CustomerId],[SupplierName],[FileName],[FilePath],[ProcessType]
                     ,[UploadedTime],[IsProcess],[HeaderId],[LineIdStart],[LineIdEnd]
-                    FROM [DocmateTest].[dbo].[UploadedFiles]
+                    FROM UploadedFiles
                     WHERE CustomerId = @customerId
                     ORDER BY UploadedTime DESC; ";
 
