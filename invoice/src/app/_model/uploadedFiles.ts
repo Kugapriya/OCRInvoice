@@ -7,7 +7,7 @@ export class UploadedFiles {
         public filePath: string,
         public processType?: string,
         public uploadedTime: string = '',
-        public isProcess: boolean = false,
+        public isProcess: number = 0,
         public headerId: number = 0,
         public lineIdStart: number = 0,
         public lineIdEnd: number = 0

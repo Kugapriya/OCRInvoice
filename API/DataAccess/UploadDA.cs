@@ -31,7 +31,7 @@ namespace API
             cmd.Parameters.Add(new SqlParameter("@filePath", SqlDbType.NVarChar, -1) { Value = filePath });
             cmd.Parameters.Add(new SqlParameter("@processType", SqlDbType.NVarChar, 100) { Value = processType });
             cmd.Parameters.Add(new SqlParameter("@uploadedTime", SqlDbType.DateTime2) { Value = DateTime.Now });
-            cmd.Parameters.Add(new SqlParameter("@IsProcess", SqlDbType.Bit) { Value = 0 });
+            cmd.Parameters.Add(new SqlParameter("@IsProcess", SqlDbType.Int) { Value = 0 });
 
             return await cmd.ExecuteNonQueryAsync();
         }
@@ -66,7 +66,7 @@ namespace API
                     FilePath = reader.IsDBNull(4) ? null : reader.GetString(4),
                     ProcessType = reader.IsDBNull(5) ? null : reader.GetString(5),
                     UploadedTime = reader.GetDateTime(6),
-                    IsProcess = reader.GetBoolean(7),
+                    IsProcess = reader.GetInt32(7),
                     HeaderId = reader.IsDBNull(8) ? 0 : reader.GetInt32(8),
                     LineIdStart = reader.IsDBNull(9) ? 0 : reader.GetInt32(9),
                     LineIdEnd = reader.IsDBNull(10) ? 0 : reader.GetInt32(10)
