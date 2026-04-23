@@ -29,6 +29,8 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto dto)
         {
+            dto.Username = dto.Username.Trim().ToLower();
+            dto.Password = dto.Password.Trim();
             var user = await _repo.Login(dto.Username, dto.Password);
 
             if (user == null)
