@@ -29,9 +29,11 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto dto)
         {
-            dto.Username = dto.Username.Trim().ToLower();
-            dto.Password = dto.Password.Trim();
-            var user = await _repo.Login(dto.Username, dto.Password);
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest("Username and password are required");
+            var username = dto.Username.Trim().ToLower();
+            var password = dto.Password.Trim();
+            var user = await _repo.Login(username, password);
 
             if (user == null)
                 return Unauthorized("Invalid username or password");
@@ -39,8 +41,8 @@ namespace API.Controllers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Name, user.Name ??""),
+                new Claim(ClaimTypes.Role, user.Role ??"")
             };
 
             var tokenKey = _config["AppSettings:Token"]!;
@@ -76,7 +78,7 @@ namespace API.Controllers
         {
 
             var user = await _repo.FindUserByEmailAsync(email);
-            if (user == null)
+            if (user == null || string.IsNullOrEmpty(user.Email))
             {
                 return Ok(new { success = false, message = "Email not found" });
             }
@@ -90,7 +92,7 @@ namespace API.Controllers
 
             var claims = new[]
             {
-            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Email, user.Email ?? ""),
             new Claim("reset", "true")
         };
 
@@ -111,7 +113,7 @@ namespace API.Controllers
             <p>Click here to reset your password:</p>
             <p><a href='{resetLink}'>Reset Password</a></p>";
 
-            var emailSent = await _customerRepo.SendEmail(user.Email, "Password Reset", emailBody);
+            var emailSent = await _customerRepo.SendEmail(user.Email!, "Password Reset", emailBody);
 
             if (!emailSent) return Ok(new { success = false, message = "Failed to send email" });
 

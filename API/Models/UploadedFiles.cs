@@ -10,16 +10,16 @@ namespace API.Models
         public int Id { get; set; }
         [Required]
         [MaxLength(50)]
-        public string CustomerId { get; set; } = null!;
+        public string CustomerId { get; set; } = "";
         [MaxLength(100)]
         public string? SupplierName { get; set; }
         [Required]
-        public string FileName { get; set; } = null!;
+        public string FileName { get; set; } = "";
         public string? FilePath { get; set; }
         [MaxLength(50)]
         public string? ProcessType { get; set; }
         public DateTime UploadedTime { get; set; }
-        public int IsProcess { get; set; }=0;
+        public int IsProcess { get; set; } = 0;
         public int HeaderId { get; set; }
         public int LineIdStart { get; set; }
         public int LineIdEnd { get; set; }

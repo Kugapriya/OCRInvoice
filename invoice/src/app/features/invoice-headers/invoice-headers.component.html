@@ -8,10 +8,33 @@
             <ion-select-option [value]="false">Show recent files</ion-select-option>
           </ion-select>
         </ion-item>
-        <ion-button class="refresh-btn" color="primary" fill="solid" (click)="loadInvoiceDetails()" [disabled]="loading">
+        <ion-button class="refresh-btn" color="primary" fill="solid" (click)="loadInvoiceDetails()"
+          [disabled]="loading">
           <ion-icon name="refresh" slot="start"></ion-icon>
           Refresh
         </ion-button>
+      </div>
+    </div>
+
+    <div class="status-legend" *ngIf="!loading && invoiceDetails.length > 0">
+      <div class="legend-title">File Status:</div>
+      <div class="legend-items">
+        <div class="legend-item status-not-processed">
+          <span class="legend-color"></span>
+          <span class="legend-label">Not Processed Yet</span>
+        </div>
+        <div class="legend-item status-processing">
+          <span class="legend-color"></span>
+          <span class="legend-label">Currently Processing</span>
+        </div>
+        <div class="legend-item status-success">
+          <span class="legend-color"></span>
+          <span class="legend-label">Success</span>
+        </div>
+        <div class="legend-item status-failed">
+          <span class="legend-color"></span>
+          <span class="legend-label">Failed</span>
+        </div>
       </div>
     </div>
 
@@ -20,7 +43,8 @@
     </div>
 
     <ion-accordion-group *ngIf="!loading">
-      <ion-accordion *ngFor="let detail of invoiceDetails; let index = index" value="item-{{ index }}" class="file-accordion">
+      <ion-accordion *ngFor="let detail of invoiceDetails; let index = index" value="item-{{ index }}"
+        class="file-accordion" [ngClass]="getProcessStatusClass(detail.uploadedFile.isProcess)">
         <ion-item slot="header" class="file-header">
           <ion-label>
             <h2>{{ detail.uploadedFile.fileName }}</h2>
@@ -30,7 +54,8 @@
             <ion-button fill="clear" color="primary" size="small" (click)="previewFile(detail, $event)" title="Preview">
               <ion-icon name="eye"></ion-icon>
             </ion-button>
-            <ion-button fill="clear" color="primary" size="small" (click)="downloadFile(detail, $event)" title="Download">
+            <ion-button fill="clear" color="primary" size="small" (click)="downloadFile(detail, $event)"
+              title="Download">
               <ion-icon name="download"></ion-icon>
             </ion-button>
           </ion-buttons>
@@ -48,7 +73,7 @@
             </div>
             <div>
               <span>Processed</span>
-              <strong>{{ detail.uploadedFile.isProcess }}</strong>
+              <strong>{{ getProcessStatusLabel(detail.uploadedFile.isProcess) }}</strong>
             </div>
             <div>
               <span>Uploaded</span>
@@ -83,23 +108,23 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{{ valueText(detail.header.id) }}</td>
-                    <td>{{ valueText(detail.header.createdUtc) }}</td>
-                    <td>{{ valueText(detail.header.filename) }}</td>
-                    <td>{{ valueText(detail.header.docType) }}</td>
-                    <td>{{ valueText(detail.header.supplierName) }}</td>
-                    <td>{{ valueText(detail.header.customerName) }}</td>
-                    <td>{{ valueText(detail.header.cmsCustomerId) }}</td>
-                    <td>{{ valueText(detail.header.docNumber) }}</td>
-                    <td>{{ valueText(detail.header.docDate) }}</td>
-                    <td>{{ valueText(detail.header.totalExVat) }}</td>
-                    <td>{{ valueText(detail.header.totalVat) }}</td>
-                    <td>{{ valueText(detail.header.totalIncVat) }}</td>
-                    <td>{{ valueText(detail.header.currency) }}</td>
-                    <td>{{ valueText(detail.header.compared) }}</td>
-                    <td>{{ valueText(detail.header.generated) }}</td>
-                    <td>{{ valueText(detail.header.startSync) }}</td>
-                    <td>{{ valueText(detail.header.endSync) }}</td>
+                    <td>{{ detail.header.id }}</td>
+                    <td>{{ detail.header.createdUtc }}</td>
+                    <td>{{ detail.header.filename }}</td>
+                    <td>{{ detail.header.docType }}</td>
+                    <td>{{ detail.header.supplierName }}</td>
+                    <td>{{ detail.header.customerName }}</td>
+                    <td>{{ detail.header.cmsCustomerId }}</td>
+                    <td>{{ detail.header.docNumber }}</td>
+                    <td>{{ detail.header.docDate }}</td>
+                    <td class="number-cell">{{ detail.header.totalExVat | number:'1.2-2' }}</td>
+                    <td class="number-cell">{{ detail.header.totalVat | number:'1.2-2' }}</td>
+                    <td class="number-cell">{{ detail.header.totalIncVat | number:'1.2-2' }}</td>
+                    <td>{{ detail.header.currency }}</td>
+                    <td>{{ detail.header.compared}}</td>
+                    <td>{{ detail.header.generated }}</td>
+                    <td>{{ detail.header.startSync }}</td>
+                    <td>{{ detail.header.endSync }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -152,74 +177,57 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let line of detail.lines" class="line-row" [ngClass]="{ 'empty-barcode-row': isBarcodeEmpty(line.barcode) }">
-                    <td>{{ valueText(line.id) }}</td>
-                    <td>{{ valueText(line.createdUtc) }}</td>
-                    <td>{{ valueText(line.filename) }}</td>
-                    <td>{{ valueText(line.docType) }}</td>
-                    <td>{{ valueText(line.supplierName) }}</td>
-                    <td>{{ valueText(line.customerName) }}</td>
-                    <td>{{ valueText(line.cmsCustomerId) }}</td>
-                    <td>{{ valueText(line.docNumber) }}</td>
-                    <td>{{ valueText(line.docDate) }}</td>
-                    <td>{{ valueText(line.lineNo) }}</td>
-                    <td>{{ valueText(line.code) }}</td>
-                    <td>{{ valueText(line.description) }}</td>
-                    <td>{{ valueText(line.casePack) }}</td>
-                    <td>{{ valueText(line.unitSize) }}</td>
-                    <td>{{ valueText(line.totalUnits) }}</td>
-                    <td>{{ valueText(line.qty) }}</td>
-                    <td>{{ valueText(line.unitPrice) }}</td>
-                    <td>{{ valueText(line.lineNet) }}</td>
-                    <td>{{ valueText(line.vatCode) }}</td>
-                    <td>{{ valueText(line.vatRate) }}</td>
-                    <td>{{ valueText(line.vatAmount) }}</td>
-                    <td>{{ valueText(line.lineGross) }}</td>
-                    <td>{{ valueText(line.stdRrp) }}</td>
-                    <td>{{ valueText(line.por) }}</td>
-                    <td>{{ valueText(line.isVoid) }}</td>
-                    <td>{{ valueText(line.voidNote) }}</td>
-                    <td>{{ valueText(line.pmp) }}</td>
-                    <td>{{ valueText(line.raw) }}</td>
+                  <tr *ngFor="let line of detail.lines" class="line-row"
+                    [ngClass]="{ 'empty-barcode-row': isBarcodeEmpty(line.barcode) }">
+                    <td>{{ line.id }}</td>
+                    <td>{{ line.createdUtc }}</td>
+                    <td>{{ line.filename }}</td>
+                    <td>{{ line.docType }}</td>
+                    <td>{{ line.supplierName }}</td>
+                    <td>{{ line.customerName }}</td>
+                    <td>{{ line.cmsCustomerId }}</td>
+                    <td>{{ line.docNumber }}</td>
+                    <td>{{ parseDate(line.docDate) }}</td>
+                    <td>{{ line.lineNo }}</td>
+                    <td>{{ line.code }}</td>
+                    <td>{{ line.description }}</td>
+                    <td>{{ line.casePack }}</td>
+                    <td>{{ line.unitSize }}</td>
+                    <td>{{ line.totalUnits }}</td>
+                    <td>{{ line.qty }}</td>
+                    <td class="number-cell">{{ line.unitPrice | number:'1.2-2' }}</td>
+                    <td class="number-cell">{{ line.lineNet | number:'1.2-2' }}</td>
+                    <td>{{ line.vatCode }}</td>
+                    <td>{{ line.vatRate }}</td>
+                    <td class="number-cell">{{ line.vatAmount | number:'1.2-2' }}</td>
+                    <td class="number-cell">{{ line.lineGross | number:'1.2-2' }}</td>
+                    <td class="number-cell">{{ line.stdRrp | number:'1.2-2' }}</td>
+                    <td class="number-cell">{{ line.por| number:'1.2-2' }}</td>
+                    <td>{{ line.isVoid }}</td>
+                    <td>{{ line.voidNote }}</td>
+                    <td>{{ line.pmp }}</td>
+                    <td>{{ line.raw }}</td>
                     <td class="barcode-cell">
-                      <span 
-                        *ngIf="editingBarcodeId !== line.id" 
-                        class="barcode-display"
-                        (click)="toggleBarcodeEdit(line.id)"
-                        title="Click to edit"
-                      >
-                        {{ valueText(line.barcode) }}
+                      <span *ngIf="editingBarcodeId !== line.id" class="barcode-display"
+                        (click)="toggleBarcodeEdit(line.id)" title="Click to edit">
+                        {{ line.barcode }}
                       </span>
-                      <input 
-                        *ngIf="editingBarcodeId === line.id"
-                        type="text" 
-                        [(ngModel)]="line.barcode" 
-                        class="barcode-input"
-                        placeholder="Enter barcode"
-                      />
-                      <button 
-                        *ngIf="editingBarcodeId === line.id"
-                        (click)="saveBarcode(line, $event)"
-                        [disabled]="savingBarcodeId === line.id"
-                        class="save-btn"
-                        title="Save"
-                      >
+                      <input *ngIf="editingBarcodeId === line.id" type="text" [(ngModel)]="line.barcode"
+                        class="barcode-input" placeholder="Enter barcode" />
+                      <button *ngIf="editingBarcodeId === line.id" (click)="saveBarcode(line, $event)"
+                        [disabled]="savingBarcodeId === line.id" class="save-btn" title="Save">
                         <ion-icon name="checkmark"></ion-icon>
                       </button>
-                      <button 
-                        *ngIf="editingBarcodeId === line.id"
-                        (click)="toggleBarcodeEdit(line.id)"
-                        class="cancel-btn"
-                        title="Cancel"
-                      >
+                      <button *ngIf="editingBarcodeId === line.id" (click)="toggleBarcodeEdit(line.id)"
+                        class="cancel-btn" title="Cancel">
                         <ion-icon name="close"></ion-icon>
                       </button>
                     </td>
-                    <td>{{ valueText(line.unitCost) }}</td>
-                    <td>{{ valueText(line.compared) }}</td>
-                    <td>{{ valueText(line.generated) }}</td>
-                    <td>{{ valueText(line.startSync) }}</td>
-                    <td>{{ valueText(line.endSync) }}</td>
+                    <td class="number-cell">{{ line.unitCost | number:'1.2-2' }}</td>
+                    <td>{{ line.compared }}</td>
+                    <td>{{ line.generated }}</td>
+                    <td>{{ line.startSync }}</td>
+                    <td>{{ line.endSync }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -233,7 +241,8 @@
     </ion-accordion-group>
 
     <div class="state-card" *ngIf="!loading && invoiceDetails.length === 0">
-      {{ showAllUploads ? 'No invoice uploads were found for this store.' : 'No invoice uploads were found in the last 7 days. Show all uploads to review older files.' }}
+      {{ showAllUploads ? 'No invoice uploads were found for this store.' : 'No invoice uploads were found in the last 7
+      days. Show all uploads to review older files.' }}
     </div>
   </div>
 </ion-content>

@@ -20,12 +20,18 @@ namespace API.Repo
 
         public async Task<User?> Login(string uname, string pwd)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Username.ToLower() == uname.ToLower());
+            if (string.IsNullOrWhiteSpace(uname) || string.IsNullOrWhiteSpace(pwd))
+                return null;
 
-            if (user == null) return null;
+            uname = uname.Trim().ToLower();
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Username.ToLower() == uname);
+            if (user == null)
+                return null;
 
+            if (string.IsNullOrEmpty(user.Password))
+                return null;
             if (user.Password.Trim() != pwd.Trim())
-            return null;
+                return null;
 
             return user;
         }

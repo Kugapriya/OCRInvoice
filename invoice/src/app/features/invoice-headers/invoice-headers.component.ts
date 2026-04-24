@@ -35,6 +35,43 @@ export class InvoiceHeadersComponent implements OnInit {
 
     return this.allInvoiceDetails.filter((detail) => this.isRecentUpload(detail.uploadedFile.uploadedTime));
   }
+  
+  getProcessStatusLabel(status: number | null | undefined): string {
+    switch (status) {
+      case 0:
+        return 'Not Processed Yet';
+      case 9:
+        return 'Currently Processing';
+      case 1:
+        return 'Success';
+      case 2:
+        return 'Failed (Processing Failed)';
+      case 3:
+        return 'VAT Mismatch Exception';
+      default:
+        return 'Unknown Status';
+    }
+  }
+  getProcessStatusClass(status: number | null | undefined): string {
+    if (status === 0) return 'status-not-processed';   
+    if (status === 9) return 'status-processing';      
+    if (status === 1) return 'status-success';         
+    if (status === 2 || status === 3) return 'status-failed';
+    return 'status-failed'; 
+  }
+
+  parseDate(dateString: string | Date | null | undefined): Date | null {
+    if (!dateString) return null;
+    if (dateString instanceof Date) return dateString;
+    
+    if (typeof dateString === 'string') {
+      const cleaned = dateString.replace(/\s[A-Z]{3,4}$/, '').trim();
+      const date = new Date(cleaned);
+      return isNaN(date.getTime()) ? null : date;
+    }
+    
+    return null;
+  }
 
   loadInvoiceDetails() {
     if (!this.repository.customerId) {
@@ -57,33 +94,33 @@ export class InvoiceHeadersComponent implements OnInit {
     });
   }
 
-  valueText(value: unknown): string {
-    if (value === null || value === undefined) {
-      return 'N/A';
-    }
+  // valueText(value: unknown): string {
+  //   if (value === null || value === undefined) {
+  //     return 'N/A';
+  //   }
 
-    if (value instanceof Date) {
-      return value.toISOString();
-    }
+  //   if (value instanceof Date) {
+  //     return value.toISOString();
+  //   }
 
-    if (typeof value === 'object') {
-      return JSON.stringify(value);
-    }
+  //   if (typeof value === 'object') {
+  //     return JSON.stringify(value);
+  //   }
 
-    const stringValue = String(value);
+  //   const stringValue = String(value);
 
-    // Check if it's a date string and format it as UTC
-    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(stringValue)) {
-      try {
-        const date = new Date(stringValue);
-        return date.toISOString();
-      } catch {
-        return stringValue;
-      }
-    }
+  //   // Check if it's a date string and format it as UTC
+  //   if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(stringValue)) {
+  //     try {
+  //       const date = new Date(stringValue);
+  //       return date.toISOString();
+  //     } catch {
+  //       return stringValue;
+  //     }
+  //   }
 
-    return stringValue;
-  }
+  //   return stringValue;
+  // }
 
   toggleUploadWindow() {
     this.showAllUploads = !this.showAllUploads;
