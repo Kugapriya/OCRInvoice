@@ -8,7 +8,7 @@
             <div class="file-details" style="flex: 1;">
               <p class="file-name">{{ file.fileName }}</p>
               <p><strong>Supplier:</strong> {{ file.supplierName || 'N/A' }}</p>
-              <p><strong>Process:</strong> {{ file.isProcess }}</p>
+              <!-- <p><strong>Process:</strong> {{ file.isProcess }}</p> -->
               <!-- <p><strong>Uploaded:</strong> {{ file.uploadedTime | date:'short' }}</p> -->
               <p><strong>Uploaded:</strong> {{ getFormattedDateWithMs(file.uploadedTime) }}</p>
             </div>

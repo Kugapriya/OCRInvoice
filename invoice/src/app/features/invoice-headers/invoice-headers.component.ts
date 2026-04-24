@@ -28,14 +28,36 @@ export class InvoiceHeadersComponent implements OnInit {
     this.loadInvoiceDetails();
   }
 
+  // get invoiceDetails(): InvoiceFileDetail[] {
+  //   if (this.showAllUploads) {
+  //     return this.allInvoiceDetails;
+  //   }
+
+  //   return this.allInvoiceDetails.filter((detail) => this.isRecentUpload(detail.uploadedFile.uploadedTime));
+  // }
   get invoiceDetails(): InvoiceFileDetail[] {
-    if (this.showAllUploads) {
-      return this.allInvoiceDetails;
+    let data = this.allInvoiceDetails;
+
+    // 1. Recent filter
+    if (!this.showAllUploads) {
+      data = data.filter(detail =>
+        this.isRecentUpload(detail.uploadedFile.uploadedTime)
+      );
     }
 
-    return this.allInvoiceDetails.filter((detail) => this.isRecentUpload(detail.uploadedFile.uploadedTime));
+    if (this.fromDate && this.toDate) {
+      const from = new Date(this.fromDate).setHours(0, 0, 0, 0);
+      const to = new Date(this.toDate).setHours(23, 59, 59, 999);
+
+      data = data.filter(detail => {
+        const fileDate = new Date(detail.uploadedFile.uploadedTime).getTime();
+        return fileDate >= from && fileDate <= to;
+      });
+    }
+
+    return data;
   }
-  
+
   getProcessStatusLabel(status: number | null | undefined): string {
     switch (status) {
       case 0:
@@ -48,28 +70,30 @@ export class InvoiceHeadersComponent implements OnInit {
         return 'Failed (Processing Failed)';
       case 3:
         return 'VAT Mismatch Exception';
+      case 4:
+        return 'UnSupported File Format';
       default:
         return 'Unknown Status';
     }
   }
   getProcessStatusClass(status: number | null | undefined): string {
-    if (status === 0) return 'status-not-processed';   
-    if (status === 9) return 'status-processing';      
-    if (status === 1) return 'status-success';         
+    if (status === 0) return 'status-not-processed';
+    if (status === 9) return 'status-processing';
+    if (status === 1) return 'status-success';
     if (status === 2 || status === 3) return 'status-failed';
-    return 'status-failed'; 
+    return 'status-failed';
   }
 
   parseDate(dateString: string | Date | null | undefined): Date | null {
     if (!dateString) return null;
     if (dateString instanceof Date) return dateString;
-    
+
     if (typeof dateString === 'string') {
       const cleaned = dateString.replace(/\s[A-Z]{3,4}$/, '').trim();
       const date = new Date(cleaned);
       return isNaN(date.getTime()) ? null : date;
     }
-    
+
     return null;
   }
 
@@ -93,6 +117,9 @@ export class InvoiceHeadersComponent implements OnInit {
       }
     });
   }
+  fromDate: string | null = null;
+  toDate: string | null = null;
+
 
   // valueText(value: unknown): string {
   //   if (value === null || value === undefined) {

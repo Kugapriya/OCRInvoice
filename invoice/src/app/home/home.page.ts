@@ -55,4 +55,9 @@ export class HomePage {
     this.router.navigate([url]);
   }
 
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
 }

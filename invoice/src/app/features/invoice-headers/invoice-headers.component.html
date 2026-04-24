@@ -2,17 +2,60 @@
   <div class="page-shell">
     <div class="page-head">
       <div class="page-actions">
-        <ion-item lines="none" class="filter-dropdown" [disabled]="loading">
+        <!-- <ion-item lines="none" class="filter-dropdown" [disabled]="loading">
           <ion-select [(ngModel)]="showAllUploads" interface="popover" aria-label="File filter">
             <ion-select-option [value]="true">Show all files</ion-select-option>
             <ion-select-option [value]="false">Show recent files</ion-select-option>
           </ion-select>
-        </ion-item>
-        <ion-button class="refresh-btn" color="primary" fill="solid" (click)="loadInvoiceDetails()"
+        </ion-item> -->
+        <!-- <ion-item lines="none" class="filter-dropdown" [disabled]="loading">
+          <ion-select [(ngModel)]="showAllUploads" interface="popover">
+            <ion-select-option [value]="true">All Files</ion-select-option>
+            <ion-select-option [value]="false">Recent Files</ion-select-option>
+          </ion-select>
+        </ion-item> -->
+        <!-- <ion-button class="refresh-btn" color="primary" fill="solid" (click)="loadInvoiceDetails()"
           [disabled]="loading">
           <ion-icon name="refresh" slot="start"></ion-icon>
           Refresh
-        </ion-button>
+        </ion-button> -->
+
+          <!-- FROM -->
+          <div class="date-box">
+            <label>From</label>
+
+            <ion-button id="fromDateBtn" fill="outline">
+              {{ fromDate ? (fromDate | date:'yyyy-MM-dd') : 'date' }}
+              <ion-icon name="calendar" slot="end"></ion-icon>
+            </ion-button>
+
+            <ion-popover trigger="fromDateBtn" size="auto" cssClass="date-popover">
+              <ng-template>
+                <ion-datetime presentation="date" [(ngModel)]="fromDate"></ion-datetime>
+              </ng-template>
+            </ion-popover>
+          </div>
+
+          <!-- TO -->
+          <div class="date-box">
+            <label>To</label>
+
+            <ion-button id="toDateBtn" fill="outline">
+              {{ toDate ? (toDate | date:'yyyy-MM-dd') : 'date' }}
+              <ion-icon name="calendar" slot="end"></ion-icon>
+            </ion-button>
+
+            <ion-popover trigger="toDateBtn" size="auto" cssClass="date-popover">
+              <ng-template>
+                <ion-datetime presentation="date" [(ngModel)]="toDate"></ion-datetime>
+              </ng-template>
+            </ion-popover>
+          </div>
+          <ion-button class="refresh-btn" (click)="loadInvoiceDetails()" [disabled]="loading">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            Refresh
+          </ion-button>
+
       </div>
     </div>
 
@@ -72,7 +115,7 @@
               <strong>{{ detail.uploadedFile.supplierName || 'N/A' }}</strong>
             </div>
             <div>
-              <span>Processed</span>
+              <span>Status</span>
               <strong>{{ getProcessStatusLabel(detail.uploadedFile.isProcess) }}</strong>
             </div>
             <div>
@@ -87,7 +130,7 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
+                    <!-- <th>ID</th> -->
                     <th>Created UTC</th>
                     <th>Filename</th>
                     <th>Doc Type</th>
@@ -108,7 +151,7 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{{ detail.header.id }}</td>
+                    <!-- <td>{{ detail.header.id }}</td> -->
                     <td>{{ detail.header.createdUtc }}</td>
                     <td>{{ detail.header.filename }}</td>
                     <td>{{ detail.header.docType }}</td>
@@ -140,7 +183,7 @@
               <table class="data-table lines-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
+                    <!-- <th>ID</th> -->
                     <th>Created UTC</th>
                     <th>Filename</th>
                     <th>Doc Type</th>
@@ -179,7 +222,7 @@
                 <tbody>
                   <tr *ngFor="let line of detail.lines" class="line-row"
                     [ngClass]="{ 'empty-barcode-row': isBarcodeEmpty(line.barcode) }">
-                    <td>{{ line.id }}</td>
+                    <!-- <td>{{ line.id }}</td> -->
                     <td>{{ line.createdUtc }}</td>
                     <td>{{ line.filename }}</td>
                     <td>{{ line.docType }}</td>
@@ -241,8 +284,7 @@
     </ion-accordion-group>
 
     <div class="state-card" *ngIf="!loading && invoiceDetails.length === 0">
-      {{ showAllUploads ? 'No invoice uploads were found for this store.' : 'No invoice uploads were found in the last 7
-      days. Show all uploads to review older files.' }}
+      No invoice uploads were found for the selected date range.
     </div>
   </div>
 </ion-content>

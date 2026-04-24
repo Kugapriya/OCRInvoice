@@ -23,10 +23,19 @@ export class BaseComponent implements OnInit {
     { title: 'Dashboard', icon: 'speedometer-outline', url: '/site/dashboard' },
     { title: 'Uploaded Files', icon: 'document-outline', url: '/site/home/uploadedfiles' },
     { title: 'Invoice Headers', icon: 'receipt-outline', url: '/site/home/invoiceheaders' },
+    { title: 'Logout', icon: 'log-out-outline', url: 'logout' }
 
   ];
 
   navigateTo(url: string) {
-    this.router.navigateByUrl(url);
+    if (url === 'logout') {
+      this.logout();
+    } else {
+      this.router.navigateByUrl(url);
+    }
+  }
+  logout() {
+    localStorage.clear();
+    this.router.navigateByUrl('/login');
   }
 }
