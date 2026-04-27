@@ -71,15 +71,17 @@
     white-space: nowrap;
     flex-shrink: 0; 
 }
+
 @media (max-width: 768px) {
     .page-actions {
         gap: 0.5rem;
     }
 
     .date-box {
-        min-width: 120px;
+        min-width: 150px;
     }
 }
+
 .eyebrow {
     text-transform: uppercase;
     letter-spacing: 0.18em;
@@ -191,12 +193,15 @@
     overflow: auto;
     border-radius: 14px;
     border: 1px solid #e5e7eb;
+    max-height: 400px;
 }
+
 
 .data-table {
     width: 100%;
     border-collapse: collapse;
     background: #ffffff;
+    table-layout: auto;
 }
 
 .data-table th,
@@ -222,12 +227,10 @@
 }
 
 .number-cell {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-family: "Courier New", monospace;
+    text-align: right !important;
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
 }
-
 .empty-state {
     padding: 1rem;
     border-radius: 14px;
@@ -415,83 +418,6 @@
     color: #374151;
 }
 
-
-// .file-accordion.status-not-processed {
-//     border-color: #9ca3af;
-//     box-shadow: 0 8px 20px rgba(156, 163, 175, 0.15);
-// }
-
-// .file-accordion.status-not-processed .file-header {
-//     --background: #f3f4f6;
-// }
-
-// .file-accordion.status-not-processed .accordion-body {
-//     background: #fafafa;
-//     border-top-color: #d1d5db;
-// }
-
-// .legend-item.status-not-processed .legend-color {
-//     background: #9ca3af;
-// }
-
-// /* 9 = Currently Processing - Blue */
-// .file-accordion.status-processing {
-//     border-color: #3b82f6;
-//     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
-// }
-
-// .file-accordion.status-processing .file-header {
-//     --background: #eff6ff;
-// }
-
-// .file-accordion.status-processing .accordion-body {
-//     background: #f0f9ff;
-//     border-top-color: #93c5fd;
-// }
-
-// .legend-item.status-processing .legend-color {
-//     background: #3b82f6;
-// }
-
-/* 1 = Success - Green */
-// .file-accordion.status-success {
-//     border-color: #036846;
-//     box-shadow: 0 8px 20px rgba(16, 185, 129, 0.15);
-// }
-
-// .file-accordion.status-success .file-header {
-//     --background: #ecfdf5;
-// }
-
-// .file-accordion.status-success .accordion-body {
-//     background: #f0fdf4;
-//     border-top-color: #a7f3d0;
-// }
-
-// .legend-item.status-success .legend-color {
-//     background: #036846;
-// }
-
-// /* 2 = Failed - Red */
-// .file-accordion.status-failed {
-//     box-shadow: 0 8px 20px rgba(239, 68, 68, 0.15);
-//     border-color: #dc2626;
-//     background: linear-gradient(135deg, #d69e9e, #d69e9e);
-// }
-
-// .file-accordion.status-failed .file-header {
-//     --background: #fef2f2;
-// }
-
-// .file-accordion.status-failed .accordion-body {
-//     background: #fef2f2;
-//     border-top-color: #d69e9e;
-// }
-
-// .legend-item.status-failed .legend-color {
-//     background: #ef4444;
-// }
-
 @media (max-width: 768px) {
     .status-legend {
         flex-direction: column;
@@ -634,7 +560,7 @@ ion-datetime {
 .date-box {
     display: flex;
     flex-direction: column;
-    min-width: 130px;
+    min-width: 160px;
     flex-shrink: 0; 
 }
 
@@ -643,12 +569,13 @@ ion-datetime {
     font-weight: 600;
     color: #1e3a8a;
     margin-bottom: 4px;
-    align-items:center;
+    align-items: center;
 }
 
 .date-box ion-button {
     width: 100%;
 }
+
 @media (max-width: 768px) {
     .date-box label {
         display: block;
@@ -660,4 +587,8 @@ ion-datetime {
     .date-box {
         min-width: 120px;
     }
+}
+
+.data-table td.center-cell {
+    text-align: center !important;
 }

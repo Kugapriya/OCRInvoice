@@ -20,41 +20,41 @@
           Refresh
         </ion-button> -->
 
-          <!-- FROM -->
-          <div class="date-box">
-            <label>From</label>
+        <!-- FROM -->
+        <div class="date-box">
+          <label>From</label>
 
-            <ion-button id="fromDateBtn" fill="outline">
-              {{ fromDate ? (fromDate | date:'yyyy-MM-dd') : 'date' }}
-              <ion-icon name="calendar" slot="end"></ion-icon>
-            </ion-button>
-
-            <ion-popover trigger="fromDateBtn" size="auto" cssClass="date-popover">
-              <ng-template>
-                <ion-datetime presentation="date" [(ngModel)]="fromDate"></ion-datetime>
-              </ng-template>
-            </ion-popover>
-          </div>
-
-          <!-- TO -->
-          <div class="date-box">
-            <label>To</label>
-
-            <ion-button id="toDateBtn" fill="outline">
-              {{ toDate ? (toDate | date:'yyyy-MM-dd') : 'date' }}
-              <ion-icon name="calendar" slot="end"></ion-icon>
-            </ion-button>
-
-            <ion-popover trigger="toDateBtn" size="auto" cssClass="date-popover">
-              <ng-template>
-                <ion-datetime presentation="date" [(ngModel)]="toDate"></ion-datetime>
-              </ng-template>
-            </ion-popover>
-          </div>
-          <ion-button class="refresh-btn" (click)="loadInvoiceDetails()" [disabled]="loading">
-            <ion-icon name="refresh" slot="start"></ion-icon>
-            Refresh
+          <ion-button id="fromDateBtn" fill="outline">
+            {{ fromDate ? (fromDate | date:'yyyy-MM-dd') : 'date' }}
+            <ion-icon name="calendar" slot="end"></ion-icon>
           </ion-button>
+
+          <ion-popover trigger="fromDateBtn" size="auto" cssClass="date-popover">
+            <ng-template>
+              <ion-datetime presentation="date" [(ngModel)]="fromDate"></ion-datetime>
+            </ng-template>
+          </ion-popover>
+        </div>
+
+        <!-- TO -->
+        <div class="date-box">
+          <label>To</label>
+
+          <ion-button id="toDateBtn" fill="outline">
+            {{ toDate ? (toDate | date:'yyyy-MM-dd') : 'date' }}
+            <ion-icon name="calendar" slot="end"></ion-icon>
+          </ion-button>
+
+          <ion-popover trigger="toDateBtn" size="auto" cssClass="date-popover">
+            <ng-template>
+              <ion-datetime presentation="date" [(ngModel)]="toDate"></ion-datetime>
+            </ng-template>
+          </ion-popover>
+        </div>
+        <ion-button class="refresh-btn" (click)="loadInvoiceDetails()" [disabled]="loading">
+          <ion-icon name="refresh" slot="start"></ion-icon>
+          Refresh
+        </ion-button>
 
       </div>
     </div>
@@ -155,19 +155,19 @@
                     <td>{{ detail.header.createdUtc }}</td>
                     <td>{{ detail.header.filename }}</td>
                     <td>{{ detail.header.docType }}</td>
-                    <td>{{ detail.header.supplierName }}</td>
-                    <td>{{ detail.header.customerName }}</td>
-                    <td>{{ detail.header.cmsCustomerId }}</td>
-                    <td>{{ detail.header.docNumber }}</td>
+                    <td class="center-cell">{{ detail.header.supplierName }}</td>
+                    <td class="center-cell">{{ detail.header.customerName }}</td>
+                    <td class="center-cell">{{ detail.header.cmsCustomerId }}</td>
+                    <td class="center-cell">{{ detail.header.docNumber }}</td>
                     <td>{{ detail.header.docDate }}</td>
-                    <td class="number-cell">{{ detail.header.totalExVat | number:'1.2-2' }}</td>
-                    <td class="number-cell">{{ detail.header.totalVat | number:'1.2-2' }}</td>
-                    <td class="number-cell">{{ detail.header.totalIncVat | number:'1.2-2' }}</td>
-                    <td>{{ detail.header.currency }}</td>
-                    <td>{{ detail.header.compared}}</td>
-                    <td>{{ detail.header.generated }}</td>
-                    <td>{{ detail.header.startSync }}</td>
-                    <td>{{ detail.header.endSync }}</td>
+                    <td class="center-cell">{{ detail.header.totalExVat | number:'1.2-2' }}</td>
+                    <td class="center-cell">{{ detail.header.totalVat | number:'1.2-2' }}</td>
+                    <td class="center-cell">{{ detail.header.totalIncVat | number:'1.2-2' }}</td>
+                    <td class="center-cell">{{ detail.header.currency }}</td>
+                    <td class="center-cell">{{ detail.header.compared}}</td>
+                    <td class="center-cell">{{ detail.header.generated }}</td>
+                    <td class="center-cell">{{ detail.header.startSync }}</td>
+                    <td class="center-cell">{{ detail.header.endSync }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -192,7 +192,7 @@
                     <th>CMS Customer ID</th>
                     <th>Doc Number</th>
                     <th>Doc Date</th>
-                    <th>Line No</th>
+                    <!-- <th>Line No</th> -->
                     <th>Code</th>
                     <th>Description</th>
                     <th>Case Pack</th>
@@ -226,22 +226,22 @@
                     <td>{{ line.createdUtc }}</td>
                     <td>{{ line.filename }}</td>
                     <td>{{ line.docType }}</td>
-                    <td>{{ line.supplierName }}</td>
-                    <td>{{ line.customerName }}</td>
-                    <td>{{ line.cmsCustomerId }}</td>
-                    <td>{{ line.docNumber }}</td>
-                    <td>{{ parseDate(line.docDate) }}</td>
-                    <td>{{ line.lineNo }}</td>
+                    <td class="center-cell">{{ line.supplierName }}</td>
+                    <td class="center-cell">{{ line.customerName }}</td>
+                    <td class="center-cell">{{ line.cmsCustomerId }}</td>
+                    <td class="center-cell">{{ line.docNumber }}</td>
+                    <td>{{ line.docDate }}</td>
+                    <!-- <td>{{ line.lineNo }}</td> -->
                     <td>{{ line.code }}</td>
                     <td>{{ line.description }}</td>
-                    <td>{{ line.casePack }}</td>
-                    <td>{{ line.unitSize }}</td>
-                    <td>{{ line.totalUnits }}</td>
+                    <td class="number-cell">{{ line.casePack }}</td>
+                    <td class="center-cell">{{ line.unitSize }}</td>
+                    <td class="number-cell">{{ line.totalUnits }}</td>
                     <td>{{ line.qty }}</td>
                     <td class="number-cell">{{ line.unitPrice | number:'1.2-2' }}</td>
                     <td class="number-cell">{{ line.lineNet | number:'1.2-2' }}</td>
-                    <td>{{ line.vatCode }}</td>
-                    <td>{{ line.vatRate }}</td>
+                    <td class="center-cell">{{ line.vatCode }}</td>
+                    <td class="number-cell">{{ line.vatRate | number:'1.2-2' }}</td>
                     <td class="number-cell">{{ line.vatAmount | number:'1.2-2' }}</td>
                     <td class="number-cell">{{ line.lineGross | number:'1.2-2' }}</td>
                     <td class="number-cell">{{ line.stdRrp | number:'1.2-2' }}</td>
