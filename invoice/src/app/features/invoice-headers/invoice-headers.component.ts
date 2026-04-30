@@ -72,6 +72,8 @@ export class InvoiceHeadersComponent implements OnInit {
         return 'VAT Mismatch Exception';
       case 4:
         return 'UnSupported File Format';
+      case 5:
+        return 'Access Permission Denied';
       default:
         return 'Unknown Status';
     }
@@ -80,7 +82,7 @@ export class InvoiceHeadersComponent implements OnInit {
     if (status === 0) return 'status-not-processed';
     if (status === 9) return 'status-processing';
     if (status === 1) return 'status-success';
-    if (status === 2 || status === 3) return 'status-failed';
+    if (status === 2 || status === 3 || status === 5) return 'status-failed';
     return 'status-failed';
   }
 
