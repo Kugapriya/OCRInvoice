@@ -22,19 +22,16 @@ public class UploadRepository
 
     public async Task<List<string>> UploadFilesAsync(List<IFormFile> files, string customerId, List<string> vendors, List<string> invoiceTypes)
     {
-        // Validate that customerId is provided
         if (string.IsNullOrEmpty(customerId))
         {
             throw new InvalidOperationException("Customer ID is required.");
         }
 
-        // Validate that vendors are provided and match file count
         if (vendors == null || vendors.Count == 0 || vendors.Count != files.Count)
         {
             throw new InvalidOperationException("Supplier/Vendor must be selected for each file before upload.");
         }
 
-        // Validate that all vendors are selected (not empty)
         for (int i = 0; i < vendors.Count; i++)
         {
             if (string.IsNullOrEmpty(vendors[i]))
@@ -43,13 +40,11 @@ public class UploadRepository
             }
         }
 
-        // Validate that invoiceTypes are provided and match file count
         if (invoiceTypes == null || invoiceTypes.Count == 0 || invoiceTypes.Count != files.Count)
         {
             throw new InvalidOperationException("Invoice type must be selected for each file before upload.");
         }
 
-        // Validate that all invoiceTypes are selected (not empty)
         for (int i = 0; i < invoiceTypes.Count; i++)
         {
             if (string.IsNullOrEmpty(invoiceTypes[i]))
@@ -69,7 +64,6 @@ public class UploadRepository
             if (file == null || file.Length == 0)
                 continue;
 
-            // Use the selected vendor and invoice type for this file (already validated above)
             string supplierName = vendors[i].ToUpper();
             string processType = invoiceTypes[i].ToUpper();
 
