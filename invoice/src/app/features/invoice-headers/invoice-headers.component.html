@@ -255,7 +255,7 @@
                         (click)="toggleBarcodeEdit(line.id)" title="Click to edit">
                         {{ line.barcode }}
                       </span>
-                      <input *ngIf="editingBarcodeId === line.id" type="text" [(ngModel)]="line.barcode"
+                      <input *ngIf="editingBarcodeId === line.id" type="number" [(ngModel)]="line.barcode"
                         class="barcode-input" placeholder="Enter barcode" />
                       <button *ngIf="editingBarcodeId === line.id" (click)="saveBarcode(line, $event)"
                         [disabled]="savingBarcodeId === line.id" class="save-btn" title="Save">
