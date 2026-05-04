@@ -28,7 +28,7 @@ export class DashboardComponent implements OnInit {
   ukDate: string = '';
   ukTime: string = '';
   ukDay: string = '';
-  selectedInvoice: 'PURCHASE' | 'SERVICE' | 'SALES' | 'COMMISSION' = 'PURCHASE';
+  selectedInvoice: 'PURCHASE' | 'SERVICE' | 'SALES' | 'COMMISSION' | '' = '';
   fileName: string = '';
   customerDetails: string[] = [];
 
@@ -58,13 +58,14 @@ export class DashboardComponent implements OnInit {
 
   showDatePicker: boolean = false;
   selectedIndex: number | null = null;
-  selectedVendor: string = '';
+  selectedVendor: 'BOOKER' | 'NISA' | '' = '';
   uploadedFiles: {
     name: string;
     file: File;
     url: string;
     status: 'PENDING' | 'PROCESSING' | 'COMPLETED';
-    invoiceType: 'PURCHASE' | 'SERVICE' | 'SALES' | 'COMMISSION';
+    invoiceType: 'PURCHASE' | 'SERVICE' | 'SALES' | 'COMMISSION' | 'Expenses' | '';
+    vendor: 'BOOKER' | 'NISA' | '';
   }[] = [];
 
   selectedTarget: string | null = null;
@@ -103,16 +104,16 @@ export class DashboardComponent implements OnInit {
       //   this.googleUrl = user.googleUrl ?? '';
       this.role = user.role ?? '';
     }
-    
+
     // Get customerId from repository (which loads from localStorage if set)
     this.customerId = this.repository.customerId ?? '';
-    
+
     // Fallback to localStorage if not in repository
     if (!this.customerId) {
       const cutom = localStorage.getItem('cust') ?? '';
       this.customerId = cutom ? JSON.parse(cutom).customerId : '';
     }
-    
+
     this.updateUKTime();
     setInterval(() => this.updateUKTime(), 1000);
   }
@@ -204,6 +205,11 @@ export class DashboardComponent implements OnInit {
       this.alertService.showToast('Please select a Supplier first', 3000, 'top');
       return;
     }
+
+    if (!this.selectedInvoice || this.selectedInvoice.trim() === '') {
+      this.alertService.showToast('Please select invoice type', 3000, 'top');
+      return;
+    }
     try {
       const platform = Capacitor.getPlatform();
       const isWeb = platform === 'web';
@@ -282,6 +288,7 @@ export class DashboardComponent implements OnInit {
           url: URL.createObjectURL(pdfBlob),
           status: 'PENDING',
           invoiceType: this.selectedInvoice,
+          vendor: this.selectedVendor,
         });
       });
 
@@ -503,13 +510,16 @@ export class DashboardComponent implements OnInit {
         file: file,
         url: URL.createObjectURL(file),
         status: 'PENDING',
-        invoiceType: this.selectedInvoice
+        invoiceType: this.selectedInvoice,
+        vendor: this.selectedVendor
       });
     }
   }
   onUploadClick(fileInput: any) {
     if (!this.selectedVendor || this.selectedVendor.trim() === '') {
       this.alertService.showToast('Please select a Supplier first', 3000, 'top');
+    } else if (!this.selectedInvoice || this.selectedInvoice.trim() === '') {
+      this.alertService.showToast('Please select invoice type', 3000, 'top');
     } else {
       fileInput.click();
     }
@@ -552,10 +562,24 @@ export class DashboardComponent implements OnInit {
   }
 
   async transmit(): Promise<void> {
-    if (!this.selectedTarget) {
-      alert('Please select a target');
-      return;
+    // Validate all files have vendor and invoiceType selected
+    for (let i = 0; i < this.uploadedFiles.length; i++) {
+      const file = this.uploadedFiles[i];
+      if (!file.vendor || file.vendor.trim() === '') {
+        this.alertService.showErrorToast(`Please select Supplier for file ${i + 1}`);
+        throw new Error(`Please select Supplier for file ${i + 1}`);
+      }
+      if (!file.invoiceType || file.invoiceType.trim() === '') {
+        this.alertService.showErrorToast(`Please select invoice type for file ${i + 1}`);
+        throw new Error(`Please select invoice type for file ${i + 1}`);
+      }
     }
+
+    if (!this.selectedTarget) {
+      this.alertService.showErrorToast('Please select a target');
+      throw new Error('Please select a target');
+    }
+
     switch (this.selectedTarget) {
 
       case 'email':
@@ -691,37 +715,43 @@ export class DashboardComponent implements OnInit {
     this.isConfirmModalOpen = true;
   }
 
+  // Handle transmit button click with all guards
+  handleTransmitClick() {
+    if (this.dispatching) {
+      return;
+    }
+    if (this.uploadedFiles.length === 0) {
+      return;
+    }
+    this.openConfirmModal();
+  }
+
   // Close modal
   closeConfirmModal() {
     this.isConfirmModalOpen = false;
   }
+
+  // Handle modal dismiss event
+  onModalDidDismiss() {
+    this.isConfirmModalOpen = false;
+  }
+
   async startDispatch() {
     if (this.dispatching) return;
     if (this.uploadedFiles.length === 0) return;
 
     this.dispatching = true;
-    // this.showSuccessBadge = false;
 
     try {
       await this.transmit();
 
-      // this.uploadedFiles.forEach(f => f.status = 'COMPLETED');
-
-      // this.showSuccessBadge = false;
-      // this.isConfirmModalOpen = false;
-
-      // setTimeout(() => {
-      //   this.showSuccessBadge = false;
-      //   this.dispatching = false;
-      // }, 5000);
       this.alertService.showSuccessToast("Transmission successful");
-      // this.isConfirmModalOpen = true;
+      this.isConfirmModalOpen = false;
 
     } catch (err: any) {
       this.alertService.showErrorToast(err.message || "Transmission failed");
     } finally {
       this.dispatching = false;
-      this.isConfirmModalOpen = false;
     }
   }
 
@@ -776,9 +806,11 @@ export class DashboardComponent implements OnInit {
     const formData = new FormData();
     for (let item of this.uploadedFiles) {
       formData.append('files', item.file);
+      formData.append('vendors', item.vendor);
+      formData.append('invoiceTypes', item.invoiceType);
     }
 
-    const uploadUrl = `${environment.apiUrl}file/upload/${this.customerId}/${this.selectedVendor}`;
+    const uploadUrl = `${environment.apiUrl}file/upload/${this.customerId}`;
 
     return new Promise<void>((resolve, reject) => {
       this.http.post<any>(uploadUrl, formData).subscribe({
@@ -800,25 +832,27 @@ export class DashboardComponent implements OnInit {
   }
   async uploadAzureFiles(): Promise<void> {
     if (this.uploadedFiles.length === 0) {
-      throw new Error("No files selected");
+      alert("No files selected");
+      return;
+    }
+    if (!this.customerId) {
+      this.alertService.showErrorToast("Customer ID is required");
+      return;
     }
 
     const formData = new FormData();
     for (let item of this.uploadedFiles) {
       formData.append('files', item.file);
+      formData.append('vendors', item.vendor);
+      formData.append('invoiceTypes', item.invoiceType);
     }
 
-    const uploadUrl = `${environment.apiUrl}file/uploadazure/${this.customerId}/${this.selectedVendor}`;
+    const uploadUrl = `${environment.apiUrl}file/uploadazure/${this.customerId}`;
 
     return new Promise<void>((resolve, reject) => {
-      this.http.post(uploadUrl, formData).subscribe({
-        next: (res) => {
-          resolve();
-        },
-        error: (err) => {
-          console.error(err);
-          reject(err);
-        }
+      this.http.post<any>(uploadUrl, formData).subscribe({
+        next: (res) => resolve(),
+        error: (err) => reject(err)
       });
     });
   }
@@ -831,9 +865,11 @@ export class DashboardComponent implements OnInit {
     const formData = new FormData();
     for (let item of this.uploadedFiles) {
       formData.append('files', item.file);
+      formData.append('vendors', item.vendor);
+      formData.append('invoiceTypes', item.invoiceType);
     }
 
-    const uploadUrl = `${environment.apiUrl}file/uploadsql/${this.customerId}/${this.selectedVendor}`;
+    const uploadUrl = `${environment.apiUrl}file/uploadsql/${this.customerId}`;
 
     return new Promise<void>((resolve, reject) => {
       this.http.post(uploadUrl, formData).subscribe({

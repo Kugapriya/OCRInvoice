@@ -86,12 +86,12 @@ public class FileController : ControllerBase
         }
     }
 
-    [HttpPost("upload/{customerId}/{supplierName}")]
-    public async Task<IActionResult> UploadFiles(List<IFormFile> files, string customerId, string supplierName)
+    [HttpPost("upload/{customerId}")]
+    public async Task<IActionResult> UploadFilesWithMetadata(List<IFormFile> files, string customerId, [FromForm] List<string> vendors, [FromForm] List<string> invoiceTypes)
     {
         try
         {
-            var savedPaths = await _upload.UploadFilesAsync(files, customerId, supplierName);
+            var savedPaths = await _upload.UploadFilesAsync(files, customerId, vendors ?? new List<string>(), invoiceTypes ?? new List<string>());
             return Ok(new { saved = savedPaths });
         }
         catch (Exception ex)

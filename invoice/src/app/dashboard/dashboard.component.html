@@ -171,8 +171,14 @@
         <ion-select [(ngModel)]="selectedInvoice" interface="popover" size="small" (click)="$event.stopPropagation()"
           interface="popover">
 
+          <ion-select-option value="">
+            Select Invoice Type
+          </ion-select-option>
           <ion-select-option value="PURCHASE">
             Purchase Invoice
+          </ion-select-option>
+          <ion-select-option value="Expenses">
+            Expenses
           </ion-select-option>
 
           <ion-select-option value="SERVICE">
@@ -232,29 +238,41 @@
               <div class="file-info">
                 {{ file.name }}
               </div>
+
+              <div class="file-selections">
+                <ion-select [(ngModel)]="file.vendor" interface="popover" placeholder="Vendor" size="small"
+                  (click)="$event.stopPropagation()">
+                  <ion-select-option value="">Select Vendor</ion-select-option>
+                  <ion-select-option value="BOOKER">BOOKER</ion-select-option>
+                  <ion-select-option value="NISA">NISA</ion-select-option>
+                </ion-select>
+
+                <ion-select [(ngModel)]="file.invoiceType" interface="popover" placeholder="Type" size="small"
+                  (click)="$event.stopPropagation()">
+                  <ion-select-option value="">Select Type</ion-select-option>
+                  <ion-select-option value="PURCHASE">Purchase</ion-select-option>
+                  <ion-select-option value="Expenses">Expenses</ion-select-option>
+                  <ion-select-option value="SERVICE">Service</ion-select-option>
+                  <ion-select-option value="SALES">Sales</ion-select-option>
+                  <ion-select-option value="COMMISSION">Commission</ion-select-option>
+                </ion-select>
+
+                <ion-note color="warning" *ngIf="!file.vendor || !file.invoiceType"
+                  style="display: block; margin-top: 8px; padding: 8px; border-radius: 4px; background-color: rgba(255,192,0,0.1);">
+                  <ion-icon name="warning-outline" style="margin-right: 4px;"></ion-icon>
+                  Select both Vendor and Type
+                </ion-note>
+              </div>
+
               <div class="badge-row">
-                <!-- <ion-badge [color]="
-                      file.status === 'PENDING' ? 'warning' :
-                      file.status === 'PROCESSING' ? 'medium' :
-                      file.status === 'COMPLETED' ? 'success' :
-                      'danger'
-  ">
-                  {{ file.status }}
-                </ion-badge> -->
-                <ion-badge color="primary">
+                <ion-badge color="primary" *ngIf="file.invoiceType">
                   {{ file.invoiceType }}
+                </ion-badge>
+                <ion-badge color="secondary" *ngIf="file.vendor">
+                  {{ file.vendor }}
                 </ion-badge>
               </div>
               <div class="file-actions">
-
-                <!-- <ion-button size="small" fill="clear" [color]="file.status === 'PROCESSING' ? 'medium' : 'success'"
-                  (click)="processFile(file.file, i); $event.stopPropagation()"
-                  [disabled]="file.status === 'PROCESSING' || file.status === 'COMPLETED'">
-
-                  <ion-spinner *ngIf="file.status === 'PROCESSING'" name="dots"></ion-spinner>
-
-                  <ion-icon *ngIf="file.status !== 'PROCESSING'" name="play-outline"></ion-icon>
-                </ion-button> -->
 
                 <ion-button size="small" fill="clear" color="primary"
                   (click)="inspectFile(file.file, i); $event.stopPropagation()">
@@ -310,16 +328,17 @@
         Successfully sent to {{ selectedTarget | titlecase }}
       </ion-badge> -->
 
-      <ion-badge class="transmit-badge" [class.disabled]="uploadedFiles.length === 0" (click)="openConfirmModal()"
-        style="cursor:pointer">
+      <ion-badge class="transmit-badge" [class.disabled]="uploadedFiles.length === 0 || dispatching"
+        (click)="handleTransmitClick()" style="cursor: pointer;">
 
-        <ion-icon [name]="getTransmitIcon()"></ion-icon>
-        {{ selectedTarget | titlecase }} Transmit
+        <ion-icon [name]="getTransmitIcon()" *ngIf="!dispatching"></ion-icon>
+        <ion-spinner *ngIf="dispatching" name="crescent" style="width: 20px; height: 20px;"></ion-spinner>
+        {{ dispatching ? 'Transmitting...' : selectedTarget | titlecase }} Transmit
 
       </ion-badge>
 
     </div>
-    <ion-modal [isOpen]="isConfirmModalOpen" cssClass="small-centered-modal">
+    <ion-modal [isOpen]="isConfirmModalOpen" cssClass="small-centered-modal" (didDismiss)="onModalDidDismiss()">
       <ng-template>
         <ion-card class="dispatch-modal-card">
 
@@ -342,11 +361,13 @@
             <ion-badge class="action-badge" [ngClass]="{
             'primary-badge': !dispatching,
             'transmitting-badge': dispatching
-          }" (click)="startDispatch()">
+          }" (click)="!dispatching && startDispatch()" [style.pointer-events]="dispatching ? 'none' : 'auto'"
+              [style.opacity]="dispatching ? '0.6' : '1'">
               {{ dispatching ? 'Transmitting...' : 'COMMENCE DISPATCH' }}
             </ion-badge>
 
-            <ion-badge class="action-badge abort" color="medium" (click)="closeConfirmModal()">
+            <ion-badge class="action-badge abort" color="medium" (click)="!dispatching && closeConfirmModal()"
+              [style.pointer-events]="dispatching ? 'none' : 'auto'">
               ABORT
             </ion-badge>
           </ion-card-content>
