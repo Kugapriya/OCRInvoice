@@ -1,0 +1,110 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* FORCE FULL SCREEN */
+.vendor-edit-container {
+    width: 100vw;
+    min-height: 100vh;
+    background: #f5f7fa;
+    display: flex;
+    flex-direction: column;
+}
+
+/* FORM FULL WIDTH */
+.edit-form {
+    width: 100vw;
+    max-width: 100%;
+    padding: 20px 40px;
+    box-sizing: border-box;
+}
+
+/* BODY FULL WIDTH */
+.form-body {
+    width: 100%;
+}
+
+/* ROW FIX */
+.row {
+    width: 100%;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* 3 COLUMN DESKTOP */
+.col-md-4 {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+    padding: 12px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* LABEL */
+label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    display: block;
+    color: #2c3e50;
+}
+
+/* INPUT */
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    background: #fafafa;
+}
+
+.form-control:focus {
+    border-color: #3498db;
+    background: #fff;
+    outline: none;
+}
+
+/* ACTION BAR */
+.form-actions {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* BUTTONS */
+.btn-success {
+    background: #27ae60;
+    color: #fff;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-warning {
+    background: #e74c3c;
+    color: #fff;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-success:hover {
+    background: #1e8449;
+}
+
+.btn-warning:hover {
+    background: #c0392b;
+}

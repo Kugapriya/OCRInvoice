@@ -1,0 +1,56 @@
+<div class="container-fluid p-0 h-100 users-container">
+  <div *ngIf="service.vendor_tableMode" class="users-table-view w-100 h-100">
+    <div class="row my-1" [hidden]="!service.vendor_tableMode">
+      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mr-0 pr-0">
+        <div class="input-group input-group-sm m-0 p-0">
+          <div class="mt-1 mr-2" *ngIf="service.vendor_tableMode">
+            <button class="btn btn-sm btn-success" (click)="createNewVendor()">
+              <i class="fa fa-plus"></i> Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Supplier</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th>City</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let v of service.vendors">
+                <td>{{ v.supplierName }}</td>
+                <td>{{ v.contactName }}</td>
+                <td>{{ v.email }}</td>
+                <td>{{ v.city }}</td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-success me-2" (click)="editVendor(v)">
+                    <i class="fa fa-edit"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteVendor(v.id)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="service.vendors.length === 0">
+                <td colspan="5" class="text-center text-muted">No vendors found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- EDIT VIEW -->
+  <div *ngIf="!service.vendor_tableMode">
+    <app-vendor-edit></app-vendor-edit>
+  </div>
+</div>

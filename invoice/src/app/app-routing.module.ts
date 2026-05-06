@@ -10,6 +10,8 @@ import { AuthGuard } from './core/_guards/auth.guard';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { InvoiceHeadersComponent } from './features/invoice-headers/invoice-headers.component';
+import { VendorEditComponent } from './features/vendor-edit/vendor-edit.component';
+import { VendorsComponent } from './features/vendors/vendors.component';
 
 // const routes: Routes = [
 //   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -52,7 +54,9 @@ const routes: Routes = [
           { path: '', loadChildren: () => import('./home/home.module').then(m => m.HomePageModule) },
           // { path: 'customers', component: CustomerProfileComponent },
           { path: 'uploadedfiles', component: UploadedFilesComponent },
-          {path: 'invoiceheaders', component: InvoiceHeadersComponent}
+          {path: 'invoiceheaders', component: InvoiceHeadersComponent},
+          {path: 'vendors', component: VendorsComponent},
+          {path: 'vendor-edit/:id', component: VendorEditComponent}
         ]
       }
     ]
