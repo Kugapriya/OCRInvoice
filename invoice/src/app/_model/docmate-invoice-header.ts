@@ -16,6 +16,7 @@ export class DocMateInvoiceHeader {
         public compared: boolean | null = null,
         public generated: boolean | null = null,
         public startSync: boolean | null = null,
-        public endSync: boolean | null = null
+        public endSync: boolean | null = null,
+        public originalId: number = 0
     ) { }
 }

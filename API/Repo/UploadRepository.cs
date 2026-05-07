@@ -153,8 +153,9 @@ public class UploadRepository
                 [Compared],
                 [Generated],
                 [StartSync],
-                [EndSync]
-            FROM [dbo].[DocMate_invoice_headers]
+                [EndSync],
+                [OriginalId]
+            FROM DocMate_invoice_headers_Copy
             WHERE [id] = @headerId;";
 
         await using var cmd = new SqlCommand(sql, conn);
@@ -209,8 +210,9 @@ public class UploadRepository
                 [Compared],
                 [Generated],
                 [StartSync],
-                [EndSync]
-            FROM [dbo].[DocMate_invoice_line_Data]
+                [EndSync],
+                [OriginalId]
+            FROM DocMate_invoice_line_Data_Copy
             WHERE [id] BETWEEN @lineStart AND @lineEnd
             ORDER BY [id];";
 
@@ -248,7 +250,8 @@ public class UploadRepository
             Compared = GetNullableBool(reader, "Compared"),
             Generated = GetNullableBool(reader, "Generated"),
             StartSync = GetNullableBool(reader, "StartSync"),
-            EndSync = GetNullableBool(reader, "EndSync")
+            EndSync = GetNullableBool(reader, "EndSync"),
+            OriginalId = reader.GetInt32(reader.GetOrdinal("OriginalId"))
         };
     }
 
@@ -289,7 +292,8 @@ public class UploadRepository
             Compared = GetNullableBool(reader, "Compared"),
             Generated = GetNullableBool(reader, "Generated"),
             StartSync = GetNullableBool(reader, "StartSync"),
-            EndSync = GetNullableBool(reader, "EndSync")
+            EndSync = GetNullableBool(reader, "EndSync"),
+            OriginalId = reader.GetInt32(reader.GetOrdinal("OriginalId"))
         };
     }
 
@@ -329,7 +333,7 @@ public class UploadRepository
         await conn.OpenAsync();
 
         const string sql = @"
-            UPDATE [dbo].[DocMate_invoice_line_Data]
+            UPDATE DocMate_invoice_line_Data_Copy
             SET [Barcode] = @barcode
             WHERE [id] = @lineId;";
 

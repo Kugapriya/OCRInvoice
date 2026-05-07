@@ -19,5 +19,6 @@ namespace API.Dtos
         public bool? Generated { get; set; }
         public bool? StartSync { get; set; }
         public bool? EndSync { get; set; }
+        public int OriginalId { get; set; }
     }
 }
