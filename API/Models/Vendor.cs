@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace API.Models
 {
     public class Vendor
     {
         [Key]
+        [JsonProperty("id")]
         public int ID { get; set; }
 
         [Required]
