@@ -65,7 +65,8 @@ export class VendorEditComponent implements OnInit {
 
     if (this.service.isCreatingNew) {
       this.service.createVendor(vendor).subscribe({
-        next: async () => {
+        next: async (created) => {
+          this.service.vendors.push(created);
           this.service.getAllVendors().subscribe(v => this.service.vendors = v);
           this.clear();
           await this.showToast('Vendor saved successfully.', 'success');

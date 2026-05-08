@@ -12,7 +12,7 @@ import { PDFDocument } from 'pdf-lib';
 import { Filesystem } from '@capacitor/filesystem';
 import { AlertService } from '../core/services/alert.service';
 import { RepositoryService } from '../core/services/repository.service';
-import { VendorService, Vendor } from '../core/services/vendor.service';
+import { VendorService } from '../core/services/vendor.service';
 
 @Component({
   standalone: true,
@@ -60,7 +60,6 @@ export class DashboardComponent implements OnInit {
   showDatePicker: boolean = false;
   selectedIndex: number | null = null;
   selectedVendor: string = '';
-  vendors: Vendor[] = [];
   uploadedFiles: {
     name: string;
     file: File;
@@ -83,11 +82,11 @@ export class DashboardComponent implements OnInit {
 
   constructor(private http: HttpClient, private router: Router,
     private zone: NgZone, private alertService: AlertService, public repository: RepositoryService, private alertCtrl: AlertController,
-    private vendorService: VendorService
+    public vendorService: VendorService
   ) { }
 
   ngOnInit() {
-    this.vendorService.getAllVendors().subscribe(v => this.vendors = v);
+    this.vendorService.getAllVendors().subscribe(v => this.vendorService.vendors = v);
     this.repository.loadSelectedStoreFromStorage();
     this.repository.loadCustomerIdFromStorage();
 

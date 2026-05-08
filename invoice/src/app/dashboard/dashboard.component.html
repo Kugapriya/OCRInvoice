@@ -56,7 +56,7 @@
         <ion-label>Supplier Name</ion-label>
         <ion-select [(ngModel)]="selectedVendor" interface="popover" placeholder="Select Supplier" size="small">
           <ion-select-option value="">Select Supplier</ion-select-option>
-          <ion-select-option *ngFor="let v of vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
+          <ion-select-option *ngFor="let v of vendorService.vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
         </ion-select>
       </ion-item>
 
@@ -228,7 +228,7 @@
                 <ion-select [(ngModel)]="file.vendor" interface="popover" placeholder="Vendor" size="small"
                   (click)="$event.stopPropagation()">
                   <ion-select-option value="">Select Vendor</ion-select-option>
-                  <ion-select-option *ngFor="let v of vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
+                  <ion-select-option *ngFor="let v of vendorService.vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
                 </ion-select>
 
                 <ion-select [(ngModel)]="file.invoiceType" interface="popover" placeholder="Type" size="small"
@@ -464,7 +464,7 @@
                 <ion-select [(ngModel)]="supplierName" interface="popover" placeholder="Select Supplier"
                   class="badge-input" (ionChange)="onInputChange()">
                   <ion-select-option value="">Select Supplier</ion-select-option>
-                  <ion-select-option *ngFor="let v of vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
+                  <ion-select-option *ngFor="let v of vendorService.vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
                 </ion-select>
               </div>
             </ion-card-content>
