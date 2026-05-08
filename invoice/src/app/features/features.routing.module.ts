@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { VendorsComponent } from './vendors/vendors.component';
-import { VendorEditComponent } from './vendor-edit/vendor-edit.component';
+import { unsavedChangesGuard } from './unsaved-changes.guard';
 
 const routes: Routes = [
-  { path: 'vendors', component: VendorsComponent },
-  { path: 'vendor-edit/:id', component: VendorEditComponent }
+  { path: 'vendors', component: VendorsComponent, canDeactivate: [unsavedChangesGuard] }
 ];
 
 @NgModule({

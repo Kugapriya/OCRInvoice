@@ -49,14 +49,14 @@ export class HomePage {
       borderColor: '#d98200',
       url: '/site/home/invoiceheaders'
     },
-    // {
-    //   title: 'Vendors',
-    //   icon: 'storefront-outline',
-    //   color: '#ffffff',
-    //   bgColor: '#169cb4',
-    //   borderColor: '#0c7385',
-    //   url: '/site/home/vendors'
-    // }
+    {
+      title: 'Vendors',
+      icon: 'storefront-outline',
+      color: '#ffffff',
+      bgColor: '#169cb4',
+      borderColor: '#0c7385',
+      url: '/site/home/vendors'
+    }
   ];
 
   navigateTo(url: string) {

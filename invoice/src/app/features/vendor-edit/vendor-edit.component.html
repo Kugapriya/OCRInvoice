@@ -1,63 +1,53 @@
-<div class="vendor-edit-container">
+<div class="edit-container">
 
-  <form *ngIf="service.selectedVendor" class="edit-form">
+  <form *ngIf="service.selectedVendor" class="edit-form" autocomplete="off">
+
     <div class="form-body">
-      <div class="row g-3">
-        <div class="col-12 col-md-4">
-          <label>Supplier</label>
-          <input class="form-control"
-            name="supplierName"
-            [(ngModel)]="service.selectedVendor.supplierName">
+      <div class="form-row">
+        <div class="form-col">
+          <label>Supplier <span class="required">*</span></label>
+          <input class="form-control" [class.input-error]="supplierNameExists" name="supplierName"
+            [(ngModel)]="service.selectedVendor.supplierName" (input)="onSupplierNameInput()"
+            placeholder="Supplier name" autocomplete="off">
+          <span class="field-error" *ngIf="supplierNameExists">Supplier already exists</span>
         </div>
-
-        <div class="col-12 col-md-4">
+        <div class="form-col">
           <label>Contact Name</label>
-          <input class="form-control"
-            name="contactName"
-            [(ngModel)]="service.selectedVendor.contactName">
+          <input class="form-control" name="contactName" [(ngModel)]="service.selectedVendor.contactName"
+            placeholder="Contact person" autocomplete="off">
         </div>
-
-        <div class="col-12 col-md-4">
+        <div class="form-col">
           <label>Email</label>
-          <input class="form-control"
-            name="email"
-            [(ngModel)]="service.selectedVendor.email">
+          <input class="form-control" name="email" type="email" [(ngModel)]="service.selectedVendor.email"
+            placeholder="Email address" autocomplete="off">
         </div>
       </div>
 
-      <div class="row g-3 mt-1">
-
-        <div class="col-12 col-md-4">
+      <div class="form-row">
+        <div class="form-col">
           <label>Mobile</label>
-          <input class="form-control"
-            name="mobileNumber"
-            [(ngModel)]="service.selectedVendor.mobileNumber">
+          <input class="form-control" name="mobileNumber" type="tel" inputmode="numeric"
+            [(ngModel)]="service.selectedVendor.mobileNumber" placeholder="Mobile number"
+            (keypress)="onlyNumbers($event)" autocomplete="off">
         </div>
-
-        <div class="col-12 col-md-4">
+        <div class="form-col">
           <label>City</label>
-          <input class="form-control"
-            name="city"
-            [(ngModel)]="service.selectedVendor.city">
+          <input class="form-control" name="city" [(ngModel)]="service.selectedVendor.city" placeholder="City" autocomplete="off">
         </div>
-
-        <div class="col-12 col-md-4">
+        <div class="form-col">
           <label>Address</label>
-          <input class="form-control"
-            name="address1"
-            [(ngModel)]="service.selectedVendor.address1">
+          <input class="form-control" name="address1" [(ngModel)]="service.selectedVendor.address1"
+            placeholder="Address" autocomplete="off">
         </div>
-
       </div>
+    </div>
 
-    </div>
     <div class="form-actions">
-      <button type="button" class="btn btn-warning" (click)="clear()">
-        Cancel
-      </button>
-      <button type="button" class="btn btn-success" (click)="save()">
-        Save
+      <button type="button" class="btn-cancel" (click)="clear()">Cancel</button>
+      <button type="button" class="btn-save" [disabled]="isSaveDisabled()" (click)="save()">
+        <i class="fa fa-check"></i> Save
       </button>
     </div>
+
   </form>
 </div>

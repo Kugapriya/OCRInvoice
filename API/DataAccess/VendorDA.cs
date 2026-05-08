@@ -20,7 +20,7 @@ namespace API.DataAccess
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                string query = "SELECT ID, SupplierName, ContactName, Address1, City, MobileNumber, Email FROM Vendors ORDER BY SupplierName";
+                string query = "SELECT ID, SupplierName, ContactName, Address1, City, MobileNumber, Email FROM Vendors ";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -79,80 +79,78 @@ namespace API.DataAccess
             return null;
         }
 
-        public async Task<bool> VendorExistsAsync(string supplierName, int? excludeId = null)
+        // public async Task<bool> VendorExistsAsync(string supplierName, int? excludeId = null)
+        // {
+        //     using (SqlConnection connection = new SqlConnection(_connectionString))
+        //     {
+        //         await connection.OpenAsync();
+        //         string query = "SELECT COUNT(*) FROM Vendors WHERE UPPER(SupplierName) = UPPER(@SupplierName)";
+        //         if (excludeId.HasValue)
+        //         {
+        //             query += " AND ID != @ExcludeId";
+        //         }
+
+        //         using (SqlCommand command = new SqlCommand(query, connection))
+        //         {
+        //             command.Parameters.AddWithValue("@SupplierName", supplierName);
+        //             if (excludeId.HasValue)
+        //             {
+        //                 command.Parameters.AddWithValue("@ExcludeId", excludeId.Value);
+        //             }
+
+        //             int count = (int)await command.ExecuteScalarAsync();
+        //             return count > 0;
+        //         }
+        //     }
+        // }
+
+        public async Task<int> CreateVendorAsync(Vendor m)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                await connection.OpenAsync();
-                string query = "SELECT COUNT(*) FROM Vendors WHERE UPPER(SupplierName) = UPPER(@SupplierName)";
-                if (excludeId.HasValue)
+                await conn.OpenAsync();
+                string query = @"INSERT INTO Vendors (SupplierName, ContactName, Address1, City, MobileNumber, Email)
+                                VALUES (@SupplierName, @ContactName, @Address1, @City, @MobileNumber, @Email)";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
-                    query += " AND ID != @ExcludeId";
-                }
+                    cmd.Parameters.Add(new SqlParameter("@SupplierName", SqlDbType.NVarChar, 255) { Value = m.SupplierName });
+                    cmd.Parameters.Add(new SqlParameter("@ContactName", SqlDbType.NVarChar, 255) { Value = (object?)m.ContactName ?? DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@Address1", SqlDbType.NVarChar, 500) { Value = (object?)m.Address1 ?? DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@City", SqlDbType.NVarChar, 100) { Value = (object?)m.City ?? DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@MobileNumber", SqlDbType.NVarChar, 50) { Value = (object?)m.MobileNumber ?? DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = (object?)m.Email ?? DBNull.Value });
 
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@SupplierName", supplierName);
-                    if (excludeId.HasValue)
-                    {
-                        command.Parameters.AddWithValue("@ExcludeId", excludeId.Value);
-                    }
-
-                    int count = (int)await command.ExecuteScalarAsync();
-                    return count > 0;
-                }
-            }
-        }
-
-        public async Task<int> CreateVendorAsync(Vendor vendor)
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                string query = @"INSERT INTO Vendors (SupplierName, ContactName, Address1, City, MobileNumber, Email) 
-                                VALUES (@SupplierName, @ContactName, @Address1, @City, @MobileNumber, @Email);
-                                SELECT SCOPE_IDENTITY();";
-
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@SupplierName", vendor.SupplierName);
-                    command.Parameters.AddWithValue("@ContactName", vendor.ContactName ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Address1", vendor.Address1 ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@City", vendor.City ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@MobileNumber", vendor.MobileNumber ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Email", vendor.Email ?? (object)DBNull.Value);
-
-                    var result = await command.ExecuteScalarAsync();
-                    return result != null ? Convert.ToInt32(result) : 0;
+                    return await cmd.ExecuteNonQueryAsync();
                 }
             }
         }
 
-        public async Task<bool> UpdateVendorAsync(Vendor vendor)
+        public async Task<bool> UpdateVendorAsync(Vendor m)
         {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                await connection.OpenAsync();
-                string query = @"UPDATE Vendors 
+                await conn.OpenAsync();
+                string Sql = @"UPDATE Vendors 
                                 SET SupplierName = @SupplierName,
                                     ContactName = @ContactName,
                                     Address1 = @Address1,
                                     City = @City,
                                     MobileNumber = @MobileNumber,
                                     Email = @Email
-                                WHERE ID = @ID";
+                                WHERE ID = @ID ";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlCommand cmd = new SqlCommand(Sql, conn))
                 {
-                    command.Parameters.AddWithValue("@ID", vendor.ID);
-                    command.Parameters.AddWithValue("@SupplierName", vendor.SupplierName);
-                    command.Parameters.AddWithValue("@ContactName", vendor.ContactName ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Address1", vendor.Address1 ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@City", vendor.City ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@MobileNumber", vendor.MobileNumber ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Email", vendor.Email ?? (object)DBNull.Value);
+                    cmd.Parameters.Add(new SqlParameter("@ID", SqlDbType.Int) { Value = m.ID });
+                    cmd.Parameters.Add(new SqlParameter("@SupplierName", SqlDbType.NVarChar, 255) { Value = m.SupplierName });
+                    cmd.Parameters.Add(new SqlParameter("@ContactName", SqlDbType.NVarChar, 255) { Value = (object?)m.ContactName ?? DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@Address1", SqlDbType.NVarChar, 500) { Value = (object?)m.Address1 ?? DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@City", SqlDbType.NVarChar, 100) { Value = (object?)m.City ?? DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@MobileNumber", SqlDbType.NVarChar, 50) { Value = (object?)m.MobileNumber ?? DBNull.Value });
+                    cmd.Parameters.Add(new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = (object?)m.Email ?? DBNull.Value });
 
-                    int rowsAffected = await command.ExecuteNonQueryAsync();
+                    int rowsAffected = await cmd.ExecuteNonQueryAsync();
                     return rowsAffected > 0;
                 }
             }

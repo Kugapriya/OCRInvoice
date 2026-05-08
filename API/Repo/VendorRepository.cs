@@ -27,11 +27,11 @@ namespace API.Repo
             return await da.GetVendorByIdAsync(id);
         }
 
-        public async Task<bool> VendorExistsAsync(string supplierName, int? excludeId = null)
-        {
-            VendorDA da = new VendorDA(connectionString);
-            return await da.VendorExistsAsync(supplierName, excludeId);
-        }
+        // public async Task<bool> VendorExistsAsync(string supplierName, int? excludeId = null)
+        // {
+        //     VendorDA da = new VendorDA(connectionString);
+        //     return await da.VendorExistsAsync(supplierName, excludeId);
+        // }
 
         public async Task<int> CreateVendorAsync(Vendor vendor)
         {

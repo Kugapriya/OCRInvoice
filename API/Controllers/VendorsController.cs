@@ -48,24 +48,16 @@ public class VendorsController : ControllerBase
     }
 
     [HttpPost("create")]
-    public async Task<IActionResult> CreateVendor([FromBody] Vendor vendor)
+    public async Task<IActionResult> CreateVendor(Vendor vendor)
     {
         try
         {
-            if (vendor == null || string.IsNullOrWhiteSpace(vendor.SupplierName))
-                return BadRequest("SupplierName is required");
+            int rows = await _repo.CreateVendorAsync(vendor);
 
-            // Check if vendor already exists (case-insensitive)
-            bool exists = await _repo.VendorExistsAsync(vendor.SupplierName);
-            if (exists)
-                return BadRequest(new { message = "Vendor with this supplier name already exists" });
-
-            int newId = await _repo.CreateVendorAsync(vendor);
-            if (newId == 0)
+            if (rows == 0)
                 return StatusCode(500, "Failed to create vendor");
 
-            vendor.ID = newId;
-            return CreatedAtAction(nameof(GetVendorById), new { id = newId }, vendor);
+            return Ok(vendor);
         }
         catch (Exception ex)
         {
@@ -84,15 +76,14 @@ public class VendorsController : ControllerBase
             if (string.IsNullOrWhiteSpace(vendor.SupplierName))
                 return BadRequest("SupplierName is required");
 
-            // Check if vendor exists
             var existingVendor = await _repo.GetVendorByIdAsync(vendor.ID);
             if (existingVendor == null)
                 return NotFound("Vendor not found");
 
             // Check if another vendor with the same name exists (case-insensitive)
-            bool nameExists = await _repo.VendorExistsAsync(vendor.SupplierName, vendor.ID);
-            if (nameExists)
-                return BadRequest(new { message = "Another vendor with this supplier name already exists" });
+            // bool nameExists = await _repo.VendorExistsAsync(vendor.SupplierName, vendor.ID);
+            // if (nameExists)
+            //     return BadRequest(new { message = "Another vendor with this supplier name already exists" });
 
             bool updated = await _repo.UpdateVendorAsync(vendor);
             if (!updated)

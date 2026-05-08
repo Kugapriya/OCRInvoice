@@ -1,87 +1,193 @@
-html, body, .users-container {
-	height: 100%;
-	min-height: 100vh;
-	width: 100vw;
-	background: #f8f9fa;
-	margin: 0;
-	padding: 0;
+.users-container {
+    min-height: 100vh;
+    background: #f0f4f8;
+    padding: 10px 35px;
+    padding-top: calc(var(--ion-toolbar-height, 56px) + var(--ion-safe-area-top, 0px) + 10px);
 }
 
+/* ── Card wrapper ── */
 .users-table-view {
-	background: #fff;
-	border-radius: 0;
-	box-shadow: none;
-	padding: 0;
-	margin: 0;
-	width: 100vw;
-	min-height: 100vh;
+    overflow: hidden;
 }
 
-table {
-	margin-bottom: 0;
+/* ── Toolbar ── */
+.table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #e8edf2;
 }
 
-thead th {
-	background-color: #007bff;
-	color: #fff;
-	font-weight: 600;
-	letter-spacing: 0.5px;
+.table-toolbar__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f4e79;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-tbody tr {
-	vertical-align: middle;
+.badge-count {
+    background: #1f4e79;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
 }
 
-td, th {
-	text-align: left;
+/* ── Create button ── */
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s;
 }
 
-.btn {
-	min-width: 90px;
+.btn-create:hover {
+    background: #1b5e20;
 }
 
-@media (max-width: 768px) {
-	.users-table-view {
-		padding: 8px;
-	}
-	table th, table td {
-		padding: 0.4rem;
-		font-size: 13px;
-	}
-}
-/* Ensure table is not hidden behind nav and is aligned to start */
-.container-fluid {
-	margin-top: 56px; /* Adjust if your navbar height is different */
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-}
-
+/* ── Table ── */
 .table-responsive {
-	width: 100%;
-	overflow-x: auto;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-table {
-	width: 100%;
-	background: #fff;
-	border-radius: 8px;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+.vendors-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+    font-size: 0.875rem;
 }
 
-thead th {
-	background-color: #007bff; 
-	color: #fff;
-	position: sticky;
-	top: 0;
-	z-index: 1;
+.vendors-table thead th {
+    background: #1f4e79;
+    color: #fff;
+    font-weight: 600;
+    padding: 8px 10px;
+    text-align: left;
+    white-space: nowrap;
+    border: none;
+    font-size: 0.82rem;
 }
 
-@media (max-width: 768px) {
-	.table-responsive {
-		font-size: 14px;
-	}
-	table th, table td {
-		padding: 0.5rem;
-	}
+.vendors-table thead th.col-actions {
+    width: 80px;
+    text-align: center;
+}
+
+.vendors-table tbody td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #edf1f5;
+    vertical-align: middle;
+    color: #2d3748;
+    font-size: 0.85rem;
+}
+
+.vendors-table tbody td.col-actions {
+    text-align: center;
+    white-space: nowrap;
+    width: 80px;
+}
+
+.vendor-row {
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.vendor-row:hover td {
+    background: #eef4fb;
+}
+
+.vendor-row:nth-child(even) td {
+    background: #f8fafc;
+}
+
+.vendor-row:nth-child(even):hover td {
+    background: #eef4fb;
+}
+
+.cell-primary {
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.cell-secondary {
+    color: #4a5568;
+}
+
+.empty-row {
+    text-align: center;
+    color: #a0aec0;
+    padding: 32px !important;
+    font-size: 0.9rem;
+}
+
+/* ── Action buttons ── */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.action-btn:active {
+    transform: scale(0.92);
+}
+
+.action-btn--edit {
+    background: #e8f0fe;
+    color: #1a73e8;
+    margin-right: 6px;
+}
+
+.action-btn--edit:hover {
+    background: #1a73e8;
+    color: #fff;
+}
+
+.action-btn--delete {
+    background: #fde8e8;
+    color: #e53935;
+}
+
+.action-btn--delete:hover {
+    background: #e53935;
+    color: #fff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 991px) {
+    .hide-md {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .vendors-table thead th,
+    .vendors-table tbody td {
+        padding: 9px 10px;
+        font-size: 0.82rem;
+    }
+
+    .action-btn {
+        width: 30px;
+        height: 30px;
+    }
 }

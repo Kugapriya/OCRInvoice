@@ -751,13 +751,13 @@ ion-select {
 
 .transmit-section {
   margin-top: 10px;
+  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
-  /* stack badges vertically */
   align-items: center;
-  /* center both badges */
   gap: 8px;
-  /* space between badges */
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 10px;
 }
 
 /* SUCCESS BADGE */

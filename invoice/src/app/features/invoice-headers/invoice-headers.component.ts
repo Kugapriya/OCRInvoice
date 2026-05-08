@@ -239,8 +239,18 @@ export class InvoiceHeadersComponent implements OnInit {
     }
   }
 
+  onBarcodeKeyPress(event: KeyboardEvent): boolean {
+    return /[0-9]/.test(event.key);
+  }
+
   saveBarcode(line: DocMateInvoiceLine, event: Event) {
     event.stopPropagation();
+
+    const barcode = line.barcode || '';
+    if (barcode && (!/^\d+$/.test(barcode) || barcode.length > 13)) {
+      this.alertService.showErrorToast('Barcode must be numeric and max 13 digits');
+      return;
+    }
 
     this.savingBarcodeId = line.id;
 

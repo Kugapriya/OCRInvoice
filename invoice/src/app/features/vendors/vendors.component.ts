@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { VendorService, Vendor } from '../../core/services/vendor.service';
+import { RepositoryService } from '../../core/services/repository.service';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, AlertController } from '@ionic/angular';
 import { VendorEditComponent } from '../vendor-edit/vendor-edit.component';
 
 @Component({
@@ -10,13 +10,16 @@ import { VendorEditComponent } from '../vendor-edit/vendor-edit.component';
   templateUrl: './vendors.component.html',
   styleUrls: ['./vendors.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule,VendorEditComponent]
+  imports: [CommonModule, IonicModule, VendorEditComponent]
 })
 export class VendorsComponent implements OnInit {
   error = '';
-  loading = false;
 
-  constructor(public service: VendorService) { }
+  constructor(
+    public service: VendorService,
+    public repository: RepositoryService,
+    private alertCtrl: AlertController
+  ) { }
 
   ngOnInit() {
     this.loadVendors();
@@ -25,30 +28,20 @@ export class VendorsComponent implements OnInit {
   }
 
   loadVendors() {
-    this.loading = true;
     this.service.getAllVendors().subscribe({
       next: (data) => {
         this.service.vendors = data;
-        this.loading = false;
       },
       error: (err) => {
         this.error = err.message;
-        this.loading = false;
       }
     });
   }
 
   createNewVendor() {
-    this.service.selectedVendor = {
-      id: 0,
-      supplierName: '',
-      contactName: '',
-      address1: '',
-      city: '',
-      mobileNumber: '',
-      email: ''
-    };
-
+    const blank: Vendor = { id: 0, supplierName: '', contactName: '', address1: '', city: '', mobileNumber: '', email: '' };
+    this.service.selectedVendor = { ...blank };
+    this.service.originalVendor = { ...blank };
     this.service.vendor_tableMode = false;
     this.service.vendor_editMode = true;
     this.service.isCreatingNew = true;
@@ -56,17 +49,38 @@ export class VendorsComponent implements OnInit {
 
   editVendor(vendor: Vendor) {
     this.service.selectedVendor = { ...vendor };
-
+    this.service.originalVendor = { ...vendor };
     this.service.vendor_tableMode = false;
     this.service.vendor_editMode = true;
     this.service.isCreatingNew = false;
   }
 
-  deleteVendor(id: number) {
-    if (confirm('Delete this vendor?')) {
-      this.service.deleteVendor(id).subscribe(() => {
-        this.loadVendors();
-      });
-    }
+  async deleteVendor(id: number) {
+    const vendor = this.service.vendors.find(v => v.id === id);
+    const vendorName = (vendor?.supplierName ?? '').trim();
+
+    const alert = await this.alertCtrl.create({
+      header: 'Delete Vendor',
+      message: `Are you sure you want to delete "${vendorName}"?`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            this.service.deleteVendor(id).subscribe({
+              next: () => {
+                this.service.vendors = this.service.vendors.filter(v => v.id !== id);
+                this.error = '';
+              },
+              error: () => {
+                this.error = 'Failed to delete vendor. Please try again.';
+              }
+            });
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 }

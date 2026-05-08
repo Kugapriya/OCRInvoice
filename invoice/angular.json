@@ -6,7 +6,7 @@
     "app": {
       "projectType": "application",
       "schematics": {
-         "@schematics/angular:component": {
+        "@schematics/angular:component": {
           "style": "scss",
           "standalone": false
         },
@@ -52,7 +52,11 @@
                 "output": "/"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+            ],
             "scripts": [],
             "serviceWorker": true,
             "ngswConfigPath": "ngsw-config.json"
@@ -139,7 +143,11 @@
                 "output": "/"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": [
+              "src/global.scss",
+              "src/theme/variables.scss",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+            ],
             "scripts": []
           },
           "configurations": {

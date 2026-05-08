@@ -23,7 +23,7 @@ export class BaseComponent implements OnInit {
     { title: 'Dashboard', icon: 'speedometer-outline', url: '/site/dashboard' },
     { title: 'Uploaded Files', icon: 'document-outline', url: '/site/home/uploadedfiles' },
     { title: 'Invoice Headers', icon: 'receipt-outline', url: '/site/home/invoiceheaders' },
-    // { title: 'Vendors', icon: 'storefront-outline', url: '/site/home/vendors' },
+    { title: 'Vendors', icon: 'storefront-outline', url: '/site/home/vendors' },
     { title: 'Logout', icon: 'log-out-outline', url: 'logout' }
   ];
 

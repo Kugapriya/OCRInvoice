@@ -1,56 +1,53 @@
-<div class="container-fluid p-0 h-100 users-container">
-  <div *ngIf="service.vendor_tableMode" class="users-table-view w-100 h-100">
-    <div class="row my-1" [hidden]="!service.vendor_tableMode">
-      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 mr-0 pr-0">
-        <div class="input-group input-group-sm m-0 p-0">
-          <div class="mt-1 mr-2" *ngIf="service.vendor_tableMode">
-            <button class="btn btn-sm btn-success" (click)="createNewVendor()">
-              <i class="fa fa-plus"></i> Create
-            </button>
-          </div>
-        </div>
-      </div>
+<div class="container-fluid users-container">
+
+  <div *ngIf="service.vendor_tableMode" class="users-table-view">
+
+    <div class="table-toolbar">
+
+      <button class="btn-create" (click)="createNewVendor()">
+        <i class="fa fa-plus"></i>
+        <span class="btn-create__label">Create</span>
+      </button>
     </div>
-    <!-- Table -->
-    <div class="row">
-      <div class="col-12">
-        <div class="table-responsive">
-          <table class="table table-sm table-striped">
-            <thead>
-              <tr>
-                <th>Supplier</th>
-                <th>Contact</th>
-                <th>Email</th>
-                <th>City</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let v of service.vendors">
-                <td>{{ v.supplierName }}</td>
-                <td>{{ v.contactName }}</td>
-                <td>{{ v.email }}</td>
-                <td>{{ v.city }}</td>
-                <td class="text-end">
-                  <button class="btn btn-sm btn-success me-2" (click)="editVendor(v)">
-                    <i class="fa fa-edit"></i>
-                  </button>
-                  <button class="btn btn-sm btn-danger" (click)="deleteVendor(v.id)">
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr *ngIf="service.vendors.length === 0">
-                <td colspan="5" class="text-center text-muted">No vendors found</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+
+    <div class="table-responsive">
+      <table class="vendors-table">
+        <thead>
+          <tr>
+            <th>Supplier</th>
+            <th>Contact</th>
+            <th>Email</th>
+            <th>City</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of service.vendors" class="vendor-row" (click)="editVendor(v)">
+            <td class="cell-primary">{{ v?.supplierName }}</td>
+            <td class="cell-secondary">{{ v?.contactName }}</td>
+            <td class="cell-secondary">{{ v?.email }}</td>
+            <td class="cell-secondary">{{ v?.city }}</td>
+            <td class="col-actions" (click)="$event.stopPropagation()">
+              <button class="action-btn action-btn--edit" type="button" (click)="editVendor(v)" title="Edit">
+                <i class="fa fa-pencil"></i>
+              </button>
+              <button class="action-btn action-btn--delete" type="button" (click)="deleteVendor(v.id)" title="Delete">
+                <i class="fa fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="service.vendors?.length === 0">
+            <td colspan="5" class="empty-row">No vendors found</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+
   </div>
-  <!-- EDIT VIEW -->
+
   <div *ngIf="!service.vendor_tableMode">
     <app-vendor-edit></app-vendor-edit>
   </div>
+
 </div>

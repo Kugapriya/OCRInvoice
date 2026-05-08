@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace API
 {
@@ -29,13 +30,17 @@ namespace API
                     Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 opt.SerializerSettings.NullValueHandling =
                     NullValueHandling.Ignore;
+                opt.SerializerSettings.ContractResolver =
+                    new CamelCasePropertyNamesContractResolver();
             });
 
             services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"),
-                    sqlOptions => sqlOptions.EnableRetryOnFailure()
-                    //want to check
+                    sqlOptions => sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null)
                 ));
             //remove the comment
             //services.AddCors();
@@ -103,11 +108,9 @@ namespace API
             //app.UseHttpsRedirection ();
 
             app.UseRouting();
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
-            //after remove this
-            //app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
-            app.UseCors("AllowAll");
             app.UseDefaultFiles();
             app.UseStaticFiles();
 

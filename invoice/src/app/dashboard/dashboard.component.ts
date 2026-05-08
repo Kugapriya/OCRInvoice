@@ -12,6 +12,7 @@ import { PDFDocument } from 'pdf-lib';
 import { Filesystem } from '@capacitor/filesystem';
 import { AlertService } from '../core/services/alert.service';
 import { RepositoryService } from '../core/services/repository.service';
+import { VendorService, Vendor } from '../core/services/vendor.service';
 
 @Component({
   standalone: true,
@@ -28,7 +29,7 @@ export class DashboardComponent implements OnInit {
   ukDate: string = '';
   ukTime: string = '';
   ukDay: string = '';
-  selectedInvoice: 'PURCHASE' | 'SERVICE' | 'SALES' | 'COMMISSION' | '' = '';
+  selectedInvoice: string = '';
   fileName: string = '';
   customerDetails: string[] = [];
 
@@ -58,14 +59,15 @@ export class DashboardComponent implements OnInit {
 
   showDatePicker: boolean = false;
   selectedIndex: number | null = null;
-  selectedVendor: 'BOOKER' | 'NISA' | '' = '';
+  selectedVendor: string = '';
+  vendors: Vendor[] = [];
   uploadedFiles: {
     name: string;
     file: File;
     url: string;
     status: 'PENDING' | 'PROCESSING' | 'COMPLETED';
-    invoiceType: 'PURCHASE' | 'SERVICE' | 'SALES' | 'COMMISSION' | 'Expenses' | '';
-    vendor: 'BOOKER' | 'NISA' | '';
+    invoiceType: string;
+    vendor: string;
   }[] = [];
 
   selectedTarget: string | null = null;
@@ -80,10 +82,12 @@ export class DashboardComponent implements OnInit {
   }
 
   constructor(private http: HttpClient, private router: Router,
-    private zone: NgZone, private alertService: AlertService, public repository: RepositoryService, private alertCtrl: AlertController
+    private zone: NgZone, private alertService: AlertService, public repository: RepositoryService, private alertCtrl: AlertController,
+    private vendorService: VendorService
   ) { }
 
   ngOnInit() {
+    this.vendorService.getAllVendors().subscribe(v => this.vendors = v);
     this.repository.loadSelectedStoreFromStorage();
     this.repository.loadCustomerIdFromStorage();
 
