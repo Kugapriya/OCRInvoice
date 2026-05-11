@@ -1,44 +1,42 @@
-<div class="container-fluid users-container">
+<ion-content class="vendors-content" *ngIf="service.vendor_tableMode">
 
-  <div *ngIf="service.vendor_tableMode" class="users-table-view">
+  <div class="page-wrap">
 
-    <div class="table-toolbar">
-
+    <div class="toolbar">
       <button class="btn-create" (click)="createNewVendor()">
-        <i class="fa fa-plus"></i>
-        <span class="btn-create__label">Create</span>
+        <ion-icon name="add-outline"></ion-icon> New
       </button>
+      <div class="search-wrap">
+        <ion-icon name="search-outline"></ion-icon>
+        <input type="search" placeholder="Search..." [(ngModel)]="searchQuery" (ngModelChange)="onSearch()">
+      </div>
     </div>
 
-    <div class="table-responsive">
-      <table class="vendors-table">
+    <div class="table-wrap">
+      <table>
         <thead>
           <tr>
             <th>Supplier</th>
             <th>Contact</th>
             <th>Email</th>
             <th>City</th>
-            <th class="col-actions"></th>
+            <th class="col-act"></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let v of service.vendors" class="vendor-row" (click)="editVendor(v)">
-            <td class="cell-primary">{{ v?.supplierName }}</td>
-            <td class="cell-secondary">{{ v?.contactName }}</td>
-            <td class="cell-secondary">{{ v?.email }}</td>
-            <td class="cell-secondary">{{ v?.city }}</td>
-            <td class="col-actions" (click)="$event.stopPropagation()">
-              <button class="action-btn action-btn--edit" type="button" (click)="editVendor(v)" title="Edit">
-                <i class="fa fa-pencil"></i>
+          <tr *ngFor="let v of filteredVendors" (click)="editVendor(v)">
+            <td class="cell-name">{{ v.supplierName }}</td>
+            <td>{{ v.contactName }}</td>
+            <td>{{ v.email }}</td>
+            <td>{{ v.city }}</td>
+            <td class="col-act" (click)="$event.stopPropagation()">
+              <button class="btn-edit" (click)="editVendor(v)">
+                <ion-icon name="pencil-outline"></ion-icon>
               </button>
-              <button class="action-btn action-btn--delete" type="button" (click)="deleteVendor(v.id)" title="Delete">
-                <i class="fa fa-trash"></i>
+              <button class="btn-delete" (click)="deleteVendor(v.id)">
+                <ion-icon name="trash-outline"></ion-icon>
               </button>
             </td>
-          </tr>
-
-          <tr *ngIf="service.vendors?.length === 0">
-            <td colspan="5" class="empty-row">No vendors found</td>
           </tr>
         </tbody>
       </table>
@@ -46,8 +44,6 @@
 
   </div>
 
-  <div *ngIf="!service.vendor_tableMode">
-    <app-vendor-edit></app-vendor-edit>
-  </div>
+</ion-content>
 
-</div>
+<app-vendor-edit *ngIf="!service.vendor_tableMode"></app-vendor-edit>

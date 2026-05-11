@@ -1,0 +1,56 @@
+<ion-content fullscreen class="otp-content">
+  <div class="otp-container">
+
+    <div class="logo-wrapper">
+      <div class="logo-circle">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
+    </div>
+
+    <ion-card class="otp-card">
+      <ion-card-header>
+        <ion-card-title class="heading">Verify OTP</ion-card-title>
+        <ion-card-subtitle class="sub-heading">
+          Enter the 6-digit code sent to<br>
+          <strong class="email-text">{{ email }}</strong>
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+
+        <div class="otp-boxes">
+          <input
+            *ngFor="let box of otpBoxes; let i = index"
+            #otpInput
+            type="tel"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-box"
+            [(ngModel)]="otpDigits[i]"
+            (input)="onDigitInput($event, i)"
+            (keydown)="onKeyDown($event, i)"
+            (paste)="onPaste($event)">
+        </div>
+
+        <div class="resend-row">
+          <span class="resend-label">Didn't receive it?</span>
+          <ion-button fill="clear" class="resend-btn" (click)="resendOtp()" [disabled]="resendCooldown > 0">
+            {{ resendCooldown > 0 ? 'Resend in ' + resendCooldown + 's' : 'Resend OTP' }}
+          </ion-button>
+        </div>
+
+        <ion-button expand="block" class="action-btn" (click)="verifyOtp()" [disabled]="loading">
+          <ion-spinner *ngIf="loading" name="crescent" style="margin-right:8px"></ion-spinner>
+          <span *ngIf="!loading">Verify Code</span>
+        </ion-button>
+
+        <ion-button expand="block" fill="clear" class="back-btn" (click)="goBack()">
+          <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+          Back to Email
+        </ion-button>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

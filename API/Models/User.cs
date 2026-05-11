@@ -9,7 +9,7 @@ namespace API.Models
         [StringLength(50)]
         [Key]
         public string Username { get; set; } = "";
-        [StringLength(50)]
+        [StringLength(255)]
         public string? Password { get; set; }
         [StringLength(50)]
         public string? Name { get; set; }

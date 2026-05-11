@@ -1,0 +1,84 @@
+<ion-content fullscreen class="reg-content">
+  <div class="reg-container">
+
+    <div class="logo-wrapper">
+      <div class="logo-circle">
+        <ion-icon name="person-add-outline"></ion-icon>
+      </div>
+    </div>
+
+    <ion-card class="reg-card">
+      <ion-card-header>
+        <ion-card-title class="heading">Create Account</ion-card-title>
+        <ion-card-subtitle class="sub-heading">Sign up with your email</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form>
+
+          <div class="input-group">
+            <ion-icon name="person-outline" class="field-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="model.name"
+              name="name"
+              type="text"
+              placeholder="Full name"
+              class="custom-input">
+            </ion-input>
+          </div>
+
+          <div class="input-group">
+            <ion-icon name="mail-outline" class="field-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="model.email"
+              name="email"
+              type="email"
+              placeholder="Email address"
+              class="custom-input">
+            </ion-input>
+          </div>
+
+          <div class="input-group">
+            <ion-icon name="lock-closed-outline" class="field-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="model.password"
+              name="password"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Password"
+              class="custom-input">
+            </ion-input>
+            <ion-button fill="clear" class="eye-btn" (click)="showPassword = !showPassword">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="input-group">
+            <ion-icon name="lock-closed-outline" class="field-icon"></ion-icon>
+            <ion-input
+              [(ngModel)]="model.confirmPassword"
+              name="confirmPassword"
+              [type]="showConfirm ? 'text' : 'password'"
+              placeholder="Confirm password"
+              class="custom-input">
+            </ion-input>
+            <ion-button fill="clear" class="eye-btn" (click)="showConfirm = !showConfirm">
+              <ion-icon [name]="showConfirm ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+          </div>
+
+          <ion-button expand="block" class="action-btn" (click)="register()" [disabled]="loading">
+            <ion-spinner *ngIf="loading" name="crescent" style="margin-right:8px"></ion-spinner>
+            <span *ngIf="!loading">Create Account</span>
+          </ion-button>
+
+          <div class="login-link">
+            <span>Already have an account?</span>
+            <ion-button fill="clear" class="link-btn" routerLink="/login">Sign In</ion-button>
+          </div>
+
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

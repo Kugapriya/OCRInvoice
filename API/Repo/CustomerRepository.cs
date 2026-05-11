@@ -1,10 +1,9 @@
 using System.IO.Compression;
-using System.Net;
-using System.Net.Mail;
 using API.DataAccess;
-using API.Dtos;
-using Azure.Storage.Blobs;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 
 namespace API.Repo
 {
@@ -115,26 +114,20 @@ namespace API.Repo
                         await fileStream.CopyToAsync(entryStream);
                     }
                 }
-                using var mail = new MailMessage();
-                mail.From = new MailAddress(emailSetup.Username);
-                mail.To.Add(mailTo);
-                mail.Subject = "Invoices ZIP Folder";
-                mail.Body = "Please find attached invoices.";
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(emailSetup.Username, emailSetup.Username));
+                message.To.Add(new MailboxAddress(mailTo, mailTo));
+                message.Subject = "Invoices ZIP Folder";
 
-                using (var zipStream = new FileStream(zipPath, FileMode.Open, FileAccess.Read))
-                {
-                    var attachment = new Attachment(zipStream, "Invoices.zip", "application/zip");
-                    mail.Attachments.Add(attachment);
+                var builder = new BodyBuilder { TextBody = "Please find attached invoices." };
+                builder.Attachments.Add("Invoices.zip", await File.ReadAllBytesAsync(zipPath));
+                message.Body = builder.ToMessageBody();
 
-                    using var smtp = new SmtpClient(emailSetup.SmtpServer)
-                    {
-                        Port = emailSetup.Port,
-                        Credentials = new NetworkCredential(emailSetup.Username, emailSetup.Password),
-                        EnableSsl = emailSetup.EnableSsl
-                    };
-
-                    await smtp.SendMailAsync(mail);
-                }
+                using var smtp = new SmtpClient();
+                await smtp.ConnectAsync(emailSetup.SmtpServer, emailSetup.Port, SecureSocketOptions.StartTls);
+                await smtp.AuthenticateAsync(emailSetup.Username, emailSetup.Password);
+                await smtp.SendAsync(message);
+                await smtp.DisconnectAsync(true);
 
                 return true;
             }
@@ -155,35 +148,32 @@ namespace API.Repo
         public async Task<bool> SendEmail(string mailTo, string subject, string body)
         {
             EmailSetup? emailSetup = await GetEmailSetup();
+
             if (emailSetup == null)
             {
+                Console.WriteLine("[EMAIL] No email config found in EmailSetups table");
                 return false;
             }
 
             try
             {
-                using (var mail = new MailMessage())
-                {
-                    mail.From = new MailAddress(emailSetup.Username);
-                    mail.To.Add(mailTo);
-                    mail.Subject = subject;
-                    mail.Body = body;
-                    mail.IsBodyHtml = true;
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(emailSetup.Username, emailSetup.Username));
+                message.To.Add(new MailboxAddress(mailTo, mailTo));
+                message.Subject = subject;
+                message.Body = new TextPart("html") { Text = body };
 
-                    using (var smtp = new SmtpClient(emailSetup.SmtpServer))
-                    {
-                        smtp.Port = emailSetup.Port;
-                        smtp.Credentials = new NetworkCredential(emailSetup.Username, emailSetup.Password);
-                        smtp.EnableSsl = emailSetup.EnableSsl;
-
-                        await smtp.SendMailAsync(mail);
-                    }
-                }
+                using var smtp = new SmtpClient();
+                await smtp.ConnectAsync(emailSetup.SmtpServer, emailSetup.Port, SecureSocketOptions.StartTls);
+                await smtp.AuthenticateAsync(emailSetup.Username, emailSetup.Password);
+                await smtp.SendAsync(message);
+                await smtp.DisconnectAsync(true);
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"[EMAIL ERROR] {ex.Message}");
                 return false;
             }
         }

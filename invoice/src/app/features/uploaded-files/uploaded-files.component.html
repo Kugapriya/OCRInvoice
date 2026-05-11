@@ -1,31 +1,98 @@
-<ion-content class="ion-padding">
-  <ion-grid *ngIf="uploadedFiles.length > 0">
-    <ion-row>
-      <ion-col size="12" size-md="6" *ngFor="let file of uploadedFiles">
-        <ion-card class="file-card">
-          <ion-card-content class="file-card-content"
-            style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="file-details" style="flex: 1;">
-              <p class="file-name">{{ file.fileName }}</p>
-              <p><strong>Supplier:</strong> {{ file.supplierName || 'N/A' }}</p>
-              <!-- <p><strong>Process:</strong> {{ file.isProcess }}</p> -->
-              <!-- <p><strong>Uploaded:</strong> {{ file.uploadedTime | date:'short' }}</p> -->
-              <p><strong>Uploaded:</strong> {{ getFormattedDateWithMs(file.uploadedTime) }}</p>
-            </div>
+﻿<ion-content class="files-content">
 
-            <div style="display: flex; gap: 8px;">
-              <ion-button (click)="previewFile(file)" fill="clear" color="primary"
-                style="min-width: auto;" title="Preview file">
-                <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-              <ion-button (click)="downloadFile(file)" fill="clear" color="primary"
-                style="min-width: auto;" title="Download file">
-                <ion-icon name="download-outline" slot="icon-only"></ion-icon>
-              </ion-button>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <!-- Date Filter -->
+  <div class="filter-bar">
+    <div class="filter-field">
+      <label>From</label>
+      <input type="date" [(ngModel)]="filterFrom" (change)="applyFilter()" class="date-input">
+    </div>
+    <div class="filter-divider">
+      <ion-icon name="arrow-forward-outline"></ion-icon>
+    </div>
+    <div class="filter-field">
+      <label>To</label>
+      <input type="date" [(ngModel)]="filterTo" (change)="applyFilter()" class="date-input">
+    </div>
+    <button class="clear-btn" (click)="clearFilter()" *ngIf="filterFrom || filterTo" title="Clear filter">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list">
+    <div class="file-card" *ngFor="let file of pagedFiles">
+
+      <div class="file-avatar" [class]="getFileClass(file.fileName)">
+        <ion-icon [name]="getFileIcon(file.fileName)"></ion-icon>
+      </div>
+
+      <div class="file-body">
+        <div class="file-name" [title]="file.fileName">{{ file.fileName }}</div>
+        <div class="file-meta">
+          <span class="meta-chip" *ngIf="file.supplierName">
+            <ion-icon name="business-outline"></ion-icon>
+            {{ file.supplierName }}
+          </span>
+          <span class="meta-chip">
+            <ion-icon name="settings-outline"></ion-icon>
+            {{ file.processType }}
+          </span>
+        </div>
+        <div class="file-date">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ file.uploadedTime | date:'dd MMM yyyy, HH:mm' }}
+        </div>
+      </div>
+
+      <div class="file-actions">
+        <button class="action-btn preview-btn" (click)="previewFile(file)" title="Preview">
+          <ion-icon name="eye-outline"></ion-icon>
+        </button>
+        <button class="action-btn download-btn" (click)="downloadFile(file)" title="Download">
+          <ion-icon name="download-outline"></ion-icon>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </button>
+    <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+    <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+    </button>
+  </div>
+
 </ion-content>
+
+<!-- Preview Overlay -->
+<div class="preview-overlay" *ngIf="previewVisible" (click)="closePreview()">
+  <div class="preview-panel" (click)="$event.stopPropagation()">
+
+    <div class="preview-header">
+      <ion-icon [name]="getFileIcon(previewFileName)" class="preview-type-icon"></ion-icon>
+      <span class="preview-title">{{ previewFileName }}</span>
+      <button class="close-btn" (click)="closePreview()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="preview-body">
+      <iframe *ngIf="previewIsPdf" [src]="safePreviewUrl" class="preview-frame" frameborder="0">
+      </iframe>
+      <img *ngIf="previewIsImage" [src]="safePreviewUrl" class="preview-img" alt="preview">
+      <div class="preview-unsupported" *ngIf="!previewIsPdf && !previewIsImage">
+        <ion-icon name="document-outline"></ion-icon>
+        <p>Preview not available for this file type</p>
+        <button class="dl-btn" (click)="downloadFile(previewFileRef!)">
+          <ion-icon name="download-outline"></ion-icon> Download instead
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

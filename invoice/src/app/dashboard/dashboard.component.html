@@ -16,7 +16,7 @@
 
           <div class="time-info">
             <span>{{ ukDay }}</span> |
-            <span>{{ ukTime }} GMT</span>
+            <span>{{ ukTime }}</span>
           </div>
 
           <div class="time-info">
@@ -35,33 +35,24 @@
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
-  <ion-card class="photo-card">
-    <ion-card-content>
-      <ion-item lines="full" class="customer-id-item center-text">
-        <ion-label position="floating">Customer ID</ion-label>
-        <ion-input type="text" [(ngModel)]="customerId" readonly></ion-input>
-      </ion-item>
-    </ion-card-content>
-  </ion-card>
-  <ion-card class="supplier-card">
-    <ion-card-content>
+  <div class="info-cards-row">
+    <ion-card class="info-card customer-id-card">
+      <ion-card-content>
+        <span class="info-card-label">Customer ID</span>
+        <div class="info-card-value">{{ customerId }}</div>
+      </ion-card-content>
+    </ion-card>
 
-      <ion-card-header>
-        <ion-card-title class="card-title">
-          SELECT SUPPLIER
-        </ion-card-title>
-      </ion-card-header>
-
-      <ion-item>
-        <ion-label>Supplier Name</ion-label>
-        <ion-select [(ngModel)]="selectedVendor" interface="popover" placeholder="Select Supplier" size="small">
+    <ion-card class="info-card supplier-select-card">
+      <ion-card-content>
+        <span class="info-card-label">Supplier</span>
+        <ion-select [(ngModel)]="selectedVendor" interface="popover" placeholder="Select Supplier" class="supplier-select-input">
           <ion-select-option value="">Select Supplier</ion-select-option>
           <ion-select-option *ngFor="let v of vendorService.vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
         </ion-select>
-      </ion-item>
-
-    </ion-card-content>
-  </ion-card>
+      </ion-card-content>
+    </ion-card>
+  </div>
   <!-- <ion-card class="photo-card">
     <ion-card-content>
       <ion-card-header>
@@ -119,6 +110,7 @@
 
       <ion-card-header>
         <ion-card-title class="card-title">
+          <ion-icon name="document-text-outline" class="title-icon"></ion-icon>
           SELECT DOCUMENT STRATEGY
         </ion-card-title>
       </ion-card-header>
@@ -155,10 +147,11 @@
 
     </ion-card-content>
   </ion-card>
-  <ion-card class="photo-card">
+  <ion-card class="photo-card capture-card">
     <ion-card-content>
       <ion-card-header>
         <ion-card-title class="card-title">
+          <ion-icon name="camera-outline" class="title-icon"></ion-icon>
           CAPTURE METHOD
         </ion-card-title>
       </ion-card-header>
@@ -183,17 +176,13 @@
       </ion-grid>
     </ion-card-content>
   </ion-card>
-  <ion-card class="photo-card">
+  <ion-card class="photo-card command-card">
 
     <ion-card-header>
       <ion-card-title class="card-title">
+        <ion-icon name="layers-outline" class="title-icon"></ion-icon>
         DOCUMENT COMMAND CENTER
       </ion-card-title>
-      <div class="badge-wrapper">
-        <ion-badge class="assets-badge">
-          {{ completedCount }} Assets Registered
-        </ion-badge>
-      </div>
     </ion-card-header>
 
     <!-- <div class="action-row">
@@ -370,9 +359,10 @@
     </ion-card>
   </ion-card>
   <!-- DOCUMENT INSPECTOR -->
-  <ion-card class="photo-card">
+  <ion-card class="photo-card inspector-card">
     <ion-card-header>
       <ion-card-title class="card-title">
+        <ion-icon name="search-outline" class="title-icon"></ion-icon>
         DOCUMENT INSPECTOR
       </ion-card-title>
     </ion-card-header>

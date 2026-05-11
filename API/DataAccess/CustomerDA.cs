@@ -10,9 +10,9 @@ namespace API
             connectionString = ConnStr;
         }
 
-        public async Task<EmailSetup> GetEmailList()
+        public async Task<EmailSetup?> GetEmailList()
         {
-            EmailSetup m = new EmailSetup();
+            EmailSetup? m = null;
 
             string SQL = @"SELECT TOP 1 [Id],[Username],[Password],[SmtpServer],
                     [Port],[EnableSsl]
@@ -24,8 +24,9 @@ namespace API
                 {
                     using (SqlDataReader rdr = await cmd.ExecuteReaderAsync())
                     {
-                        while (await rdr.ReadAsync())
+                        if (await rdr.ReadAsync())
                         {
+                            m = new EmailSetup();
                             try { m.Id = rdr.GetInt32(0); } catch { }
                             try { m.Username = rdr.GetString(1); } catch { }
                             try { m.Password = rdr.GetString(2); } catch { }

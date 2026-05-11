@@ -11,7 +11,7 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.72.0" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.72.0.3944" />
-    <PackageReference Include="MailKit" Version="4.14.0" />
+    <PackageReference Include="MailKit" Version="4.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
@@ -20,6 +20,7 @@
     <PackageReference Include="Microsoft.Graph" Version="4.48.0" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.82.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <None Update="invoice-service-key.json">
     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

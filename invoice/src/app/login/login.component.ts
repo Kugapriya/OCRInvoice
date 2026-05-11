@@ -17,13 +17,12 @@ import { AlertService } from '../core/services/alert.service';
 })
 export class LoginComponent implements OnInit {
 
-  username = '';
-  password = '';
-
-  fullName: string = '';
-  email: string = '';
-  isLoading: boolean = false;
   model: any = {};
+  showPassword: boolean = false;
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
   //want to remove repository service
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private authService: AuthService, public repository: RepositoryService,

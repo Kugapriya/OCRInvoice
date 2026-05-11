@@ -1,30 +1,72 @@
 <ion-app>
-  <ion-menu side="start" menuId="site-menu" contentId="site-content" type="overlay">
-    <ion-header>
-      <ion-toolbar class="menu">
-        <ion-title>Menu</ion-title>
-      </ion-toolbar>
-    </ion-header>
 
-    <ion-content>
-      <ion-list>
-        <ion-item button *ngFor="let item of menuItems" (click)="navigateTo(item.url)">
-          <ion-icon [name]="item.icon" slot="start"></ion-icon>
-          <ion-label>{{ item.title }}</ion-label>
-        </ion-item>
-      </ion-list>
-    </ion-content>
+  <!-- ── Sidebar Drawer ── -->
+  <ion-menu side="start" menuId="site-menu" contentId="site-content" type="overlay">
+
+    <!-- Brand Header -->
+    <div class="menu-header">
+      <div class="brand-row">
+        <div class="brand-icon">
+          <ion-icon name="receipt-outline"></ion-icon>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">DocMate</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Info -->
+    <div class="user-row" *ngIf="repository.loggedInUser">
+      <div class="user-avatar">
+        {{ repository.loggedInUser.name.charAt(0).toUpperCase() || repository.loggedInUser.username.charAt(0).toUpperCase() }}
+      </div>
+      <div class="user-info">
+        <span class="user-name">{{ repository.loggedInUser.name || repository.loggedInUser.username }}</span>
+        <span class="user-role">{{ repository.loggedInUser.role }}</span>
+      </div>
+    </div>
+
+    <!-- Nav Items -->
+    <nav class="menu-nav">
+      <div
+        class="nav-item"
+        *ngFor="let item of mainMenuItems"
+        [class.active]="isActive(item)"
+        (click)="navigateTo(item.url)">
+        <div class="nav-icon-wrap">
+          <ion-icon [name]="item.icon"></ion-icon>
+        </div>
+        <span class="nav-label">{{ item.title }}</span>
+        <div class="active-bar" *ngIf="isActive(item)"></div>
+      </div>
+    </nav>
+
+    <!-- Logout -->
+    <div class="menu-footer">
+      <div class="nav-item logout-item" (click)="logout()">
+        <div class="nav-icon-wrap logout-icon">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </div>
+        <span class="nav-label">Logout</span>
+      </div>
+    </div>
+
   </ion-menu>
 
+  <!-- ── Top Header ── -->
   <ion-header>
-    <ion-toolbar>
+    <ion-toolbar class="main-toolbar">
       <ion-buttons slot="start">
-        <ion-menu-button menu="site-menu"></ion-menu-button>
+        <ion-menu-button menu="site-menu" color="light"></ion-menu-button>
       </ion-buttons>
-      <ion-title>{{ repository.selectedStore ? (repository.selectedStore.storeId + ' | ' +
-        repository.selectedStore.storeName) : '' }}</ion-title>
+
+      <ion-title class="toolbar-title-wrap">
+        {{ currentPageTitle }}
+      </ion-title>
+
     </ion-toolbar>
   </ion-header>
 
   <ion-router-outlet id="site-content"></ion-router-outlet>
+
 </ion-app>

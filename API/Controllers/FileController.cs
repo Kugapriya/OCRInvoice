@@ -167,6 +167,7 @@ public class FileController : ControllerBase
             else if (resolvedFileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                 mimeType = "image/png";
 
+            Response.Headers["Content-Disposition"] = $"inline; filename=\"{resolvedFileName}\"";
             var bytes = System.IO.File.ReadAllBytes(fullPath);
             return File(bytes, mimeType);
         }

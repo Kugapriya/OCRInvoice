@@ -9,6 +9,7 @@ import { UploadedFilesComponent } from './features/uploaded-files/uploaded-files
 import { AuthGuard } from './core/_guards/auth.guard';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { VerifyOtpComponent } from './verify-otp/verify-otp.component';
 import { InvoiceHeadersComponent } from './features/invoice-headers/invoice-headers.component';
 import { VendorsComponent } from './features/vendors/vendors.component';
 
@@ -31,6 +32,8 @@ const routes: Routes = [
   { path: 'login', loadChildren: () => import('./login/login.module').then(m => m.LoginModule) },
 
   { path: 'forgot-password', component: ForgotPasswordComponent },
+
+  { path: 'verify-otp', component: VerifyOtpComponent },
 
   { path: 'reset-password', component: ResetPasswordComponent },
 

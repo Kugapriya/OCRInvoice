@@ -1,110 +1,66 @@
-<ion-content class="ion-padding invoice-page">
+<ion-content class="invoice-page">
   <div class="page-shell">
-    <div class="page-head">
-      <div class="page-actions">
-        <!-- <ion-item lines="none" class="filter-dropdown" [disabled]="loading">
-          <ion-select [(ngModel)]="showAllUploads" interface="popover" aria-label="File filter">
-            <ion-select-option [value]="true">Show all files</ion-select-option>
-            <ion-select-option [value]="false">Show recent files</ion-select-option>
-          </ion-select>
-        </ion-item> -->
-        <!-- <ion-item lines="none" class="filter-dropdown" [disabled]="loading">
-          <ion-select [(ngModel)]="showAllUploads" interface="popover">
-            <ion-select-option [value]="true">All Files</ion-select-option>
-            <ion-select-option [value]="false">Recent Files</ion-select-option>
-          </ion-select>
-        </ion-item> -->
-        <!-- <ion-button class="refresh-btn" color="primary" fill="solid" (click)="loadInvoiceDetails()"
-          [disabled]="loading">
-          <ion-icon name="refresh" slot="start"></ion-icon>
-          Refresh
-        </ion-button> -->
 
-        <!-- FROM -->
-        <div class="date-box">
-          <label>From</label>
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-field">
+        <label>From</label>
+        <input type="date" class="date-input" [(ngModel)]="fromDate" (change)="onDateChange()">
+      </div>
+      <div class="filter-divider">
+        <ion-icon name="arrow-forward-outline"></ion-icon>
+      </div>
+      <div class="filter-field">
+        <label>To</label>
+        <input type="date" class="date-input" [(ngModel)]="toDate" (change)="onDateChange()">
+      </div>
+      <button class="btn-refresh" (click)="loadInvoiceDetails()" [disabled]="loading">
+        <ion-icon name="refresh-outline"></ion-icon>
+        <span>Refresh</span>
+      </button>
+    </div>
 
-          <ion-button id="fromDateBtn" fill="outline">
-            {{ fromDate ? (fromDate | date:'yyyy-MM-dd') : 'date' }}
-            <ion-icon name="calendar" slot="end"></ion-icon>
-          </ion-button>
-
-          <ion-popover trigger="fromDateBtn" size="auto" cssClass="date-popover">
-            <ng-template>
-              <ion-datetime presentation="date" [(ngModel)]="fromDate"></ion-datetime>
-            </ng-template>
-          </ion-popover>
-        </div>
-
-        <!-- TO -->
-        <div class="date-box">
-          <label>To</label>
-
-          <ion-button id="toDateBtn" fill="outline">
-            {{ toDate ? (toDate | date:'yyyy-MM-dd') : 'date' }}
-            <ion-icon name="calendar" slot="end"></ion-icon>
-          </ion-button>
-
-          <ion-popover trigger="toDateBtn" size="auto" cssClass="date-popover">
-            <ng-template>
-              <ion-datetime presentation="date" [(ngModel)]="toDate"></ion-datetime>
-            </ng-template>
-          </ion-popover>
-        </div>
-        <ion-button class="refresh-btn" (click)="loadInvoiceDetails()" [disabled]="loading">
-          <ion-icon name="refresh" slot="start"></ion-icon>
-          Refresh
-        </ion-button>
-
+    <!-- Status Legend -->
+    <div class="status-legend" *ngIf="invoiceDetails.length > 0">
+      <div class="legend-item status-not-processed">
+        <span class="legend-dot"></span><span>Not Processed</span>
+      </div>
+      <div class="legend-item status-processing">
+        <span class="legend-dot"></span><span>Processing</span>
+      </div>
+      <div class="legend-item status-success">
+        <span class="legend-dot"></span><span>Success</span>
+      </div>
+      <div class="legend-item status-failed">
+        <span class="legend-dot"></span><span>Failed</span>
       </div>
     </div>
 
-    <div class="status-legend" *ngIf="!loading && invoiceDetails.length > 0">
-      <div class="legend-title">File Status:</div>
-      <div class="legend-items">
-        <div class="legend-item status-not-processed">
-          <span class="legend-color"></span>
-          <span class="legend-label">Not Processed Yet</span>
-        </div>
-        <div class="legend-item status-processing">
-          <span class="legend-color"></span>
-          <span class="legend-label">Currently Processing</span>
-        </div>
-        <div class="legend-item status-success">
-          <span class="legend-color"></span>
-          <span class="legend-label">Success</span>
-        </div>
-        <div class="legend-item status-failed">
-          <span class="legend-color"></span>
-          <span class="legend-label">Failed</span>
-        </div>
-      </div>
-    </div>
+    <!-- Accordion List -->
+    <ion-accordion-group>
+      <ion-accordion
+        *ngFor="let detail of pagedDetails; let index = index"
+        value="item-{{ index }}"
+        class="file-accordion"
+        [ngClass]="getProcessStatusClass(detail.uploadedFile.isProcess)">
 
-    <div class="loading-wrap" *ngIf="loading">
-      <ion-spinner name="crescent"></ion-spinner>
-    </div>
-
-    <ion-accordion-group *ngIf="!loading">
-      <ion-accordion *ngFor="let detail of invoiceDetails; let index = index" value="item-{{ index }}"
-        class="file-accordion" [ngClass]="getProcessStatusClass(detail.uploadedFile.isProcess)">
         <ion-item slot="header" class="file-header">
           <ion-label>
             <h2>{{ detail.uploadedFile.fileName }}</h2>
             <p>{{ detail.uploadedFile.supplierName }}</p>
           </ion-label>
           <ion-buttons slot="end" class="header-actions">
-            <ion-button fill="clear" color="primary" size="small" (click)="previewFile(detail, $event)" title="Preview">
-              <ion-icon name="eye"></ion-icon>
+            <ion-button fill="clear" size="small" (click)="previewFile(detail, $event)">
+              <ion-icon name="eye-outline"></ion-icon>
             </ion-button>
-            <ion-button fill="clear" color="primary" size="small" (click)="downloadFile(detail, $event)"
-              title="Download">
-              <ion-icon name="download"></ion-icon>
+            <ion-button fill="clear" size="small" (click)="previewFile(detail, $event)">
+              <ion-icon name="download-outline"></ion-icon>
             </ion-button>
           </ion-buttons>
         </ion-item>
 
         <div class="accordion-body" slot="content">
+
           <section class="meta-grid">
             <div>
               <span>Customer</span>
@@ -120,7 +76,7 @@
             </div>
             <div>
               <span>Uploaded</span>
-              <strong>{{ detail.uploadedFile.uploadedTime | date:'medium' }}</strong>
+              <strong>{{ detail.uploadedFile.uploadedTime | date:'dd MMM yyyy, HH:mm' }}</strong>
             </div>
           </section>
 
@@ -130,7 +86,6 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <!-- <th>ID</th> -->
                     <th>Created UTC</th>
                     <th>Filename</th>
                     <th>Doc Type</th>
@@ -152,24 +107,23 @@
                 </thead>
                 <tbody>
                   <tr>
-                    <!-- <td>{{ detail.header.id }}</td> -->
                     <td>{{ detail.header.createdUtc }}</td>
                     <td>{{ detail.header.filename }}</td>
                     <td>{{ detail.header.docType }}</td>
-                    <td class="center-cell">{{ detail.header.supplierName }}</td>
-                    <td class="center-cell">{{ detail.header.customerName }}</td>
-                    <td class="center-cell">{{ detail.header.cmsCustomerId }}</td>
-                    <td class="center-cell">{{ detail.header.docNumber }}</td>
+                    <td>{{ detail.header.supplierName }}</td>
+                    <td>{{ detail.header.customerName }}</td>
+                    <td>{{ detail.header.cmsCustomerId }}</td>
+                    <td>{{ detail.header.docNumber }}</td>
                     <td>{{ detail.header.docDate }}</td>
-                    <td class="center-cell">{{ detail.header.totalExVat | number:'1.2-2' }}</td>
-                    <td class="center-cell">{{ detail.header.totalVat | number:'1.2-2' }}</td>
-                    <td class="center-cell">{{ detail.header.totalIncVat | number:'1.2-2' }}</td>
-                    <td class="center-cell">{{ detail.header.currency }}</td>
-                    <td class="center-cell">{{ detail.header.compared}}</td>
-                    <td class="center-cell">{{ detail.header.generated }}</td>
-                    <td class="center-cell">{{ detail.header.startSync }}</td>
-                    <td class="center-cell">{{ detail.header.endSync }}</td>
-                    <td class="center-cell">{{ detail.header.originalId }}</td>
+                    <td class="num">{{ detail.header.totalExVat | number:'1.2-2' }}</td>
+                    <td class="num">{{ detail.header.totalVat | number:'1.2-2' }}</td>
+                    <td class="num">{{ detail.header.totalIncVat | number:'1.2-2' }}</td>
+                    <td>{{ detail.header.currency }}</td>
+                    <td>{{ detail.header.compared }}</td>
+                    <td>{{ detail.header.generated }}</td>
+                    <td>{{ detail.header.startSync }}</td>
+                    <td>{{ detail.header.endSync }}</td>
+                    <td>{{ detail.header.originalId }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -182,10 +136,9 @@
           <section class="table-section">
             <div class="section-title">Docmate Lines</div>
             <div class="table-scroll" *ngIf="detail.lines.length > 0; else noLines">
-              <table class="data-table lines-table">
+              <table class="data-table">
                 <thead>
                   <tr>
-                    <!-- <th>ID</th> -->
                     <th>Created UTC</th>
                     <th>Filename</th>
                     <th>Doc Type</th>
@@ -194,7 +147,6 @@
                     <th>CMS Customer ID</th>
                     <th>Doc Number</th>
                     <th>Doc Date</th>
-                    <!-- <th>Line No</th> -->
                     <th>Code</th>
                     <th>Description</th>
                     <th>Case Pack</th>
@@ -223,54 +175,54 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let line of detail.lines" class="line-row"
+                  <tr *ngFor="let line of detail.lines"
                     [ngClass]="{ 'empty-barcode-row': isBarcodeEmpty(line.barcode) }">
-                    <!-- <td>{{ line.id }}</td> -->
                     <td>{{ line.createdUtc }}</td>
                     <td>{{ line.filename }}</td>
                     <td>{{ line.docType }}</td>
-                    <td class="center-cell">{{ line.supplierName }}</td>
-                    <td class="center-cell">{{ line.customerName }}</td>
-                    <td class="center-cell">{{ line.cmsCustomerId }}</td>
-                    <td class="center-cell">{{ line.docNumber }}</td>
+                    <td>{{ line.supplierName }}</td>
+                    <td>{{ line.customerName }}</td>
+                    <td>{{ line.cmsCustomerId }}</td>
+                    <td>{{ line.docNumber }}</td>
                     <td>{{ line.docDate }}</td>
-                    <!-- <td>{{ line.lineNo }}</td> -->
                     <td>{{ line.code }}</td>
                     <td>{{ line.description }}</td>
-                    <td class="number-cell">{{ line.casePack }}</td>
-                    <td class="center-cell">{{ line.unitSize }}</td>
-                    <td class="number-cell">{{ line.totalUnits }}</td>
+                    <td class="num">{{ line.casePack }}</td>
+                    <td>{{ line.unitSize }}</td>
+                    <td class="num">{{ line.totalUnits }}</td>
                     <td>{{ line.qty }}</td>
-                    <td class="number-cell">{{ line.unitPrice | number:'1.2-2' }}</td>
-                    <td class="number-cell">{{ line.lineNet | number:'1.2-2' }}</td>
-                    <td class="center-cell">{{ line.vatCode }}</td>
-                    <td class="number-cell">{{ line.vatRate | number:'1.2-2' }}</td>
-                    <td class="number-cell">{{ line.vatAmount | number:'1.2-2' }}</td>
-                    <td class="number-cell">{{ line.lineGross | number:'1.2-2' }}</td>
-                    <td class="number-cell">{{ line.stdRrp | number:'1.2-2' }}</td>
-                    <td class="number-cell">{{ line.por| number:'1.2-2' }}</td>
+                    <td class="num">{{ line.unitPrice | number:'1.2-2' }}</td>
+                    <td class="num">{{ line.lineNet | number:'1.2-2' }}</td>
+                    <td>{{ line.vatCode }}</td>
+                    <td class="num">{{ line.vatRate | number:'1.2-2' }}</td>
+                    <td class="num">{{ line.vatAmount | number:'1.2-2' }}</td>
+                    <td class="num">{{ line.lineGross | number:'1.2-2' }}</td>
+                    <td class="num">{{ line.stdRrp | number:'1.2-2' }}</td>
+                    <td class="num">{{ line.por | number:'1.2-2' }}</td>
                     <td>{{ line.isVoid }}</td>
                     <td>{{ line.voidNote }}</td>
                     <td>{{ line.pmp }}</td>
                     <td>{{ line.raw }}</td>
                     <td class="barcode-cell">
                       <span *ngIf="editingBarcodeId !== line.id" class="barcode-display"
-                        (click)="toggleBarcodeEdit(line.id)" title="Click to edit">
+                        (click)="toggleBarcodeEdit(line.id)">
                         {{ line.barcode }}
                       </span>
-                      <input *ngIf="editingBarcodeId === line.id" type="text" [(ngModel)]="line.barcode"
-                        class="barcode-input" placeholder="Enter barcode" maxlength="13"
-                        (keypress)="onBarcodeKeyPress($event)" inputmode="numeric" autocomplete="off" />
-                      <button *ngIf="editingBarcodeId === line.id" (click)="saveBarcode(line, $event)"
-                        [disabled]="savingBarcodeId === line.id" class="save-btn" title="Save">
+                      <input *ngIf="editingBarcodeId === line.id" type="text"
+                        [(ngModel)]="line.barcode" class="barcode-input"
+                        placeholder="Barcode" maxlength="13"
+                        (keypress)="onBarcodeKeyPress($event)" inputmode="numeric" autocomplete="off">
+                      <button *ngIf="editingBarcodeId === line.id"
+                        (click)="saveBarcode(line, $event)"
+                        [disabled]="savingBarcodeId === line.id" class="save-btn">
                         <ion-icon name="checkmark"></ion-icon>
                       </button>
-                      <button *ngIf="editingBarcodeId === line.id" (click)="toggleBarcodeEdit(line.id)"
-                        class="cancel-btn" title="Cancel">
+                      <button *ngIf="editingBarcodeId === line.id"
+                        (click)="toggleBarcodeEdit(line.id)" class="cancel-btn">
                         <ion-icon name="close"></ion-icon>
                       </button>
                     </td>
-                    <td class="number-cell">{{ line.unitCost | number:'1.2-2' }}</td>
+                    <td class="num">{{ line.unitCost | number:'1.2-2' }}</td>
                     <td>{{ line.compared }}</td>
                     <td>{{ line.generated }}</td>
                     <td>{{ line.startSync }}</td>
@@ -284,12 +236,51 @@
               <div class="empty-state">No line rows found for the configured line range.</div>
             </ng-template>
           </section>
+
         </div>
       </ion-accordion>
     </ion-accordion-group>
 
-    <div class="state-card" *ngIf="!loading && invoiceDetails.length === 0">
-      No invoice uploads were found for the selected date range.
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+      <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
     </div>
+
+    <div class="empty-state-page" *ngIf="invoiceDetails.length === 0">
+      No invoice uploads found for the selected date range.
+    </div>
+
   </div>
 </ion-content>
+
+<!-- Preview Overlay -->
+<div class="preview-overlay" *ngIf="previewVisible" (click)="closePreview()">
+  <div class="preview-panel" (click)="$event.stopPropagation()">
+
+    <div class="preview-header">
+      <span class="preview-title">{{ previewFileName }}</span>
+      <button class="dl-btn" (click)="downloadFromPreview()">
+        <ion-icon name="download-outline"></ion-icon>
+      </button>
+      <button class="close-btn" (click)="closePreview()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="preview-body">
+      <iframe *ngIf="previewIsPdf" [src]="safePreviewUrl" class="preview-frame" frameborder="0"></iframe>
+      <img *ngIf="previewIsImage" [src]="safePreviewUrl" class="preview-img" alt="preview">
+      <div class="preview-unsupported" *ngIf="!previewIsPdf && !previewIsImage">
+        <ion-icon name="document-outline"></ion-icon>
+        <p>Preview not available for this file type</p>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -17,6 +17,10 @@ export class ResetPasswordComponent implements OnInit {
   passwordReset: boolean = false;
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
+  errors: { newPassword: string; confirmPassword: string } = { newPassword: '', confirmPassword: '' };
+  strengthPercent: number = 0;
+  strengthClass: string = '';
+  strengthLabel: string = '';
 
   constructor(
     private authService: AuthService,
@@ -33,15 +37,49 @@ export class ResetPasswordComponent implements OnInit {
     }
   }
 
+  validatePasswords() {
+    this.errors.newPassword = '';
+    this.errors.confirmPassword = '';
+
+    if (this.newPassword && this.newPassword.length < 6) {
+      this.errors.newPassword = 'Password must be at least 6 characters';
+    }
+    if (this.confirmPassword && this.newPassword !== this.confirmPassword) {
+      this.errors.confirmPassword = 'Passwords do not match';
+    }
+
+    this.updateStrength();
+  }
+
+  private updateStrength() {
+    const p = this.newPassword;
+    if (!p) { this.strengthPercent = 0; this.strengthClass = ''; this.strengthLabel = ''; return; }
+    let score = 0;
+    if (p.length >= 6) score++;
+    if (p.length >= 10) score++;
+    if (/[A-Z]/.test(p)) score++;
+    if (/[0-9]/.test(p)) score++;
+    if (/[^A-Za-z0-9]/.test(p)) score++;
+
+    if (score <= 1) { this.strengthPercent = 25; this.strengthClass = 'weak'; this.strengthLabel = 'Weak'; }
+    else if (score === 2) { this.strengthPercent = 50; this.strengthClass = 'fair'; this.strengthLabel = 'Fair'; }
+    else if (score === 3) { this.strengthPercent = 75; this.strengthClass = 'good'; this.strengthLabel = 'Good'; }
+    else { this.strengthPercent = 100; this.strengthClass = 'strong'; this.strengthLabel = 'Strong'; }
+  }
+
   async resetPassword() {
-    if (!this.newPassword || !this.confirmPassword) {
-      this.showToast('Please fill all fields', 'danger');
+    this.validatePasswords();
+
+    if (!this.newPassword) {
+      this.errors.newPassword = 'New password is required';
       return;
     }
-    if (this.newPassword !== this.confirmPassword) {
-      this.showToast('Passwords do not match', 'danger');
+    if (!this.confirmPassword) {
+      this.errors.confirmPassword = 'Please confirm your password';
       return;
     }
+    if (this.errors.newPassword || this.errors.confirmPassword) return;
+
     this.loading = true;
 
     try {
@@ -52,8 +90,8 @@ export class ResetPasswordComponent implements OnInit {
       }).toPromise();
 
       if (response?.success) {
-        this.showToast('Password reset successfully', 'success');
-        setTimeout(() => this.router.navigate(['/login']), 2000);
+        this.passwordReset = true;
+        setTimeout(() => this.router.navigate(['/login']), 2500);
       } else {
         this.showToast(response?.message || 'Failed to reset password', 'danger');
       }

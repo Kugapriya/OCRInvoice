@@ -1,9 +1,222 @@
-ion-toolbar ion-title {
+/* ── Toolbar ── */
+.main-toolbar {
+  --background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+  --color: #fff;
+  --border-color: transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.toolbar-title-wrap {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+
+/* ── Menu Shell ── */
+ion-menu {
+  --width: 280px;
+  --max-width: 85vw;
+  --background: #fff;
+}
+
+/* ── Menu Header ── */
+.menu-header {
+  background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
+  padding: 20px 16px 16px;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 1.4rem;
+    color: #fff;
+  }
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+
+
+/* ── User Row ── */
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1a73e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #111;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-ion-toolbar .toolbar-title {
-  text-align: center;
+.user-role {
+  font-size: 0.72rem;
+  color: #888;
+  text-transform: capitalize;
+  margin-top: 1px;
+}
+
+
+/* ── Nav Items ── */
+.menu-nav {
+  flex: 1;
+  padding: 8px 0;
+  overflow-y: auto;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 1px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  .nav-icon-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #f0f4ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+
+    ion-icon {
+      font-size: 1.1rem;
+      color: #555;
+      transition: color 0.15s;
+    }
+  }
+
+  .nav-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    flex: 1;
+    transition: color 0.15s;
+  }
+
+  .active-bar {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 22px;
+    background: #1a73e8;
+    border-radius: 4px 0 0 4px;
+  }
+
+  &:active {
+    background: #e8f0fe;
+  }
+
+  &.active {
+    background: #e8f0fe;
+
+    .nav-icon-wrap {
+      background: #1a73e8;
+
+      ion-icon {
+        color: #fff;
+      }
+    }
+
+    .nav-label {
+      color: #1a73e8;
+      font-weight: 600;
+    }
+  }
+}
+
+/* ── Footer / Logout ── */
+.menu-footer {
+  padding: 8px 0 12px;
+  border-top: 1px solid #eee;
+}
+
+.logout-item {
+  background: #fdecea;
+  border-radius: 10px;
+  margin: 4px 6px;
+
+  .nav-icon-wrap {
+    background: #e53935;
+
+    ion-icon {
+      color: #fff;
+    }
+  }
+
+  .nav-label {
+    color: #c62828;
+    font-weight: 600;
+  }
+
+  &:active {
+    background: #ffcdd2;
+  }
 }

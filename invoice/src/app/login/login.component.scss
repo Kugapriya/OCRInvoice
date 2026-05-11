@@ -1,109 +1,165 @@
 .login-content {
-    --background: none !important;
-    --padding: 0;
-    height: 100vh;
-    background: linear-gradient(135deg,#2a5298, #c7d0e0);
-    position: relative;
+  --background: #8aaee0;
 }
 
-.login-wrapper {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  max-width: 400px;
-  padding: 10px;
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 24px 20px;
+  background: linear-gradient(160deg, #9fbde8 0%, #8aaee0 100%);
 }
 
+/* ---------- Logo ---------- */
+.logo-wrapper {
+  z-index: 10;
+  margin-bottom: -38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-circle {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 28px rgba(59, 130, 246, 0.55);
+
+  ion-icon {
+    font-size: 36px;
+    color: #ffffff;
+  }
+}
+
+/* ---------- Card ---------- */
 .login-card {
   width: 100%;
-  max-width: 380px;
-  margin: 0 auto;         
+  max-width: 400px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #2e5ab8 0%, #1e3f96 100%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  padding-top: 46px;
+  animation: slideUp 0.38s ease;
 
-  padding: 25px;
-  border-radius: 20px;
-  background: rgba(41, 58, 99, 0.9);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-
-  box-sizing: border-box;
+  --background: #1e3f96;
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Headings ---------- */
 .heading {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    /* make bold */
-    color: #ffffff;
-    margin-bottom: 10px;
-}
-
-.label-colored {
-    margin-bottom: 5px;
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.input-item {
-    margin-bottom: 15px;
-    border-radius: 5px;
-}
-
-.input-colored {
-    --background: #ffffff !important;
-    color: #000000 !important;
-    border-radius: 6px;
-    padding: 10px;
-    box-shadow: none !important;
-}
-
-.input-colored::part(native) {
-    background: #ffffff !important;
-    color: #000000 !important;
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-ion-item.input-item {
-    --highlight-color-focused: transparent !important;
-    --ripple-color: transparent !important;
-}
-
-
-.login-btn {
-    margin-top: 10px;
-    --background: #2575fc;
-    --color: #ffffff;
-    border-radius: 8px;
-}
-
-ion-item.input-item {
-  --background: transparent !important;   
-  background: transparent !important;
-  --highlight-color-focused: transparent !important;
-  --ripple-color: transparent !important;
-}
-
-ion-label.label-colored {
-  color: #ffffff !important;  
-}
-
-ion-item.input-item ion-label {
-  color: #ffffff !important;
-  background: transparent !important;
-}
-
-.forgot-password-link {
   text-align: center;
-  margin-top: 10px;
+  font-size: 23px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.2px;
 }
 
-.link-btn {
-  --color: #e0e0ff;
-  font-size: 14px;
-  text-decoration: none;
+.sub-heading {
+  text-align: center;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
 }
 
-.link-btn:hover {
+ion-card-header {
+  padding-bottom: 2px;
+  background: transparent;
+}
+
+ion-card-content {
+  padding-top: 22px !important;
+  background: transparent;
+}
+
+/* ---------- Input rows ---------- */
+.input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 12px;
+  padding: 2px 12px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:focus-within {
+    border-color: #3b82f6;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .field-icon {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 18px;
+    min-width: 20px;
+    margin-right: 10px;
+  }
+
+  .custom-input {
+    flex: 1;
+    --color: #ffffff;
+    --placeholder-color: rgba(255, 255, 255, 0.35);
+    --background: transparent;
+    --padding-start: 0;
+    --padding-end: 0;
+    --highlight-color-focused: transparent;
+    --highlight-color-valid: transparent;
+    --highlight-color-invalid: transparent;
+    font-size: 15px;
+    min-height: 46px;
+  }
+
+  .eye-btn {
+    --color: rgba(255, 255, 255, 0.4);
+    --padding-start: 4px;
+    --padding-end: 0;
+    --ripple-color: transparent;
+    margin: 0;
+    height: 36px;
+  }
+}
+
+/* ---------- Forgot password ---------- */
+.forgot-link {
+  text-align: right;
+  margin: -6px 0 10px;
+
+  .link-btn {
+    --color: rgba(255, 255, 255, 0.5);
+    --ripple-color: transparent;
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+}
+
+/* ---------- Sign-in button ---------- */
+.login-btn {
+  --background: #3b82f6;
+  --background-activated: #2563eb;
   --color: #ffffff;
+  --border-radius: 12px;
+  --ripple-color: #1d4ed8;
+  height: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 4px;
+  letter-spacing: 0.4px;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.45);
 }

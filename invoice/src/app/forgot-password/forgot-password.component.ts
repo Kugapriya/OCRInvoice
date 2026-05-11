@@ -7,7 +7,7 @@ import { AuthService } from '../core/services/auth.service';
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss'],
-  standalone:false
+  standalone: false
 })
 export class ForgotPasswordComponent {
   email: string = '';
@@ -19,25 +19,24 @@ export class ForgotPasswordComponent {
     private toastController: ToastController
   ) {}
 
-  async forgotPassword() {
-    if (!this.email) {
-      this.showToast('Please enter your email', 'danger');
+  async sendOtp() {
+    if (!this.email || !this.email.trim()) {
+      this.showToast('Please enter your email address', 'danger');
       return;
     }
 
     this.loading = true;
-
     try {
-      const response = await this.authService.forgotPassword(this.email).toPromise();
-      
-      if (response?.success) {
-        this.showToast(response.message || 'Reset link sent to your email', 'success');
-        this.email = '';
+      const res = await this.authService.sendOtp(this.email.trim()).toPromise();
+      if (res?.success) {
+        localStorage.setItem('otp_email', this.email.trim());
+        this.showToast('OTP sent to your email', 'success');
+        this.router.navigate(['/verify-otp']);
       } else {
-        this.showToast(response?.message || 'Email not found', 'danger');
+        this.showToast(res?.message || 'Email not found', 'danger');
       }
-    } catch (error: any) {
-      this.showToast(error?.error?.message || 'Failed to send reset request', 'danger');
+    } catch (err: any) {
+      this.showToast(err?.error?.message || 'Failed to send OTP', 'danger');
     } finally {
       this.loading = false;
     }
@@ -49,10 +48,7 @@ export class ForgotPasswordComponent {
 
   private async showToast(message: string, color: string) {
     const toast = await this.toastController.create({
-      message,
-      duration: 3000,
-      color,
-      position: 'top'
+      message, duration: 3000, color, position: 'top'
     });
     await toast.present();
   }
