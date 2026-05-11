@@ -12,6 +12,7 @@ import { AuthService } from '../core/services/auth.service';
 export class ForgotPasswordComponent {
   email: string = '';
   loading: boolean = false;
+  fallbackOtp: string = '';
 
   constructor(
     private authService: AuthService,
@@ -26,12 +27,17 @@ export class ForgotPasswordComponent {
     }
 
     this.loading = true;
+    this.fallbackOtp = '';
     try {
       const res = await this.authService.sendOtp(this.email.trim()).toPromise();
       if (res?.success) {
         localStorage.setItem('otp_email', this.email.trim());
-        this.showToast('OTP sent to your email', 'success');
-        this.router.navigate(['/verify-otp']);
+        if (res.otp) {
+          this.fallbackOtp = res.otp;
+        } else {
+          this.showToast(res.message || 'OTP sent to your email', 'success');
+          this.router.navigate(['/verify-otp']);
+        }
       } else {
         this.showToast(res?.message || 'Email not found', 'danger');
       }
@@ -40,6 +46,10 @@ export class ForgotPasswordComponent {
     } finally {
       this.loading = false;
     }
+  }
+
+  proceedWithOtp() {
+    this.router.navigate(['/verify-otp']);
   }
 
   goBack() {

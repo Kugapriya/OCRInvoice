@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 
@@ -24,13 +24,12 @@ export class ResetPasswordComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private route: ActivatedRoute,
     private router: Router,
     private toastController: ToastController
   ) { }
 
   ngOnInit() {
-    this.token = decodeURIComponent(this.route.snapshot.queryParams['token'] || '');
+    this.token = history.state?.token || '';
     if (!this.token) {
       this.showToast('Invalid reset link', 'danger');
       this.router.navigate(['/login']);

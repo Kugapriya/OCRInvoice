@@ -73,7 +73,7 @@ export class VerifyOtpComponent implements OnInit, OnDestroy {
       const res = await firstValueFrom(this.authService.verifyOtp(this.email, otp));
       if (res?.success) {
         localStorage.removeItem('otp_email');
-        this.router.navigate(['/reset-password'], { queryParams: { token: res.token } });
+        this.router.navigate(['/reset-password'], { state: { token: res.token } });
       } else {
         this.showToast(res?.message || 'Invalid OTP', 'danger');
         this.otpDigits = ['', '', '', '', '', ''];

@@ -25,15 +25,7 @@ import { FeaturesModule } from './features/features.module';
 
 
 export function tokenGetter() {
-  const jwtHelper = new JwtHelperService();
-  const token = localStorage.getItem('token');
-  if (jwtHelper.isTokenExpired(token)) {
-    const url = location.pathname;
-    if (!url.endsWith('login')) {
-      location.reload();
-    }
-  }
-  return token;
+  return localStorage.getItem('token');
 }
 
 @NgModule({
@@ -53,7 +45,7 @@ export function tokenGetter() {
       config: {
         tokenGetter,
         allowedDomains: [environment.apiDomain],
-        disallowedRoutes: [environment.apiDomain + '/api/auth'] // this will send without token
+        disallowedRoutes: [environment.apiUrl + 'auth']
       }
     }),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),

@@ -69,9 +69,6 @@ namespace API.Controllers
 
             var otp = _repo.GenerateAndStoreOtp(dto.Email.Trim());
 
-            // Always log OTP to console so it can be used even when email is not configured
-            Console.WriteLine($"[OTP] {dto.Email.Trim()} => {otp}");
-
             var emailBody = $@"
             <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:20px'>
               <h2 style='color:#1e3a8a;margin-bottom:8px'>Password Reset OTP</h2>
@@ -85,8 +82,10 @@ namespace API.Controllers
 
             var sent = await _customerRepo.SendEmail(user.Email!, "Your Password Reset OTP", emailBody);
 
-            var message = sent ? "OTP sent to your email" : "OTP generated — check server console";
-            return Ok(new { success = true, message });
+            if (sent)
+                return Ok(new { success = true, message = "OTP sent to your email" });
+            else
+                return Ok(new { success = true, message = "Email not configured. Use the OTP shown below.", otp });
         }
 
         [HttpPost("verify-otp")]
