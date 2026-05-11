@@ -69,11 +69,16 @@ namespace API
                     if (string.IsNullOrEmpty(token))
                         throw new Exception("JWT Token is not configured");
 
+                    const int minKeyLength = 64;
+                    var tokenBytes = Encoding.UTF8.GetBytes(token);
+                    var keyBytes = tokenBytes.Length < minKeyLength
+                        ? Encoding.UTF8.GetBytes(token.PadRight(minKeyLength, '0'))
+                        : tokenBytes;
+
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey =
-                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(token)),
+                        IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };

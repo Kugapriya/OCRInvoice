@@ -31,7 +31,7 @@ namespace API.Controllers
 
             var user = await _repo.Login(dto.Username.Trim().ToLower(), dto.Password.Trim());
             if (user == null)
-                return Unauthorized("Invalid username or password");
+                return Unauthorized(new { message = "Invalid username or password" });
 
             var claims = new[]
             {
