@@ -54,6 +54,10 @@ export class TopNavComponent implements OnInit, OnDestroy {
     this.localDay = new Intl.DateTimeFormat(undefined, { weekday: 'long' }).format(now);
   }
 
+  get isStorePage(): boolean {
+    return this.router.url === '/site';
+  }
+
   get selectedStoreIdDisplay(): string {
     return this.repository.selectedStore?.storeId || localStorage.getItem('storeId') || '';
   }

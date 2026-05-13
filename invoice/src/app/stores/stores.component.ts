@@ -24,6 +24,7 @@ export class StoresComponent implements OnInit {
     private alertService: AlertService) { }
 
   ngOnInit() {
+    this.repository.clearSelectedStore();
     this.loadStores();
   }
 

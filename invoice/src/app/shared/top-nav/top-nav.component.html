@@ -12,8 +12,8 @@
 
       <!-- Center: Store Name -->
       <div class="center-content">
-        <div class="store-name-center">
-          <span class="store-name-text">{{ selectedStoreNameDisplay || '—' }}</span>
+        <div class="store-name-center" *ngIf="selectedStoreNameDisplay && !isStorePage">
+          <span class="store-name-text">{{ selectedStoreNameDisplay }}</span>
           <span class="store-id-text" *ngIf="selectedStoreIdDisplay">{{ selectedStoreIdDisplay }}</span>
         </div>
         <div class="sub-info" *ngIf="showDetails">

@@ -31,6 +31,14 @@ export class RepositoryService {
   getStores(username: string): Observable<Store[]> {
     return this.http.get<Store[]>(this.baseUrl + 'stores/getStores/' + username);
   }
+  clearSelectedStore() {
+    this.selectedStore = undefined;
+    this.selectedStoreId = undefined;
+    localStorage.removeItem('selectedStore');
+    localStorage.removeItem('storeId');
+    localStorage.removeItem('storeName');
+  }
+
   setStore(store: Store) {
     if (!store) return;
     if (this.selectedStore !== store) {

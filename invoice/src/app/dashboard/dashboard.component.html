@@ -128,7 +128,9 @@
               [(page)]="previewPage"
               [pageViewMode]="'single'"
               (pagesLoaded)="onPreviewPagesLoaded($event)"
-              [height]="'52vh'">
+              [height]="'52vh'"
+[disableForms]="true"
+              [showToolbar]="false">
             </ngx-extended-pdf-viewer>
             <div class="pdf-nav">
               <ion-button size="small" fill="clear"
