@@ -1,0 +1,184 @@
+.top-bar {
+  --background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4338ca 100%);
+  --color: #fff;
+  --border-color: transparent;
+  padding: 8px 6px;
+  box-shadow: 0 3px 16px rgba(49, 46, 129, 0.45);
+}
+
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.toolbar-side {
+  flex: 1;
+  min-width: 0;
+}
+
+.right-side {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* ── Center brand ── */
+.center-content {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 8px;
+  min-width: 0;
+}
+
+.store-name-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.store-name-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.store-id-text {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  letter-spacing: 0.04em;
+}
+
+.brand {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.docmate { color: #ffffff; }
+.capture { color: #7dd3fc; margin-left: 5px; }
+
+.sub-info {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.75rem;
+}
+
+.version-date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.version {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.divider { opacity: 0.4; margin: 0 3px; }
+
+.time-info {
+  opacity: 0.85;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+
+/* ── Customer ID ── */
+.customer-id-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 22px;
+  padding: 4px 8px 4px 6px;
+
+  ion-icon {
+    font-size: 18px;
+    color: #c4b5fd;
+    flex-shrink: 0;
+  }
+}
+
+.cid-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  max-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Logout button ── */
+.logout-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  height: 34px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+  white-space: nowrap;
+
+  ion-icon {
+    font-size: 18px;
+    color: #fca5a5;
+    flex-shrink: 0;
+  }
+
+  &:active {
+    background: rgba(252, 165, 165, 0.2);
+    transform: scale(0.95);
+  }
+}
+
+.logout-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fca5a5;
+  letter-spacing: 0.02em;
+
+  /* hide text on small phones, keep icon only */
+  @media (max-width: 400px) {
+    display: none;
+  }
+}
+
+/* ── Center store name — tighter on mobile ── */
+.store-name-text {
+  @media (max-width: 480px) {
+    font-size: 0.82rem;
+  }
+}
+
+.store-id-text {
+  @media (max-width: 480px) {
+    font-size: 0.65rem;
+  }
+}

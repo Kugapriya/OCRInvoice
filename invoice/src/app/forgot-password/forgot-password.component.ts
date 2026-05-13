@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { IonInput, ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 
 @Component({
@@ -9,7 +9,9 @@ import { AuthService } from '../core/services/auth.service';
   styleUrls: ['./forgot-password.component.scss'],
   standalone: false
 })
-export class ForgotPasswordComponent {
+export class ForgotPasswordComponent implements AfterViewInit {
+  @ViewChild('emailInput') emailInput!: IonInput;
+
   email: string = '';
   loading: boolean = false;
   fallbackOtp: string = '';
@@ -19,6 +21,10 @@ export class ForgotPasswordComponent {
     private router: Router,
     private toastController: ToastController
   ) {}
+
+  ngAfterViewInit() {
+    setTimeout(() => this.emailInput?.setFocus(), 350);
+  }
 
   async sendOtp() {
     if (!this.email || !this.email.trim()) {

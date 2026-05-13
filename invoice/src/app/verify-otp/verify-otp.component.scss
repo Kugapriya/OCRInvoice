@@ -1,138 +1,133 @@
-.otp-content {
-  --background: #b8ccf0;
+.auth-content {
+  --background: #f0f2f5;
 }
 
-.otp-container {
+.auth-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100%;
-  padding: 24px 16px;
-  background: linear-gradient(160deg, #c8d8f8 0%, #b8ccf0 100%);
+  padding: 32px 22px 52px;
+  background: #f0f2f5;
 }
 
-.logo-wrapper {
-  z-index: 10;
-  margin-bottom: -38px;
-}
-
-.logo-circle {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 28px rgba(59, 130, 246, 0.55);
-
-  ion-icon {
-    font-size: 34px;
-    color: #ffffff;
-  }
-}
-
-.otp-card {
+/* ── Panel ── */
+.form-panel {
   width: 100%;
   max-width: 420px;
-  border-radius: 22px;
-  background: linear-gradient(160deg, #2e5ab8 0%, #1e3f96 100%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
-  padding-top: 46px;
-  animation: slideUp 0.38s ease;
-  --background: #1e3f96;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px 20px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.09);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: slideUp 0.36s ease;
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(26px); }
+  from { opacity: 0; transform: translateY(22px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.heading {
+/* ── Brand (inside panel) ── */
+.brand-block {
   text-align: center;
-  font-size: 22px;
-  font-weight: 700;
-  color: #ffffff;
 }
 
-.sub-heading {
-  text-align: center;
+.brand-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: #1877F2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  box-shadow: 0 6px 18px rgba(24, 119, 242, 0.32);
+
+  ion-icon {
+    font-size: 32px;
+    color: #fff;
+  }
+}
+
+.brand-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1c1e21;
+  margin: 0 0 6px;
+}
+
+.brand-sub {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
-  margin-top: 6px;
+  color: #606770;
+  margin: 0;
   line-height: 1.6;
 }
 
-.email-text {
-  color: rgba(255, 255, 255, 0.9);
+.email-highlight {
+  color: #1877F2;
   font-weight: 600;
   word-break: break-all;
 }
 
-ion-card-header {
-  background: transparent;
-  padding-bottom: 4px;
-}
-
-ion-card-content {
-  padding-top: 24px !important;
-  background: transparent;
-}
-
-/* OTP boxes */
+/* ── OTP boxes ── */
 .otp-boxes {
   display: flex;
   justify-content: center;
-  gap: clamp(6px, 2vw, 12px);
-  margin-bottom: 24px;
+  gap: clamp(8px, 2.5vw, 14px);
 }
 
 .otp-box {
-  width: clamp(38px, 12vw, 52px);
-  height: clamp(46px, 14vw, 60px);
+  width: clamp(44px, 13vw, 54px);
+  height: clamp(52px, 15vw, 62px);
   border-radius: 12px;
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  background: rgba(0, 0, 0, 0.22);
-  color: #ffffff;
-  font-size: clamp(18px, 5vw, 24px);
+  border: 2px solid #dddfe2;
+  background: #f8f9fa;
+  color: #1c1e21;
+  font-size: 20px;
   font-weight: 700;
   text-align: center;
   outline: none;
-  caret-color: #3b82f6;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  caret-color: #1877F2;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
   -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
 
   &:focus {
-    border-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.15);
-    transform: scale(1.06);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    border-color: #1877F2;
+    background: #fff;
+    transform: scale(1.08);
+    box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.18);
   }
 
   &:not(:placeholder-shown) {
-    border-color: rgba(255, 255, 255, 0.45);
+    border-color: #1877F2;
+    background: #f0f6ff;
+    color: #1877F2;
   }
 }
 
-/* Resend row */
+/* ── Resend ── */
 .resend-row {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 2px;
-  margin-bottom: 20px;
+  margin: -6px 0;
 
   .resend-label {
-    color: rgba(255, 255, 255, 0.5);
+    color: #606770;
     font-size: 13px;
   }
 
   .resend-btn {
-    --color: #60a5fa;
-    --color-focused: #93c5fd;
+    --color: #1877F2;
     --ripple-color: transparent;
     font-size: 13px;
     font-weight: 600;
@@ -144,48 +139,59 @@ ion-card-content {
   }
 }
 
-.action-btn {
-  --background: #3b82f6;
-  --background-activated: #2563eb;
-  --background-hover: #2563eb;
+/* ── Auto-verify spinner ── */
+.auto-verify-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.verify-spinner {
+  --color: #1877F2;
+  width: 22px;
+  height: 22px;
+}
+
+.verify-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1877F2;
+}
+
+/* ── Buttons ── */
+.primary-btn {
+  --background: #1877F2;
+  --background-activated: #166fe5;
   --color: #ffffff;
-  --border-radius: 12px;
+  --border-radius: 10px;
   height: 50px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.3px;
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.45);
-  margin-bottom: 10px;
+  box-shadow: 0 4px 14px rgba(24, 119, 242, 0.3);
 }
 
 .back-btn {
-  --color: rgba(255, 255, 255, 0.6);
-  --border-radius: 12px;
+  --color: #606770;
   --ripple-color: transparent;
-  height: 44px;
   font-size: 14px;
+  font-weight: 500;
   text-transform: none;
   letter-spacing: 0;
+  height: 40px;
+  margin-top: -6px;
 
-  ion-icon {
-    font-size: 16px;
-    margin-right: 4px;
-  }
+  ion-icon { font-size: 16px; }
 }
 
-/* Tablet and up */
+/* ── Tablet ── */
 @media (min-width: 576px) {
-  .otp-card {
-    max-width: 440px;
-  }
-
   .otp-box {
-    width: 52px;
-    height: 60px;
+    width: 54px;
+    height: 62px;
     font-size: 24px;
-  }
-
-  .otp-boxes {
-    gap: 12px;
+    border-width: 2px;
   }
 }

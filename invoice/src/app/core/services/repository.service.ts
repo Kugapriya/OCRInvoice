@@ -113,4 +113,5 @@ export class RepositoryService {
   updateLineBarcode(lineId: number, barcode: string): Observable<any> {
     return this.http.put(`${this.baseUrl}file/updateLineBarcode/${lineId}`, { barcode });
   }
+
 }

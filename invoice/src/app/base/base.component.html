@@ -54,18 +54,7 @@
   </ion-menu>
 
   <!-- ── Top Header ── -->
-  <ion-header>
-    <ion-toolbar class="main-toolbar">
-      <ion-buttons slot="start">
-        <ion-menu-button menu="site-menu" color="light"></ion-menu-button>
-      </ion-buttons>
-
-      <ion-title class="toolbar-title-wrap">
-        {{ currentPageTitle }}
-      </ion-title>
-
-    </ion-toolbar>
-  </ion-header>
+  <app-top-nav></app-top-nav>
 
   <ion-router-outlet id="site-content"></ion-router-outlet>
 

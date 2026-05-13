@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { IonInput, ToastController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 
 @Component({
@@ -9,7 +9,9 @@ import { AuthService } from '../core/services/auth.service';
   styleUrls: ['./reset-password.component.scss'],
   standalone: false
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent implements OnInit, AfterViewInit {
+  @ViewChild('newPasswordInput') newPasswordInput!: IonInput;
+
   token: string = '';
   newPassword: string = '';
   confirmPassword: string = '';
@@ -34,6 +36,10 @@ export class ResetPasswordComponent implements OnInit {
       this.showToast('Invalid reset link', 'danger');
       this.router.navigate(['/login']);
     }
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => this.newPasswordInput?.setFocus(), 350);
   }
 
   validatePasswords() {

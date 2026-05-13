@@ -1,76 +1,66 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AlertController, IonicModule } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
-import { Router } from '@angular/router';
 import { DocumentScanner } from '@capgo/capacitor-document-scanner';
 import { Capacitor } from '@capacitor/core';
 import { PDFDocument } from 'pdf-lib';
-import { Filesystem } from '@capacitor/filesystem';
 import { AlertService } from '../core/services/alert.service';
 import { RepositoryService } from '../core/services/repository.service';
-import { VendorService } from '../core/services/vendor.service';
+import { SharedModule } from '../shared/shared.module';
+
+interface UploadedFile {
+  name: string;
+  file?: File;
+  url?: string;
+  invoiceType: string;
+  uploadDate: string; // YYYY-MM-DD
+  uploadTime: string; // HH:MM
+}
+
+interface PendingFile {
+  file: File;
+  url: string;
+  isPdf: boolean;
+  isImage: boolean;
+}
+
+interface FileGroup {
+  label: string;
+  date: string;
+  files: UploadedFile[];
+}
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, NgxExtendedPdfViewerModule],
+  imports: [CommonModule, FormsModule, IonicModule, NgxExtendedPdfViewerModule, SharedModule],
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
-  currentDate: string = '';
-  currentDay: string = '';
-  currentTime: string = '';
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  ukDate: string = '';
-  ukTime: string = '';
-  ukDay: string = '';
-  selectedInvoice: string = '';
-  fileName: string = '';
-  customerDetails: string[] = [];
+  selectedInvoice = '';
+  role = '';
+  email = '';
+  customerId = '';
 
-  selectedFileUrl: string | undefined;
-  currentPage: number = 1;
-  rotation: number = 0;
+  uploadedFiles: UploadedFile[] = [];
+  showUploadSheet = false;
 
-  photos: string[] = [];
-  isImage: boolean = false;
-  userna: string = '';
-  customerId: string = '';
-  dealerId: string = '';
-  storeId: string = '';
-  name: string = '';
-  azureUrl: string = '';
-  email: string = '';
-  googleUrl: string = '';
-  isLoading: boolean = false;
-  successMessage: string = '';
-  imageUrl: string = '';
-  role: string = '';
-
-  isEditModalOpen = false;
-  supplierName = '';
-  invoiceNumber = '';
-  invoiceDate = '';
-
-  showDatePicker: boolean = false;
-  selectedIndex: number | null = null;
-  selectedVendor: string = '';
-  uploadedFiles: {
-    name: string;
-    file: File;
-    url: string;
-    status: 'PENDING' | 'PROCESSING' | 'COMPLETED';
-    invoiceType: string;
-    vendor: string;
-  }[] = [];
-
-  selectedTarget: string | null = null;
-  isPdf: boolean = false;
+  // Preview modal (before confirming add)
+  showPreviewModal = false;
+  pendingFiles: PendingFile[] = [];
+  previewSelectedIndex = 0;
+  previewFileUrl = '';
+  previewIsPdf = false;
+  previewIsImage = false;
+  previewPage = 1;
+  previewTotalPages = 0;
 
   get selectedStoreIdDisplay(): string {
     return this.repository.selectedStore?.storeId || localStorage.getItem('storeId') || '';
@@ -80,810 +70,302 @@ export class DashboardComponent implements OnInit {
     return this.repository.selectedStore?.storeName || localStorage.getItem('storeName') || '';
   }
 
-  constructor(private http: HttpClient, private router: Router,
-    private zone: NgZone, private alertService: AlertService, public repository: RepositoryService, private alertCtrl: AlertController,
-    public vendorService: VendorService
-  ) { }
+  get groupedFiles(): FileGroup[] {
+    const today = this.todayStr();
+    const yesterday = this.dateStr(new Date(Date.now() - 86400000));
+
+    const map = new Map<string, UploadedFile[]>();
+    for (const f of this.uploadedFiles) {
+      const d = f.uploadDate || today;
+      if (!map.has(d)) map.set(d, []);
+      map.get(d)!.push(f);
+    }
+
+    return Array.from(map.entries())
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .map(([date, files]) => ({
+        date,
+        label: date === today ? 'Today' : date === yesterday ? 'Yesterday' : this.formatGroupDate(date),
+        files,
+      }));
+  }
+
+  constructor(
+    private http: HttpClient,
+    private zone: NgZone,
+    private alertService: AlertService,
+    public repository: RepositoryService,
+  ) {}
 
   ngOnInit() {
-    this.vendorService.getAllVendors().subscribe(v => this.vendorService.vendors = v);
     this.repository.loadSelectedStoreFromStorage();
     this.repository.loadCustomerIdFromStorage();
 
     const userData = localStorage.getItem('customer');
-
     if (userData) {
       const parsed = JSON.parse(userData);
       const user = parsed.user ?? parsed;
-
-      //   this.userna = user.username ?? '';
-      //   this.customerId = user.customerId ?? '';
-      //   this.repository.customerId = user.customerId;
-      //   this.dealerId = user.dealerId ?? '';
-      //   this.storeId = user.storeId ?? '';
-      //   this.name = user.name ?? '';
-      //   this.azureUrl = user.azureUrl ?? '';
       this.email = user.email ?? '';
-      //   this.googleUrl = user.googleUrl ?? '';
       this.role = user.role ?? '';
     }
 
-    // Get customerId from repository (which loads from localStorage if set)
     this.customerId = this.repository.customerId ?? '';
-
-    // Fallback to localStorage if not in repository
     if (!this.customerId) {
-      const cutom = localStorage.getItem('cust') ?? '';
-      this.customerId = cutom ? JSON.parse(cutom).customerId : '';
+      const cust = localStorage.getItem('cust') ?? '';
+      this.customerId = cust ? JSON.parse(cust).customerId : '';
     }
 
-    this.updateUKTime();
-    setInterval(() => this.updateUKTime(), 1000);
+    this.loadFromBackend();
   }
 
+  private todayStr(): string {
+    return this.dateStr(new Date());
+  }
 
-  updateUKTime() {
+  private dateStr(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  private formatGroupDate(isoDate: string): string {
+    return new Intl.DateTimeFormat(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(isoDate));
+  }
+
+  private loadFromBackend() {
+    if (!this.customerId) return;
+    this.http.get<any[]>(`${environment.apiUrl}file/getuploadedFiles/${this.customerId}`).subscribe({
+      next: (files) => {
+        const sessionFiles = this.uploadedFiles.filter(f => !!f.file);
+        const sessionNames = new Set(sessionFiles.map(f => f.name));
+
+        const backendFiles: UploadedFile[] = (files || [])
+          .filter(f => !!f.fileName && !sessionNames.has(f.fileName))
+          .map(f => {
+            const dt = f.uploadedTime ? new Date(f.uploadedTime) : null;
+            const valid = dt && !isNaN(dt.getTime());
+            const d = valid ? dt! : new Date();
+            return {
+              name: f.fileName,
+              invoiceType: f.processType || '',
+              uploadDate: this.dateStr(d),
+              uploadTime: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+            };
+          });
+
+        this.uploadedFiles = [...sessionFiles, ...backendFiles];
+      },
+      error: (err) => {
+        this.alertService.showErrorToast(err?.error?.message || 'Could not load file history');
+      },
+    });
+  }
+
+  openUploadOptions() {
+    if (!this.selectedInvoice) {
+      this.alertService.showToast('Please select Invoice Type first', 3000, 'top');
+      return;
+    }
+    this.showUploadSheet = true;
+  }
+
+  captureAndClose() {
+    this.showUploadSheet = false;
+    setTimeout(() => this.capturePhoto(), 200);
+  }
+
+  galleryAndClose() {
+    this.showUploadSheet = false;
+    setTimeout(() => this.fileInput.nativeElement.click(), 200);
+  }
+
+  async capturePhoto() {
+    try {
+      if (Capacitor.getPlatform() === 'web') {
+        this.alertService.showToast('Camera scan is only supported on mobile.', 3000, 'top');
+        return;
+      }
+
+      // responseType 'base64' returns image data directly — works on both Android and iOS
+      const result = await DocumentScanner.scanDocument({ responseType: 'base64' as any });
+
+      // User cancelled — do nothing
+      if (result.status === 'cancel') return;
+
+      const images: string[] = result.scannedImages ?? [];
+      if (!images.length) return;
+
+      const pages: string[] = [];
+      for (const img of images) {
+        if (img.startsWith('data:')) {
+          pages.push(img);
+        } else {
+          // Raw base64 — detect PNG (magic: 0x89 0x50) vs JPEG (0xFF 0xD8)
+          const header = atob(img.substring(0, 8));
+          const isPng = header.charCodeAt(0) === 0x89 && header.charCodeAt(1) === 0x50;
+          pages.push(`data:image/${isPng ? 'png' : 'jpeg'};base64,${img}`);
+        }
+      }
+
+      await this.createPdfAndPreview(pages);
+    } catch {
+      this.alertService.showErrorToast('Scanner failed. Please try again.', 3000, 'top');
+    }
+  }
+
+  async createPdfAndPreview(pages: string[]) {
+    if (!pages.length) return;
+    try {
+      const pdfDoc = await PDFDocument.create();
+
+      for (const dataUrl of pages) {
+        const isPng = dataUrl.startsWith('data:image/png');
+        const rawBytes = this.dataUrlToBytes(dataUrl);
+
+        // Use the correct embedder — wrong type throws inside pdf-lib
+        const embeddedImg = isPng
+          ? await pdfDoc.embedPng(rawBytes)
+          : await pdfDoc.embedJpg(rawBytes);
+
+        const page = pdfDoc.addPage([595, 842]); // A4 portrait
+        page.drawImage(embeddedImg, {
+          x: 0, y: 0,
+          width: page.getWidth(),
+          height: page.getHeight(),
+        });
+      }
+
+      const pdfBytes = await pdfDoc.save();
+      const pdfBlob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
+
+      const now = new Date();
+      const ts = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0'),
+        String(now.getHours()).padStart(2, '0'),
+        String(now.getMinutes()).padStart(2, '0'),
+        String(now.getSeconds()).padStart(2, '0'),
+      ].join('_');
+
+      const pdfFile = new File(
+        [pdfBlob],
+        `${this.customerId}_${ts}.pdf`,
+        { type: 'application/pdf' }
+      );
+
+      this.zone.run(() => this.addToPending([pdfFile]));
+    } catch {
+      this.alertService.showErrorToast('PDF creation failed.', 3000, 'middle');
+    }
+  }
+
+  onFilesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const files = Array.from(input.files);
+    this.addToPending(files);
+    input.value = '';
+  }
+
+  addToPending(files: File[]) {
+    this.pendingFiles = files.map(f => ({
+      file: f,
+      url: URL.createObjectURL(f),
+      isPdf: f.type === 'application/pdf',
+      isImage: f.type.startsWith('image/'),
+    }));
+    this.previewSelectedIndex = 0;
+    this.previewPage = 1;
+    this.previewTotalPages = 0;
+    this.showPreviewModal = true;
+    this.setPreviewFile(0);
+  }
+
+  setPreviewFile(index: number) {
+    const pf = this.pendingFiles[index];
+    if (!pf) return;
+    this.previewSelectedIndex = index;
+    this.previewFileUrl = pf.url;
+    this.previewIsPdf = pf.isPdf;
+    this.previewIsImage = pf.isImage;
+    this.previewPage = 1;
+  }
+
+  selectPreviewFile(index: number) {
+    this.setPreviewFile(index);
+  }
+
+  onPreviewPagesLoaded(event: any) {
+    this.previewTotalPages = event.pagesCount;
+  }
+
+  confirmPreview() {
     const now = new Date();
+    const batch: UploadedFile[] = this.pendingFiles.map(pf => ({
+      name: pf.file.name,
+      file: pf.file,
+      url: pf.url,
+      invoiceType: this.selectedInvoice,
+      uploadDate: this.todayStr(),
+      uploadTime: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+    }));
 
-    const ukOptions: Intl.DateTimeFormatOptions = {
-      timeZone: 'Europe/London',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    };
+    for (const f of batch) this.uploadedFiles.unshift(f);
+    this.pendingFiles = [];
+    this.showPreviewModal = false;
+    this.previewFileUrl = '';
 
-    const timeOptions: Intl.DateTimeFormatOptions = {
-      timeZone: 'Europe/London',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    };
+    if (!this.customerId) {
+      this.alertService.showErrorToast('Customer ID is required');
+      return;
+    }
 
-    const dayOptions: Intl.DateTimeFormatOptions = {
-      timeZone: 'Europe/London',
-      weekday: 'long'
-    };
-
-    this.ukDate = new Intl.DateTimeFormat('en-GB', ukOptions).format(now);
-    this.ukTime = new Intl.DateTimeFormat('en-GB', timeOptions).format(now);
-    this.ukDay = new Intl.DateTimeFormat('en-GB', dayOptions).format(now);
-  }
-  updateDateTime() {
-    const now = new Date();
-    const options: Intl.DateTimeFormatOptions = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-    this.currentDate = now.toLocaleDateString(undefined, options); // e.g., Feb 23, 2026
-    this.currentDay = now.toLocaleDateString(undefined, { weekday: 'long' }); // e.g., Thursday
-    this.currentTime = now.toLocaleTimeString(); // e.g., 5:30:12 PM
-  }
-
-  uploadToAzure(dataUrl: string) {
-    const blob = this.dataURLtoBlob(dataUrl);
     const formData = new FormData();
-    formData.append('file', blob, 'invoice.jpg');
+    for (const item of batch) {
+      formData.append('files', item.file!);
+      formData.append('invoiceTypes', item.invoiceType);
+    }
 
-    this.http.post('https://YOUR_AZURE_FUNCTION_OR_API/upload', formData)
-      .subscribe({
-        next: res => console.log('Uploaded successfully', res),
-        error: err => console.error('Upload error', err)
-      });
+    this.http.post<any>(`${environment.apiUrl}file/upload/${this.customerId}`, formData).subscribe({
+      next: () => {
+        this.alertService.showSuccessToast('Upload successful');
+      },
+      error: (err) => {
+        this.alertService.showErrorToast(err?.error?.message || err?.message || 'Upload failed');
+      },
+    });
+  }
+
+  discardPreview() {
+    for (const pf of this.pendingFiles) {
+      URL.revokeObjectURL(pf.url);
+    }
+    this.pendingFiles = [];
+    this.showPreviewModal = false;
+    this.previewFileUrl = '';
+  }
+
+  prevPreviewPage() { if (this.previewPage > 1) this.previewPage--; }
+  nextPreviewPage() { if (this.previewPage < this.previewTotalPages) this.previewPage++; }
+
+  // Converts a data-URL (data:mime;base64,xxx) to raw bytes
+  dataUrlToBytes(dataUrl: string): Uint8Array {
+    const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes;
+  }
+
+  base64ToUint8Array(base64: string): Uint8Array {
+    return this.dataUrlToBytes(base64);
   }
 
   dataURLtoBlob(dataUrl: string): Blob {
     const arr = dataUrl.split(',');
     const mime = arr[0].match(/:(.*?);/)![1];
     const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) u8arr[n] = bstr.charCodeAt(n);
+    const u8arr = new Uint8Array(bstr.length);
+    for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
     return new Blob([u8arr], { type: mime });
-  }
-
-  // Convert base64 to File object
-  dataUrlToFile(dataUrl: string, fileName: string): File {
-    const arr = dataUrl.split(',');
-    const mime = arr[0].match(/:(.*?);/)![1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-
-    return new File([u8arr], fileName, { type: mime });
-  }
-
-  base64ToBlob(base64: string, type = 'image/jpeg') {
-    const binary = atob(base64);
-    const len = binary.length;
-    const buffer = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      buffer[i] = binary.charCodeAt(i);
-    }
-    return new Blob([buffer], { type });
-  }
-  async capturePhoto() {
-    if (!this.selectedVendor || this.selectedVendor.trim() === '') {
-      this.alertService.showToast('Please select a Supplier first', 3000, 'top');
-      return;
-    }
-
-    if (!this.selectedInvoice || this.selectedInvoice.trim() === '') {
-      this.alertService.showToast('Please select invoice type', 3000, 'top');
-      return;
-    }
-    try {
-      const platform = Capacitor.getPlatform();
-      const isWeb = platform === 'web';
-      let result: any;
-
-      if (isWeb) {
-        this.alertService.showToast('Document scanning is only supported on mobile devices.', 3000, 'top');
-        return;
-      } else {
-        result = await DocumentScanner.scanDocument();
-      }
-
-      const images = result.scannedImages ?? [result.image];
-      const pages: string[] = [];
-
-      for (let i = 0; i < images.length; i++) {
-        let base64Data = '';
-        if (images[i].startsWith('data:')) {
-          base64Data = images[i].split(',')[1];
-        } else if (!images[i].startsWith('/')) {
-          base64Data = images[i];
-        } else {
-          const file = await Filesystem.readFile({ path: images[i] });
-          base64Data = file.data as string;
-        }
-        pages.push(`data:image/jpeg;base64,${base64Data}`);
-      }
-
-      await this.createPdfAndPush(pages);
-    } catch (err) {
-      this.alertService.showErrorToast('Scanner failed. Please try again.', 3000, 'top');
-    }
-  }
-
-  async createPdfAndPush(pages: string[]) {
-    if (!pages.length) {
-      this.alertService.showToast('No pages to create PDF.', 3000, 'top');
-      return;
-    }
-    try {
-      const pdfDoc = await PDFDocument.create();
-
-      for (let i = 0; i < pages.length; i++) {
-        const page = pdfDoc.addPage([595, 842]);
-        const jpgImageBytes = this.base64ToUint8Array(pages[i]);
-        const jpgImage = await pdfDoc.embedJpg(jpgImageBytes);
-        page.drawImage(jpgImage, {
-          x: 0,
-          y: 0,
-          width: page.getWidth(),
-          height: page.getHeight(),
-        });
-      }
-
-      const pdfBytes: Uint8Array = await pdfDoc.save();
-      const pdfBlob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
-
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
-      const formattedDateTime = `${year}_${month}_${day}_${hours}_${minutes}_${seconds}_${milliseconds}`;
-      const supplier = this.selectedVendor.replace(/\s+/g, '_').toUpperCase();
-      const fileName = `${this.customerId}_${formattedDateTime}_${supplier}.pdf`;
-      const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
-      this.zone.run(() => {
-        this.uploadedFiles.push({
-          name: fileName,
-          file: pdfFile,
-          url: URL.createObjectURL(pdfBlob),
-          status: 'PENDING',
-          invoiceType: this.selectedInvoice,
-          vendor: this.selectedVendor,
-        });
-      });
-
-      this.alertService.showSuccessToast('PDF created and added', 3000, 'middle');
-
-    } catch (err) {
-      this.alertService.showErrorToast('PDF creation failed. Please try again.', 3000, 'middle');
-    }
-  }
-
-  base64ToUint8Array(base64: string) {
-    const binary = atob(base64.split(',')[1] || base64);
-    const len = binary.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
-  }
-
-  processFile(file: any, index: number) {
-    this.selectedIndex = index;
-    this.uploadedFiles[index].status = 'PROCESSING';
-    setTimeout(() => {
-      this.uploadedFiles[index].status = 'COMPLETED';
-    }, 2000);
-  }
-
-  removeFile(index: number) {
-    const removedFile = this.uploadedFiles[index];
-    URL.revokeObjectURL(removedFile.url);
-    this.uploadedFiles.splice(index, 1);
-
-    if (this.selectedFileUrl === removedFile.url) {
-      this.clearInspector();
-    }
-  }
-  clearInspector() {
-    this.selectedFileUrl = '';
-    this.fileName = '';
-    this.isPdf = false;
-    this.isImage = false;
-    this.zoomLevel = 1;
-    this.rotation = 0;
-  }
-  sendToTarget() {
-    if (this.selectedIndex === null) {
-      alert('Please select a file.');
-      return;
-    }
-
-    if (!this.selectedTarget) {
-      alert('Please select a target.');
-      return;
-    }
-
-    const selectedFile = this.uploadedFiles[this.selectedIndex];
-
-    alert(`Sent ${selectedFile.name} to ${this.selectedTarget}`);
-  }
-
-  uplinkValue: string = '';
-  isEditable: boolean = false;
-
-  selectTarget(target: string) {
-    this.selectedTarget = target;
-
-    if (target === 'upload') {
-      // this.uplinkValue = this.googleUrl;
-    }
-
-    if (target === 'azure') {
-      this.uplinkValue = this.azureUrl;
-    }
-
-    if (target === 'email') {
-      this.uplinkValue = this.email;
-    }
-    if (target === 'sql') {
-
-    }
-  }
-
-  getTransmitIcon(): string {
-
-    if (this.selectedTarget === 'upload') {
-      return 'cloud-upload';
-    }
-
-    if (this.selectedTarget === 'gmail') {
-      return 'mail-outline';
-    }
-
-    if (this.selectedTarget === 'azure') {
-      return 'cloud-outline';
-    }
-
-    if (this.selectedTarget === 'email') {
-      return 'mail-outline';
-    }
-    if (this.selectedTarget === 'sql') {
-      return 'server-outline'
-    }
-
-    return 'send-outline';
-  }
-
-  selectFile(index: number) {
-    this.selectedIndex = index;
-
-    const fileObj = this.uploadedFiles[index];
-    if (!fileObj || !fileObj.file) return;
-
-    const file = fileObj.file;
-
-    this.fileName = file.name;
-    this.selectedFileUrl = URL.createObjectURL(file);
-    this.isImage = false;
-    this.isPdf = false;
-
-    if (file.type === 'application/pdf') {
-      this.isPdf = true;
-    }
-    else if (file.type.startsWith('image/')) {
-      this.isImage = true;
-    }
-    else {
-      alert("Unsupported file type");
-      this.selectedFileUrl = '';
-    }
-  }
-  totalPages: number = 0;
-
-  prevPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
-  }
-
-  nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
-  }
-  rotatedImageFile: File | null = null;
-  rotateLeft() {
-    this.rotation -= 90;
-    this.processRotation();
-  }
-
-  rotateRight() {
-    this.rotation += 90;
-    this.processRotation();
-  }
-  processRotation() {
-    if (!this.isImage || !this.selectedFileUrl) return;
-
-    const img = new Image();
-    img.src = this.selectedFileUrl;
-
-    img.onload = () => {
-
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      const angle = this.rotation % 360;
-
-      if (angle === 90 || angle === -270 || angle === 270 || angle === -90) {
-        canvas.width = img.height;
-        canvas.height = img.width;
-      } else {
-        canvas.width = img.width;
-        canvas.height = img.height;
-      }
-
-      ctx?.translate(canvas.width / 2, canvas.height / 2);
-      ctx?.rotate((angle * Math.PI) / 180);
-      ctx?.drawImage(img, -img.width / 2, -img.height / 2);
-
-      canvas.toBlob((blob) => {
-        if (blob) {
-
-          this.rotatedImageFile = new File([blob], this.fileName, {
-            type: 'image/jpeg'
-          });
-          this.selectedFileUrl = URL.createObjectURL(blob);
-        }
-      }, 'image/jpeg');
-
-    };
-  }
-  zoomLevel: number = 1;
-
-  zoomIn() {
-    this.zoomLevel += 0.2;
-  }
-
-  zoomOut() {
-    if (this.zoomLevel > 0.4) {
-      this.zoomLevel -= 0.2;
-    }
-  }
-
-  onPagesLoaded(event: any) {
-    this.totalPages = event.pagesCount;
-  }
-  onPdfLoaded(pdf: any) {
-    this.totalPages = pdf.numPages;
-  }
-
-  uploadFromDrive(event: any) {
-    const files = event.target.files;
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      this.uploadedFiles.push({
-        name: file.name,
-        file: file,
-        url: URL.createObjectURL(file),
-        status: 'PENDING',
-        invoiceType: this.selectedInvoice,
-        vendor: this.selectedVendor
-      });
-    }
-  }
-  onUploadClick(fileInput: any) {
-    if (!this.selectedVendor || this.selectedVendor.trim() === '') {
-      this.alertService.showToast('Please select a Supplier first', 3000, 'top');
-    } else if (!this.selectedInvoice || this.selectedInvoice.trim() === '') {
-      this.alertService.showToast('Please select invoice type', 3000, 'top');
-    } else {
-      fileInput.click();
-    }
-  }
-
-  inspectFile(file: File, index: number) {
-    this.selectFile(index);
-
-    const uploaded = this.uploadedFiles[index];
-    if (!uploaded) return;
-
-    this.fileName = uploaded.name;
-
-    // this.selectedFileUrl = uploaded.url;
-    this.selectedFileUrl = uploaded.url || URL.createObjectURL(uploaded.file);
-    const type = uploaded.file?.type || '';
-
-    // PDF check (safe)
-    if (type === 'application/pdf') {
-      this.isPdf = true;
-      this.isImage = false;
-    }
-    // Image check (safe for jpg/jpeg/png)
-    else if (type.startsWith('image/')) {
-      this.isPdf = false;
-      this.isImage = true;
-    }
-    else {
-      this.isPdf = false;
-      this.isImage = false;
-    }
-
-    this.zoomLevel = 1;
-    this.rotation = 0;
-    setTimeout(() => {
-      document
-        .getElementById('inspector')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
-  }
-
-  async transmit(): Promise<void> {
-    // Validate all files have vendor and invoiceType selected
-    for (let i = 0; i < this.uploadedFiles.length; i++) {
-      const file = this.uploadedFiles[i];
-      if (!file.vendor || file.vendor.trim() === '') {
-        this.alertService.showErrorToast(`Please select Supplier for file ${i + 1}`);
-        throw new Error(`Please select Supplier for file ${i + 1}`);
-      }
-      if (!file.invoiceType || file.invoiceType.trim() === '') {
-        this.alertService.showErrorToast(`Please select invoice type for file ${i + 1}`);
-        throw new Error(`Please select invoice type for file ${i + 1}`);
-      }
-    }
-
-    if (!this.selectedTarget) {
-      this.alertService.showErrorToast('Please select a target');
-      throw new Error('Please select a target');
-    }
-
-    switch (this.selectedTarget) {
-
-      case 'email':
-        return await this.sendMail();
-
-      case 'upload':
-        return await this.GoogleuploadFiles();
-
-      case 'azure':
-        return await this.uploadAzureFiles();
-
-      default:
-        throw new Error('Invalid target');
-    }
-  }
-  goToHome() {
-    if (this.role === 'Admin') {
-      this.router.navigate(['/site/home']);
-    }
-  }
-
-  openEditModal() {
-    this.isEditModalOpen = true;
-  }
-
-  closeModal() {
-    this.isEditModalOpen = false;
-    this.verificationStatus = 'idle';
-    this.ErrorMessage = '';
-    this.supplierName = '';
-    this.invoiceNumber = '';
-    this.invoiceDate = '';
-  }
-
-  verificationStatus: 'idle' | 'pending' | 'success' | 'error' = 'idle';
-  ErrorMessage: string = '';
-
-  verifyAndStandardize() {
-    if (!this.supplierName || !this.invoiceNumber || !this.invoiceDate) {
-      this.verificationStatus = 'error';
-      this.ErrorMessage = 'Please complete all fields before verification.';
-      return;
-    }
-
-    if (!this.invoiceNumber.toUpperCase().startsWith('INV-')) {
-      this.verificationStatus = 'error';
-      this.ErrorMessage = 'Invoice number must start with "INV-".';
-      return;
-    }
-
-    this.verificationStatus = 'pending';
-    this.ErrorMessage = '';
-
-    const date = new Date(this.invoiceDate);
-    const day = ('0' + date.getDate()).slice(-2);
-    const month = ('0' + (date.getMonth() + 1)).slice(-2);
-    const year = date.getFullYear();
-    const formattedDate = `${day}-${month}-${year}`;
-
-    if (this.selectedIndex !== null && this.uploadedFiles[this.selectedIndex]) {
-
-      const fileObj = this.uploadedFiles[this.selectedIndex];
-      const currentFile = fileObj.file;
-
-      let extension = '';
-      const parts = currentFile.name.split('.');
-      if (parts.length > 1) {
-        extension = '.' + parts.pop()!.toLowerCase();
-      }
-
-      const newFileName = `SUP-${this.supplierName.toUpperCase()}-${this.customerId}-${this.invoiceNumber}-${formattedDate}${extension}`;
-
-      const renamedFile = new File([currentFile], newFileName, {
-        type: currentFile.type,
-        lastModified: currentFile.lastModified
-      });
-
-      // 9️⃣ Replace the File in the object
-      fileObj.file = renamedFile;
-      fileObj.name = newFileName;
-
-      this.fileName = newFileName;
-
-      setTimeout(() => {
-        this.verificationStatus = 'success';
-
-        setTimeout(() => {
-          this.closeModal();
-        }, 1200);
-
-      }, 500);
-
-    } else {
-      this.verificationStatus = 'error';
-      this.ErrorMessage = 'No file selected to verify.';
-    }
-  }
-  onInputChange() {
-    if (this.verificationStatus === 'error') {
-      this.verificationStatus = 'idle';
-    }
-  }
-  onDateChange(event: any) {
-    this.invoiceDate = event.detail.value;
-    this.showDatePicker = false;
-  }
-  onModalDismiss() {
-    this.isEditModalOpen = false;
-
-    this.verificationStatus = 'idle';
-    this.supplierName = '';
-    this.invoiceNumber = '';
-    this.invoiceDate = '';
-    this.ErrorMessage = '';
-  }
-
-  get completedCount(): number {
-    return this.uploadedFiles
-      ? this.uploadedFiles.filter(f => f.status === 'COMPLETED').length
-      : 0;
-  }
-
-
-  isConfirmModalOpen = false;
-
-  dispatching = false;
-  success = false;
-
-  showSuccessBadge = false;
-
-  openConfirmModal() {
-    if (this.uploadedFiles.length === 0) return;
-    this.isConfirmModalOpen = true;
-  }
-
-  // Handle transmit button click with all guards
-  handleTransmitClick() {
-    if (this.dispatching) {
-      return;
-    }
-    if (this.uploadedFiles.length === 0) {
-      return;
-    }
-    this.openConfirmModal();
-  }
-
-  // Close modal
-  closeConfirmModal() {
-    this.isConfirmModalOpen = false;
-  }
-
-  // Handle modal dismiss event
-  onModalDidDismiss() {
-    this.isConfirmModalOpen = false;
-  }
-
-  async startDispatch() {
-    if (this.dispatching) return;
-    if (this.uploadedFiles.length === 0) return;
-
-    this.dispatching = true;
-
-    try {
-      await this.transmit();
-
-      this.alertService.showSuccessToast("Transmission successful");
-      this.isConfirmModalOpen = false;
-
-    } catch (err: any) {
-      this.alertService.showErrorToast(err.message || "Transmission failed");
-    } finally {
-      this.dispatching = false;
-    }
-  }
-
-  async sendMail(): Promise<void> {
-    if (this.uploadedFiles.length === 0) {
-      this.alertService.showErrorAlert("Error", "No files selected");
-      return;
-    }
-    if (!this.customerId) {
-      this.alertService.showErrorToast("Customer ID is required");
-      return;
-    }
-    if (!this.email) {
-      this.alertService.showErrorToast("Email is required");
-      return;
-    }
-
-    const formData = new FormData();
-    for (let item of this.uploadedFiles) {
-      formData.append('files', item.file);
-    }
-
-    const sendUrl = `${environment.apiUrl}File/sendzip/${this.email}`;
-
-    return new Promise<void>((resolve, reject) => {
-
-      this.http.post<any>(sendUrl, formData).subscribe({
-
-        next: (res: any) => {
-          if (res?.success === true) {
-            resolve();
-          } else {
-            reject(new Error(res?.message || "Mail sending failed"));
-          }
-        },
-        error: (err) => {
-          reject(new Error(err?.message || "Server error"));
-        }
-      });
-    });
-  }
-  async GoogleuploadFiles(): Promise<void> {
-    if (this.uploadedFiles.length === 0) {
-      alert("No files selected");
-      return;
-    }
-    if (!this.customerId) {
-      this.alertService.showErrorToast("Customer ID is required");
-      return;
-    }
-
-    const formData = new FormData();
-    for (let item of this.uploadedFiles) {
-      formData.append('files', item.file);
-      formData.append('vendors', item.vendor);
-      formData.append('invoiceTypes', item.invoiceType);
-    }
-
-    const uploadUrl = `${environment.apiUrl}file/upload/${this.customerId}`;
-
-    return new Promise<void>((resolve, reject) => {
-      this.http.post<any>(uploadUrl, formData).subscribe({
-        next: (res) => resolve(),
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  async showAlert(message: string, header: string) {
-    this.alertCtrl.create({
-      header: header,
-      message: message,
-      cssClass: 'center-alert',
-      buttons: ['OK']
-    }).then(alert => {
-      alert.present();
-    });
-  }
-  async uploadAzureFiles(): Promise<void> {
-    if (this.uploadedFiles.length === 0) {
-      alert("No files selected");
-      return;
-    }
-    if (!this.customerId) {
-      this.alertService.showErrorToast("Customer ID is required");
-      return;
-    }
-
-    const formData = new FormData();
-    for (let item of this.uploadedFiles) {
-      formData.append('files', item.file);
-      formData.append('vendors', item.vendor);
-      formData.append('invoiceTypes', item.invoiceType);
-    }
-
-    const uploadUrl = `${environment.apiUrl}file/uploadazure/${this.customerId}`;
-
-    return new Promise<void>((resolve, reject) => {
-      this.http.post<any>(uploadUrl, formData).subscribe({
-        next: (res) => resolve(),
-        error: (err) => reject(err)
-      });
-    });
-  }
-
-  async uploadSQLFiles(): Promise<void> {
-    if (this.uploadedFiles.length === 0) {
-      throw new Error("No files selected");
-    }
-
-    const formData = new FormData();
-    for (let item of this.uploadedFiles) {
-      formData.append('files', item.file);
-      formData.append('vendors', item.vendor);
-      formData.append('invoiceTypes', item.invoiceType);
-    }
-
-    const uploadUrl = `${environment.apiUrl}file/uploadsql/${this.customerId}`;
-
-    return new Promise<void>((resolve, reject) => {
-      this.http.post(uploadUrl, formData).subscribe({
-        next: (res) => {
-          resolve();
-        },
-        error: (err) => {
-          console.error(err);
-          reject(err);
-        }
-      });
-    });
   }
 }

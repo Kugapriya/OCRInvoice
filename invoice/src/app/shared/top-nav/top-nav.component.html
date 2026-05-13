@@ -1,0 +1,36 @@
+<ion-header class="nav-header">
+  <ion-toolbar class="top-bar">
+    <div class="toolbar-row">
+
+      <!-- Left: Customer ID (dashboard only) -->
+      <div class="toolbar-side">
+        <div class="customer-id-chip" *ngIf="showDetails">
+          <ion-icon name="person-circle-outline"></ion-icon>
+          <span class="cid-value">{{ customerId || '' }}</span>
+        </div>
+      </div>
+
+      <!-- Center: Store Name -->
+      <div class="center-content">
+        <div class="store-name-center">
+          <span class="store-name-text">{{ selectedStoreNameDisplay || '—' }}</span>
+          <span class="store-id-text" *ngIf="selectedStoreIdDisplay">{{ selectedStoreIdDisplay }}</span>
+        </div>
+        <div class="sub-info" *ngIf="showDetails">
+          <div class="time-info">
+            <span>{{ localDay }}</span> | <span>{{ localDate }}</span> | <span>{{ localTime }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Logout -->
+      <div class="toolbar-side right-side">
+        <button class="logout-btn" (click)="confirmLogout()">
+          <ion-icon name="log-out-outline"></ion-icon>
+          <span class="logout-label">Logout</span>
+        </button>
+      </div>
+
+    </div>
+  </ion-toolbar>
+</ion-header>

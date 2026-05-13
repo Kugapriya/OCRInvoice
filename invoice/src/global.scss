@@ -69,3 +69,41 @@ ion-button {
     --color: #ffffff;
     --box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
 }
+
+/* Logout confirmation alert */
+.logout-alert {
+    --border-radius: 16px;
+    --backdrop-opacity: 0.5;
+}
+
+.logout-confirm-btn {
+    color: #ef4444 !important;
+    font-weight: 700 !important;
+}
+
+/* Upload sheet modal — sheet on mobile, small centered card on PC */
+.upload-sheet-modal {
+    --border-radius: 22px 22px 0 0;
+    --background: #ffffff;
+    --box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+
+    @media (min-width: 600px) {
+        --width: 340px;
+        --height: 260px;
+        --border-radius: 20px;
+        --box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    }
+}
+
+/* On PC: cancel the sheet's partial-reveal transform so full content shows */
+@media (min-width: 600px) {
+    .upload-sheet-modal::part(content) {
+        transform: none !important;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -130px;
+        margin-left: -170px;
+        bottom: auto !important;
+    }
+}

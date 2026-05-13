@@ -40,9 +40,14 @@ export class VerifyOtpComponent implements OnInit, OnDestroy {
     const val = event.target.value.replace(/\D/g, '').slice(-1);
     this.otpDigits[index] = val;
     event.target.value = val;
+
     if (val && index < 5) {
       const inputs = this.otpInputs.toArray();
       inputs[index + 1]?.nativeElement.focus();
+    }
+
+    if (index === 5 && val && this.otpDigits.every(d => d !== '') && !this.loading) {
+      setTimeout(() => this.verifyOtp(), 150);
     }
   }
 
@@ -58,6 +63,7 @@ export class VerifyOtpComponent implements OnInit, OnDestroy {
     if (text.length === 6) {
       this.otpDigits = text.split('');
       event.preventDefault();
+      setTimeout(() => this.verifyOtp(), 200);
     }
   }
 

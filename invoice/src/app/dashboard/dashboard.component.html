@@ -1,524 +1,176 @@
+<app-top-nav [showDetails]="true"></app-top-nav>
+
 <ion-content>
-  <ion-header class="sticky-header">
-    <ion-toolbar class="top-bar">
-      <div class="center-content">
-        <div class="brand">
-          <span class="docmate">DocMate</span>
-          <span class="capture">Capture</span>
-        </div>
 
-        <div class="sub-info">
-          <div class="version-date">
-            <span class="version">v1.01</span>
-            <span class="divider">|</span>
-            <span>{{ ukDate }}</span>
-          </div>
-
-          <div class="time-info">
-            <span>{{ ukDay }}</span> |
-            <span>{{ ukTime }}</span>
-          </div>
-
-          <div class="time-info">
-            <span>{{ selectedStoreIdDisplay }}</span> |
-            <span>{{ selectedStoreNameDisplay }}</span>
-          </div>
-
-        </div>
-      </div>
-
-      <ion-buttons slot="end">
-        <ion-button class="admin-btn" fill="solid" color="danger" (click)="goToHome()">
-          <ion-icon name="person-outline" slot="start"></ion-icon>
-          <span class="role-text">{{ role }}</span>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
-  <div class="info-cards-row">
-    <ion-card class="info-card customer-id-card">
-      <ion-card-content>
-        <span class="info-card-label">Customer ID</span>
-        <div class="info-card-value">{{ customerId }}</div>
-      </ion-card-content>
-    </ion-card>
-
-    <ion-card class="info-card supplier-select-card">
-      <ion-card-content>
-        <span class="info-card-label">Supplier</span>
-        <ion-select [(ngModel)]="selectedVendor" interface="popover" placeholder="Select Supplier" class="supplier-select-input">
-          <ion-select-option value="">Select Supplier</ion-select-option>
-          <ion-select-option *ngFor="let v of vendorService.vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
-        </ion-select>
-      </ion-card-content>
-    </ion-card>
+  <div class="page-card">
+    <div class="card-label-row">
+      <ion-icon name="document-text-outline" class="label-icon"></ion-icon>
+      <span class="card-label-text">Invoice Type</span>
+    </div>
+    <ion-select [(ngModel)]="selectedInvoice" interface="popover" placeholder="Select invoice type" class="type-select">
+      <ion-select-option value="Purchase Invoice">Purchase Invoice</ion-select-option>
+      <ion-select-option value="Expenses Invoice">Expenses Invoice</ion-select-option>
+      <ion-select-option value="Service Invoice">Service Invoice</ion-select-option>
+      <ion-select-option value="Sales Invoice">Sales Invoice</ion-select-option>
+      <ion-select-option value="Commission Invoice">Commission Invoice</ion-select-option>
+    </ion-select>
   </div>
-  <!-- <ion-card class="photo-card">
-    <ion-card-content>
-      <ion-card-header>
-        <ion-card-title class="card-title">
-          SELECT DOCUMENT STRATEGY
-        </ion-card-title>
-      </ion-card-header>
 
-      <ion-grid>
-        <ion-row>
-          <ion-col size="6">
-            <ion-card class="doc-card purchase">
-              <ion-card-content class="ion-text-center">
-                <ion-icon name="document-text-outline" size="large"></ion-icon>
-                <p>Purchase Invoice</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-
-          <ion-col size="6">
-            <ion-card class="doc-card service">
-              <ion-card-content class="ion-text-center">
-                <ion-icon name="settings-outline" size="large"></ion-icon>
-                <p>Service Invoice</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-
-        <ion-row>
-          <ion-col size="6">
-            <ion-card class="doc-card sales">
-              <ion-card-content class="ion-text-center">
-                <ion-icon name="cash-outline" size="large"></ion-icon>
-                <p>Sales Invoice</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-
-          <ion-col size="6">
-            <ion-card class="doc-card commission">
-              <ion-card-content class="ion-text-center">
-                <ion-icon name="people-outline" size="large"></ion-icon>
-                <p>Commission Invoice</p>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card> -->
-
-  <ion-card class="invoice-card">
-    <ion-card-content>
-
-      <ion-card-header>
-        <ion-card-title class="card-title">
-          <ion-icon name="document-text-outline" class="title-icon"></ion-icon>
-          SELECT DOCUMENT STRATEGY
-        </ion-card-title>
-      </ion-card-header>
-
-      <ion-item>
-        <ion-label>Invoice Type</ion-label>
-        <ion-select [(ngModel)]="selectedInvoice" interface="popover" size="small" (click)="$event.stopPropagation()"
-          interface="popover">
-
-          <ion-select-option value="">
-            Select Invoice Type
-          </ion-select-option>
-          <ion-select-option value="Purchase Invoice">
-            Purchase Invoice
-          </ion-select-option>
-          <ion-select-option value="Expenses Invoice">
-            Expenses Invoice
-          </ion-select-option>
-
-          <ion-select-option value="Service Invoice">
-            Service Invoice
-          </ion-select-option>
-
-          <ion-select-option value="Sales Invoice">
-            Sales Invoice
-          </ion-select-option>
-
-          <ion-select-option value="Commission Invoice">
-            Commission Invoice
-          </ion-select-option>
-
-        </ion-select>
-      </ion-item>
-
-    </ion-card-content>
-  </ion-card>
-  <ion-card class="photo-card capture-card">
-    <ion-card-content>
-      <ion-card-header>
-        <ion-card-title class="card-title">
-          <ion-icon name="camera-outline" class="title-icon"></ion-icon>
-          CAPTURE METHOD
-        </ion-card-title>
-      </ion-card-header>
-
-      <ion-grid>
-        <ion-row>
-          <ion-col size="6">
-            <ion-button expand="block" class="capture-btn" (click)="capturePhoto()">
-              <ion-icon name="camera" slot="start"></ion-icon>
-              Capture
-            </ion-button>
-          </ion-col>
-          <ion-col size="6">
-            <input type="file" multiple accept="image/*,application/pdf" (change)="uploadFromDrive($event)" hidden
-              #fileInput>
-            <ion-button expand="block" class="upload-btn" (click)="onUploadClick(fileInput)">
-              <ion-icon name="cloud-upload" slot="start"></ion-icon>
-              Upload
-            </ion-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-card-content>
-  </ion-card>
-  <ion-card class="photo-card command-card">
-
-    <ion-card-header>
-      <ion-card-title class="card-title">
-        <ion-icon name="layers-outline" class="title-icon"></ion-icon>
-        DOCUMENT COMMAND CENTER
-      </ion-card-title>
-    </ion-card-header>
-
-    <!-- <div class="action-row">
-      <ion-button class="process-all-btn">
-        <ion-icon name="play-circle-outline" slot="start"></ion-icon>
-        Process All
-      </ion-button>
-
-      <ion-button class="refresh-btn">
-        <ion-icon name="refresh-outline"></ion-icon>
-      </ion-button>
-
-    </div> -->
-
-    <ion-card-content class="command-content">
-      <ion-card class="inner-list-card">
-
-        <ion-card-content>
-
-          <div class="file-item" *ngFor="let file of uploadedFiles; let i = index"
-            [class.selected]="selectedIndex === i" (click)="selectFile(i)">
-
-            <div class="file-row">
-
-              <ion-icon name="document-text-outline" class="file-icon"></ion-icon>
-
-              <div class="file-info">
-                {{ file.name }}
-              </div>
-
-              <div class="file-selections">
-                <ion-select [(ngModel)]="file.vendor" interface="popover" placeholder="Vendor" size="small"
-                  (click)="$event.stopPropagation()">
-                  <ion-select-option value="">Select Vendor</ion-select-option>
-                  <ion-select-option *ngFor="let v of vendorService.vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
-                </ion-select>
-
-                <ion-select [(ngModel)]="file.invoiceType" interface="popover" placeholder="Type" size="small"
-                  (click)="$event.stopPropagation()">
-                  <ion-select-option value="">Select Type</ion-select-option>
-                  <ion-select-option value="Purchase Invoice">Purchase Invoice</ion-select-option>
-                  <ion-select-option value="Expenses Invoice">Expenses Invoice</ion-select-option>
-                  <ion-select-option value="Service Invoice">Service Invoice</ion-select-option>
-                  <ion-select-option value="Sales Invoice">Sales Invoice</ion-select-option>
-                  <ion-select-option value="Commission Invoice">Commission Invoice</ion-select-option>
-                </ion-select>
-
-                <ion-note color="warning" *ngIf="!file.vendor || !file.invoiceType"
-                  style="display: block; margin-top: 8px; padding: 8px; border-radius: 4px; background-color: rgba(255,192,0,0.1);">
-                  <ion-icon name="warning-outline" style="margin-right: 4px;"></ion-icon>
-                  Select both Vendor and Type
-                </ion-note>
-              </div>
-
-              <div class="badge-row">
-                <ion-badge color="primary" *ngIf="file.invoiceType">
-                  {{ file.invoiceType }}
-                </ion-badge>
-                <ion-badge color="secondary" *ngIf="file.vendor">
-                  {{ file.vendor }}
-                </ion-badge>
-              </div>
-              <div class="file-actions">
-
-                <ion-button size="small" fill="clear" color="primary"
-                  (click)="inspectFile(file.file, i); $event.stopPropagation()">
-                  <ion-icon name="eye-outline"></ion-icon>
-                </ion-button>
-
-                <ion-button size="small" fill="clear" color="danger" (click)="removeFile(i); $event.stopPropagation()">
-                  <ion-icon name="trash-outline"></ion-icon>
-                </ion-button>
-              </div>
-            </div>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    </ion-card-content>
-    <div class="node-target-section">
-
-      <!-- <div class="node-title">
-    NODE TARGET
-  </div> -->
-
-      <div class="badge-wrapper">
-        <div class="single-target-badge">
-          <span [class.active]="selectedTarget === 'upload'" (click)="selectTarget('upload')">
-            <!-- <ion-icon name="logo-google"></ion-icon> -->
-            Submit
-          </span>
-          <!-- <span [class.active]="selectedTarget === 'azure'" (click)="selectTarget('azure')">
-            <ion-icon name="cloud-outline"></ion-icon>
-            Azure
-          </span> -->
-          <span [class.active]="selectedTarget === 'email'" (click)="selectTarget('email')">
-            <ion-icon name="mail-outline"></ion-icon>
-            Email
-          </span>
-          <!-- <span [class.active]="selectedTarget === 'sql'" (click)="selectTarget('sql')">
-            <ion-icon name="server-outline"></ion-icon>
-            SQL
-          </span> -->
-        </div>
+  <div class="page-card files-card">
+    <div class="files-header">
+      <div class="card-label-row">
+        <ion-icon name="layers-outline" class="label-icon"></ion-icon>
+        <span class="card-label-text">Uploaded Files</span>
       </div>
     </div>
-    <!-- <div class="transmit-section" *ngIf="selectedTarget">
-      <ion-badge class="transmit-badge" [class.disabled]="uploadedFiles.length === 0"
-        (click)="uploadedFiles.length > 0 && transmit()" style="cursor:pointer">
-        <ion-icon [name]="getTransmitIcon()"></ion-icon>
-        TRANSMIT TO {{ selectedTarget | uppercase }}
-      </ion-badge>
-    </div> -->
-    <div class="transmit-section" *ngIf="selectedTarget">
 
-      <!-- <ion-badge class="dashboard-success-badge" *ngIf="showSuccessBadge">
-        Successfully sent to {{ selectedTarget | titlecase }}
-      </ion-badge> -->
-
-      <ion-badge class="transmit-badge" [class.disabled]="uploadedFiles.length === 0 || dispatching"
-        (click)="handleTransmitClick()" style="cursor: pointer;">
-
-        <ion-icon [name]="getTransmitIcon()" *ngIf="!dispatching"></ion-icon>
-        <ion-spinner *ngIf="dispatching" name="crescent" style="width: 20px; height: 20px;"></ion-spinner>
-        {{ dispatching ? 'Transmitting...' : selectedTarget | titlecase }} Transmit
-
-      </ion-badge>
-
+    <div class="empty-state" *ngIf="uploadedFiles.length === 0">
+      <ion-icon name="cloud-upload-outline" class="empty-icon"></ion-icon>
+      <p class="empty-text">No files yet.<br>Tap <strong>+</strong> to add.</p>
     </div>
-    <ion-modal [isOpen]="isConfirmModalOpen" cssClass="small-centered-modal" (didDismiss)="onModalDidDismiss()">
-      <ng-template>
-        <ion-card class="dispatch-modal-card">
 
-          <!-- Circular icon -->
-          <div class="icon-circle">
-            <ion-icon name="send-outline"></ion-icon>
-          </div>
-
-          <!-- Title & Subtitle -->
-          <div class="modal-header">
-            <div class="modal-title">Confirm Dispatch</div>
-            <div class="modal-subtitle">
-              Transmitting {{ uploadedFiles.length }} assets to {{ selectedTarget }} node.<br>
-              Finalizing package...
+    <div *ngIf="uploadedFiles.length > 0">
+      <div *ngFor="let group of groupedFiles">
+        <div class="date-group-label">{{ group.label }}</div>
+        <div class="file-list">
+          <div class="file-item" *ngFor="let file of group.files">
+            <div class="file-icon-wrap">
+              <ion-icon name="document-text-outline"></ion-icon>
             </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <ion-card-content class="modal-actions">
-            <ion-badge class="action-badge" [ngClass]="{
-            'primary-badge': !dispatching,
-            'transmitting-badge': dispatching
-          }" (click)="!dispatching && startDispatch()" [style.pointer-events]="dispatching ? 'none' : 'auto'"
-              [style.opacity]="dispatching ? '0.6' : '1'">
-              {{ dispatching ? 'Transmitting...' : 'COMMENCE DISPATCH' }}
-            </ion-badge>
-
-            <ion-badge class="action-badge abort" color="medium" (click)="!dispatching && closeConfirmModal()"
-              [style.pointer-events]="dispatching ? 'none' : 'auto'">
-              ABORT
-            </ion-badge>
-          </ion-card-content>
-
-        </ion-card>
-      </ng-template>
-    </ion-modal>
-    <ion-card class="uplink-card" *ngIf="selectedTarget === 'email'">
-      <ion-card-content>
-        <div class="uplink-row">
-          <span class="uplink-label">UPLINK:</span>
-          <ion-input [(ngModel)]="uplinkValue" [readonly]="!isEditable" class="uplink-input">
-          </ion-input>
-        </div>
-      </ion-card-content>
-    </ion-card>
-  </ion-card>
-  <!-- DOCUMENT INSPECTOR -->
-  <ion-card class="photo-card inspector-card">
-    <ion-card-header>
-      <ion-card-title class="card-title">
-        <ion-icon name="search-outline" class="title-icon"></ion-icon>
-        DOCUMENT INSPECTOR
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card class="uplink-card">
-      <ion-card-content class="badge-container">
-        <ion-badge class="filename-badge" (click)="openEditModal()" *ngIf="selectedFileUrl">
-          <ion-icon name="document-outline"></ion-icon>
-          <span class="file-text">{{ fileName }}</span>
-          <ion-icon name="create-outline" class="edit-icon"></ion-icon>
-        </ion-badge>
-      </ion-card-content>
-    </ion-card>
-    <ion-card-content>
-      <!-- PDF View -->
-      <div class="pdf-container" *ngIf="selectedFileUrl && isPdf">
-        <ngx-extended-pdf-viewer [src]="selectedFileUrl" [(page)]="currentPage" [pageViewMode]="'single'"
-          (pagesLoaded)="onPagesLoaded($event)" [height]="'80vh'">
-        </ngx-extended-pdf-viewer>
-      </div>
-
-      <!-- Image View -->
-      <div class="image-container" *ngIf="selectedFileUrl && isImage">
-        <img [src]="selectedFileUrl" [style.transform]="'scale(' + zoomLevel + ') rotate(' + rotation + 'deg)'"
-          style="width:100%; max-height:500px; object-fit:contain;" />
-      </div>
-
-      <div class="inspector-controls" *ngIf="selectedFileUrl">
-        <ng-container *ngIf="isPdf">
-          <ion-button size="small" style="--background: white; --color: black;" (click)="prevPage()"
-            [disabled]="currentPage <= 1">
-            <ion-icon name="arrow-back-outline"></ion-icon>
-          </ion-button>
-
-          <span style="--background: white; --color: black;margin:0 10px;">Page {{ currentPage }} / {{ totalPages
-            }}</span>
-          <ion-button size="small" style="--background: white; --color: black;" (click)="nextPage()"
-            [disabled]="currentPage >= totalPages">
-            <ion-icon name="arrow-forward-outline"></ion-icon>
-          </ion-button>
-        </ng-container>
-
-        <!-- Image Controls -->
-        <ng-container *ngIf="isImage">
-          <ion-button size="small" style="--background: white; --color: black;" (click)="zoomIn()">
-            <ion-icon name="add-outline"></ion-icon>
-          </ion-button>
-
-          <ion-button size="small" style="--background: white; --color: black;" (click)="zoomOut()">
-            <ion-icon name="remove-outline"></ion-icon>
-          </ion-button>
-          <ion-button size="small" style="--background: white; --color: black;" (click)="rotateLeft()">
-            <ion-icon name="refresh-outline"></ion-icon>
-          </ion-button>
-
-          <ion-button size="small" style="--background: white; --color: black;" (click)="rotateRight()">
-            <ion-icon name="reload-outline"></ion-icon>
-          </ion-button>
-        </ng-container>
-      </div>
-    </ion-card-content>
-  </ion-card>
-  <ion-modal [isOpen]="isEditModalOpen" cssClass="partial-modal" (didDismiss)="onModalDismiss()">
-    <ng-template>
-      <ion-card class="modal-card">
-
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <div class="modal-title">Manual Document Label</div>
-          <div class="modal-subtitle">Identify Supplier & Metadata</div>
-        </div>
-
-        <ion-card-content class="modal-content">
-
-          <!-- Targeting File -->
-          <ion-card class="input-card" style="background-color: #dad4d4;">
-            <ion-card-content class="card-content-row">
-              <div class="card-label-input" style="display:flex; flex-direction:column;">
-                <span class="card-label">TARGETING FILE:</span>
-                <span class="card-value">{{ fileName }}</span>
-              </div>
-            </ion-card-content>
-          </ion-card>
-
-          <!-- Supplier Name -->
-          <ion-card class="input-card">
-            <ion-card-content class="card-content-row">
-              <div class="card-label-input">
-                <span class="card-label">SUPPLIER NAME</span>
-                <ion-select [(ngModel)]="supplierName" interface="popover" placeholder="Select Supplier"
-                  class="badge-input" (ionChange)="onInputChange()">
-                  <ion-select-option value="">Select Supplier</ion-select-option>
-                  <ion-select-option *ngFor="let v of vendorService.vendors" [value]="v.supplierName">{{ v.supplierName }}</ion-select-option>
-                </ion-select>
-              </div>
-            </ion-card-content>
-          </ion-card>
-
-          <!-- Invoice Number & Date -->
-          <ion-card class="input-card">
-            <ion-card-content class="card-content-row invoice-row">
-
-              <!-- Invoice Number -->
-              <div class="invoice-field invoice-number">
-                <span class="card-label">INVOICE NUMBER</span>
-                <ion-input [(ngModel)]="invoiceNumber" placeholder="INV-12345" class="badge-input"
-                  (ionInput)="onInputChange()"></ion-input>
-              </div>
-
-              <!-- Invoice Date -->
-              <div class="invoice-field invoice-date">
-                <span class="card-label">INVOICE DATE</span>
-                <ion-datetime-button datetime="invoicePicker"></ion-datetime-button>
-                <ion-datetime id="invoicePicker" [(ngModel)]="invoiceDate" (ionInput)="onInputChange()"
-                  presentation="date" display-format="DD-MM-YYYY" picker-format="DD-MM-YYYY"></ion-datetime>
-              </div>
-
-            </ion-card-content>
-          </ion-card>
-
-          <!-- Verify & Standardize Button -->
-          <ion-card class="input-card action-card-wrapper">
-
-            <!-- Optional warning above button -->
-            <div *ngIf="verificationStatus === 'error'" class="warning-text">
-              {{ ErrorMessage }}
-            </div>
-
-            <ion-card class="input-card action-card"
-              [ngClass]="{pending: verificationStatus === 'pending',success: verificationStatus === 'success',error: verificationStatus === 'error'}"
-              (click)="verifyAndStandardize()">
-              <ion-card-content class="card-content-row">
-                <ion-icon [name]="
-                  verificationStatus === 'success'
-                    ? 'checkmark-circle-outline'
-                    : verificationStatus === 'pending'
-                    ? 'hourglass-outline'
-                    : verificationStatus === 'error'
-                    ? 'warning-outline'
-                    : 'checkmark-done-outline'
-                " class="card-icon"></ion-icon>
-                <span class="card-value">
-                  {{
-                  verificationStatus === 'success'
-                  ? 'VERIFIED'
-                  : verificationStatus === 'pending'
-                  ? 'VERIFYING...'
-                  : verificationStatus === 'error'
-                  ? 'FILL ALL FIELDS'
-                  : 'VERIFY & STANDARDIZE'
-                  }}
+            <div class="file-details">
+              <div class="file-name">{{ file.name }}</div>
+              <div class="file-meta">
+                {{ file.invoiceType }}
+                <span *ngIf="file.uploadTime" class="upload-time">
+                  <ion-icon name="time-outline"></ion-icon> {{ file.uploadTime }}
                 </span>
-              </ion-card-content>
-            </ion-card>
-          </ion-card>
-        </ion-card-content>
-      </ion-card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-spacer"></div>
+
+  <!-- Hidden file input -->
+  <input type="file" multiple accept="image/*,application/pdf"
+    (change)="onFilesSelected($event)" hidden #fileInput>
+
+  <!-- FAB -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button class="add-fab" (click)="openUploadOptions()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- UPLOAD OPTIONS MODAL -->
+  <ion-modal
+    [isOpen]="showUploadSheet"
+    [initialBreakpoint]="0.38"
+    [breakpoints]="[0, 0.38]"
+    (didDismiss)="showUploadSheet = false"
+    cssClass="upload-sheet-modal">
+    <ng-template>
+      <div class="upload-sheet-wrap">
+        <div class="sheet-pill"></div>
+        <p class="sheet-title">Add Document</p>
+        <div class="sheet-options">
+
+          <button class="opt-card" (click)="captureAndClose()">
+            <div class="opt-icon cam-icon">
+              <ion-icon name="camera-outline"></ion-icon>
+            </div>
+            <span class="opt-label">Camera / Scan</span>
+            <span class="opt-sub">Use device camera</span>
+          </button>
+
+          <button class="opt-card" (click)="galleryAndClose()">
+            <div class="opt-icon gal-icon">
+              <ion-icon name="images-outline"></ion-icon>
+            </div>
+            <span class="opt-label">Gallery / Drive</span>
+            <span class="opt-sub">Pick from files</span>
+          </button>
+
+        </div>
+      </div>
     </ng-template>
   </ion-modal>
+
+  <!-- PREVIEW MODAL (before confirming) -->
+  <ion-modal [isOpen]="showPreviewModal" (didDismiss)="discardPreview()" cssClass="preview-modal">
+    <ng-template>
+      <div class="modal-wrap">
+        <div class="modal-top-bar">
+          <span class="modal-title">Preview</span>
+          <ion-button fill="clear" size="small" (click)="discardPreview()">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+
+        <!-- File tabs (multiple files) -->
+        <div class="preview-tabs" *ngIf="pendingFiles.length > 1">
+          <div class="preview-tab"
+            *ngFor="let pf of pendingFiles; let j = index"
+            [class.active-tab]="previewSelectedIndex === j"
+            (click)="selectPreviewFile(j)">
+            {{ pf.file.name | slice:0:18 }}…
+          </div>
+        </div>
+
+        <!-- Preview area -->
+        <div class="preview-area">
+          <div *ngIf="previewFileUrl && previewIsPdf" class="pdf-wrap">
+            <ngx-extended-pdf-viewer
+              [src]="previewFileUrl"
+              [(page)]="previewPage"
+              [pageViewMode]="'single'"
+              (pagesLoaded)="onPreviewPagesLoaded($event)"
+              [height]="'52vh'">
+            </ngx-extended-pdf-viewer>
+            <div class="pdf-nav">
+              <ion-button size="small" fill="clear"
+                (click)="prevPreviewPage()" [disabled]="previewPage <= 1">
+                <ion-icon name="arrow-back-outline"></ion-icon>
+              </ion-button>
+              <span>{{ previewPage }} / {{ previewTotalPages }}</span>
+              <ion-button size="small" fill="clear"
+                (click)="nextPreviewPage()" [disabled]="previewPage >= previewTotalPages">
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+
+          <div *ngIf="previewFileUrl && previewIsImage" class="img-wrap">
+            <img [src]="previewFileUrl" class="preview-img" />
+          </div>
+
+          <div *ngIf="!previewFileUrl" class="preview-placeholder">
+            <ion-icon name="document-outline"></ion-icon>
+          </div>
+        </div>
+
+        <!-- File name -->
+        <div class="preview-filename" *ngIf="pendingFiles[previewSelectedIndex]">
+          <ion-icon name="document-text-outline"></ion-icon>
+          <span>{{ pendingFiles[previewSelectedIndex].file.name }}</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="preview-actions">
+          <ion-button fill="outline" color="danger" expand="block" (click)="discardPreview()">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Discard
+          </ion-button>
+          <ion-button fill="solid" color="primary" expand="block" (click)="confirmPreview()">
+            <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+            Add{{ pendingFiles.length > 1 ? ' (' + pendingFiles.length + ')' : '' }}
+          </ion-button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

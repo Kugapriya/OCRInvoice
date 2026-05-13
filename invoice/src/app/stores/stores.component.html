@@ -1,31 +1,14 @@
-<ion-content fullscreen scrollEvents="true" class="store-content">
+<app-top-nav></app-top-nav>
 
-  <!-- Header -->
-  <div class="page-header">
-    <div class="header-top">
-      <div class="header-icon">
-        <ion-icon name="storefront-outline"></ion-icon>
-      </div>
-      <div class="header-text">
-        <h1>Select Store</h1>
-        <p>{{ filteredStores.length }} store{{ filteredStores.length !== 1 ? 's' : '' }} available</p>
-      </div>
-    </div>
+<ion-content scrollEvents="true" class="store-content">
 
-    <!-- Search -->
+  <!-- Search -->
+  <div class="search-section">
     <div class="search-wrap">
       <ion-icon name="search-outline" class="search-icon"></ion-icon>
-      <input
-        class="search-input"
-        type="text"
-        [(ngModel)]="searchText"
-        (input)="filterStores()"
+      <input class="search-input" type="text" [(ngModel)]="searchText" (input)="filterStores()"
         placeholder="Search by store name or ID...">
-      <ion-icon
-        *ngIf="searchText"
-        name="close-circle"
-        class="clear-icon"
-        (click)="searchText=''; filterStores()">
+      <ion-icon *ngIf="searchText" name="close-circle" class="clear-icon" (click)="searchText=''; filterStores()">
       </ion-icon>
     </div>
   </div>
@@ -56,6 +39,5 @@
       </div>
     </div>
   </div>
-
 
 </ion-content>

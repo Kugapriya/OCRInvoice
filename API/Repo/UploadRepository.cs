@@ -23,34 +23,15 @@ public class UploadRepository
     public async Task<List<string>> UploadFilesAsync(List<IFormFile> files, string customerId, List<string> vendors, List<string> invoiceTypes)
     {
         if (string.IsNullOrEmpty(customerId))
-        {
             throw new InvalidOperationException("Customer ID is required.");
-        }
-
-        if (vendors == null || vendors.Count == 0 || vendors.Count != files.Count)
-        {
-            throw new InvalidOperationException("Supplier/Vendor must be selected for each file before upload.");
-        }
-
-        for (int i = 0; i < vendors.Count; i++)
-        {
-            if (string.IsNullOrEmpty(vendors[i]))
-            {
-                throw new InvalidOperationException($"Supplier/Vendor must be selected for file {i + 1}.");
-            }
-        }
 
         if (invoiceTypes == null || invoiceTypes.Count == 0 || invoiceTypes.Count != files.Count)
-        {
             throw new InvalidOperationException("Invoice type must be selected for each file before upload.");
-        }
 
         for (int i = 0; i < invoiceTypes.Count; i++)
         {
             if (string.IsNullOrEmpty(invoiceTypes[i]))
-            {
                 throw new InvalidOperationException($"Invoice type must be selected for file {i + 1}.");
-            }
         }
 
         string _baseRoot = @"E:\Invoice";
@@ -64,18 +45,15 @@ public class UploadRepository
             if (file == null || file.Length == 0)
                 continue;
 
-            string supplierName = vendors[i].ToUpper();
-            string processType = invoiceTypes[i].ToUpper();
+            string processType = invoiceTypes[i];
 
-            var customerFolder = Path.Combine(_baseRoot, customerId);
-            var supplierFolder = Path.Combine(customerFolder, supplierName);
-            var processTypeFolder = Path.Combine(supplierFolder, processType);
-            Directory.CreateDirectory(processTypeFolder);
+            var invoiceTypeFolder = Path.Combine(_baseRoot, customerId, processType);
+            Directory.CreateDirectory(invoiceTypeFolder);
 
             var timestamp = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fff", CultureInfo.InvariantCulture);
             var ext = Path.GetExtension(file.FileName) ?? "";
-            var fileName = $"{customerId}_{timestamp}_{supplierName}{ext}";
-            var fullPath = Path.Combine(processTypeFolder, fileName);
+            var fileName = $"{customerId}_{timestamp}{ext}";
+            var fullPath = Path.Combine(invoiceTypeFolder, fileName);
 
             await using (var stream = File.Create(fullPath))
             {
@@ -84,7 +62,7 @@ public class UploadRepository
 
             savedPaths.Add(fullPath);
 
-            await ob.InsertUploadRecordAsync(customerId, supplierName, fileName, fullPath, processType);
+            await ob.InsertUploadRecordAsync(customerId, string.Empty, fileName, fullPath, processType);
         }
 
         return savedPaths;

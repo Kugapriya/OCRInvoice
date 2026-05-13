@@ -1,59 +1,54 @@
-<ion-content fullscreen class="login-content">
-  <div class="login-container">
+<ion-content fullscreen class="auth-content">
+  <div class="auth-wrap">
 
-    <div class="logo-wrapper">
-      <div class="logo-circle">
-        <ion-icon name="receipt-outline"></ion-icon>
+    <div class="form-panel">
+
+      <!-- Brand inside card -->
+      <div class="brand-block">
+        <h1 class="brand-name">DocMate<span class="accent">Capture</span></h1>
+        <p class="brand-sub">Sign in to your account</p>
       </div>
+
+      <!-- Fields -->
+      <div class="field-wrap">
+        <ion-icon name="mail-outline" class="f-icon"></ion-icon>
+        <ion-input
+          #emailInput
+          [(ngModel)]="model.username"
+          name="username"
+          type="email"
+          placeholder="Email address"
+          class="f-input">
+        </ion-input>
+      </div>
+
+      <div class="field-wrap">
+        <ion-icon name="lock-closed-outline" class="f-icon"></ion-icon>
+        <ion-input
+          [(ngModel)]="model.password"
+          name="password"
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Password"
+          class="f-input">
+        </ion-input>
+        <button class="eye-btn" type="button" (click)="togglePassword()">
+          <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </button>
+      </div>
+
+      <ion-button expand="block" class="primary-btn" type="button" (click)="login()">
+        Log In
+      </ion-button>
+
+      <div class="divider">
+        <span></span><small>or</small><span></span>
+      </div>
+
+      <ion-button expand="block" fill="clear" routerLink="/forgot-password" class="link-btn">
+        Forgot password?
+      </ion-button>
+
     </div>
-
-    <ion-card class="login-card">
-      <ion-card-header>
-        <ion-card-title class="heading">Welcome Back</ion-card-title>
-        <ion-card-subtitle class="sub-heading">Sign in to continue</ion-card-subtitle>
-      </ion-card-header>
-
-      <ion-card-content>
-        <form>
-
-          <div class="input-group">
-            <ion-icon name="mail-outline" class="field-icon"></ion-icon>
-            <ion-input
-              [(ngModel)]="model.username"
-              name="username"
-              type="email"
-              placeholder="Email address"
-              class="custom-input">
-            </ion-input>
-          </div>
-
-          <div class="input-group">
-            <ion-icon name="lock-closed-outline" class="field-icon"></ion-icon>
-            <ion-input
-              [(ngModel)]="model.password"
-              name="password"
-              [type]="showPassword ? 'text' : 'password'"
-              placeholder="Password"
-              class="custom-input">
-            </ion-input>
-            <ion-button fill="clear" class="eye-btn" (click)="togglePassword()">
-              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
-            </ion-button>
-          </div>
-
-          <div class="forgot-link">
-            <ion-button fill="clear" routerLink="/forgot-password" class="link-btn">
-              Forgot Password?
-            </ion-button>
-          </div>
-
-          <ion-button expand="block" class="login-btn" type="button" (click)="login()">
-            Sign In
-          </ion-button>
-
-        </form>
-      </ion-card-content>
-    </ion-card>
 
   </div>
 </ion-content>

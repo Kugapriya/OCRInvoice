@@ -5,12 +5,13 @@ import { MenuController } from '@ionic/angular';
 import { IonicModule } from '@ionic/angular';
 import { RepositoryService } from '../core/services/repository.service';
 import { filter } from 'rxjs/operators';
+import { SharedModule } from '../shared/shared.module';
 
 @Component({
   selector: 'app-base',
   templateUrl: './base.component.html',
   styleUrls: ['./base.component.scss'],
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, SharedModule]
 })
 export class BaseComponent implements OnInit {
 
@@ -32,7 +33,10 @@ export class BaseComponent implements OnInit {
     if (!this.repository.loggedInUser) {
       const stored = localStorage.getItem('customer');
       if (stored) {
-        try { this.repository.loggedInUser = JSON.parse(stored); } catch {}
+        try {
+          const parsed = JSON.parse(stored);
+          this.repository.loggedInUser = parsed?.user || parsed;
+        } catch {}
       }
     }
   }
