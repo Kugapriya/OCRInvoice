@@ -1,8 +1,12 @@
+.nav-header {
+  padding-top: 0;
+}
+
 .top-bar {
   --background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4338ca 100%);
   --color: #fff;
   --border-color: transparent;
-  padding: 8px 6px;
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 8px 8px;
   box-shadow: 0 3px 16px rgba(49, 46, 129, 0.45);
 }
 
@@ -66,8 +70,14 @@
   line-height: 1.1;
 }
 
-.docmate { color: #ffffff; }
-.capture { color: #7dd3fc; margin-left: 5px; }
+.docmate {
+  color: #ffffff;
+}
+
+.capture {
+  color: #7dd3fc;
+  margin-left: 5px;
+}
 
 .sub-info {
   margin-top: 4px;
@@ -93,7 +103,10 @@
   font-weight: 600;
 }
 
-.divider { opacity: 0.4; margin: 0 3px; }
+.divider {
+  opacity: 0.4;
+  margin: 0 3px;
+}
 
 .time-info {
   opacity: 0.85;
@@ -113,6 +126,7 @@
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 22px;
   padding: 4px 8px 4px 6px;
+  margin-right: 12px;
 
   ion-icon {
     font-size: 18px;
@@ -145,6 +159,7 @@
   cursor: pointer;
   transition: background 0.18s, transform 0.12s;
   white-space: nowrap;
+  margin-left: 12px;
 
   ion-icon {
     font-size: 18px;
@@ -180,5 +195,34 @@
 .store-id-text {
   @media (max-width: 480px) {
     font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .top-bar {
+    padding: calc(env(safe-area-inset-top, 0px) + 8px) 6px 8px;
+  }
+
+  .customer-id-chip {
+    margin-right: 8px;
+    padding: 3px 6px 3px 4px;
+    font-size: 10px;
+  }
+
+  .logout-btn {
+    margin-left: 8px;
+    height: 32px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .customer-id-chip {
+    margin-right: 4px;
+  }
+
+  .logout-btn {
+    margin-left: 4px;
+    padding: 0 6px;
   }
 }
