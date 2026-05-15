@@ -10,8 +10,12 @@
         </div>
       </div>
 
-      <!-- Center: Store Name -->
+      <!-- Center: Brand + Store Name -->
       <div class="center-content">
+        <div class="brand">
+          <img class="brand-logo" src="assets/logo.png" alt="DocMate logo" />
+          <span class="docmate">DocMate</span>
+        </div>
         <div class="store-name-center" *ngIf="selectedStoreNameDisplay && !isStorePage">
           <span class="store-name-text">{{ selectedStoreNameDisplay }}</span>
           <span class="store-id-text" *ngIf="selectedStoreIdDisplay">{{ selectedStoreIdDisplay }}</span>

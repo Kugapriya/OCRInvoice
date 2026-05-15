@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { MenuController } from '@ionic/angular';
 import { IonicModule } from '@ionic/angular';
 import { RepositoryService } from '../core/services/repository.service';
 import { filter } from 'rxjs/operators';
@@ -18,16 +17,15 @@ export class BaseComponent implements OnInit {
   currentUrl = '';
 
   mainMenuItems = [
-    { title: 'Home',            icon: 'home-outline',        url: '/site/home',               exact: true },
-    { title: 'Dashboard',       icon: 'speedometer-outline', url: '/site/dashboard' },
-    { title: 'Uploaded Files',  icon: 'document-outline',    url: '/site/home/uploadedfiles' },
-    { title: 'Invoice Headers', icon: 'receipt-outline',     url: '/site/home/invoiceheaders' },
-    { title: 'Vendors',         icon: 'storefront-outline',  url: '/site/home/vendors' },
+    { title: 'Home',      icon: 'home-outline',        activeIcon: 'home',        url: '/site/home',               exact: true },
+    { title: 'Dashboard', icon: 'speedometer-outline', activeIcon: 'speedometer', url: '/site/dashboard' },
+    { title: 'Files',     icon: 'document-outline',    activeIcon: 'document',    url: '/site/home/uploadedfiles' },
+    { title: 'Invoices',  icon: 'receipt-outline',     activeIcon: 'receipt',     url: '/site/home/invoiceheaders' },
+    { title: 'Vendors',   icon: 'storefront-outline',  activeIcon: 'storefront',  url: '/site/home/vendors' },
   ];
 
   constructor(
     private router: Router,
-    private menuCtrl: MenuController,
     public repository: RepositoryService
   ) {
     if (!this.repository.loggedInUser) {
@@ -50,7 +48,6 @@ export class BaseComponent implements OnInit {
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe((e: any) => {
         this.currentUrl = e.urlAfterRedirects;
-        this.menuCtrl.close('site-menu');
       });
   }
 
@@ -66,12 +63,10 @@ export class BaseComponent implements OnInit {
   }
 
   navigateTo(url: string) {
-    this.menuCtrl.close('site-menu');
     this.router.navigateByUrl(url);
   }
 
   logout() {
-    this.menuCtrl.close('site-menu');
     localStorage.clear();
     this.router.navigateByUrl('/login');
   }

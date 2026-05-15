@@ -5,6 +5,7 @@
 
       <!-- Brand inside card -->
       <div class="brand-block">
+        <img class="brand-logo" src="assets/logo.png" alt="DocMate logo" />
         <h1 class="brand-name">DocMate<span class="accent">Capture</span></h1>
         <p class="brand-sub">Sign in to your account</p>
       </div>
@@ -12,24 +13,15 @@
       <!-- Fields -->
       <div class="field-wrap">
         <ion-icon name="mail-outline" class="f-icon"></ion-icon>
-        <ion-input
-          #emailInput
-          [(ngModel)]="model.username"
-          name="username"
-          type="email"
-          placeholder="Email address"
+        <ion-input #emailInput [(ngModel)]="model.username" name="username" type="email" placeholder="Email address"
           class="f-input">
         </ion-input>
       </div>
 
       <div class="field-wrap">
         <ion-icon name="lock-closed-outline" class="f-icon"></ion-icon>
-        <ion-input
-          [(ngModel)]="model.password"
-          name="password"
-          [type]="showPassword ? 'text' : 'password'"
-          placeholder="Password"
-          class="f-input">
+        <ion-input [(ngModel)]="model.password" name="password" [type]="showPassword ? 'text' : 'password'"
+          placeholder="Password" class="f-input">
         </ion-input>
         <button class="eye-btn" type="button" (click)="togglePassword()">
           <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>

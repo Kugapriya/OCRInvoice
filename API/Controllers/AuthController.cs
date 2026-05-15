@@ -73,7 +73,7 @@ namespace API.Controllers
             <div style='font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:20px'>
               <h2 style='color:#1e3a8a;margin-bottom:8px'>Password Reset OTP</h2>
               <p style='color:#555'>Hello <strong>{user.Name}</strong>,</p>
-              <p style='color:#555'>Use the code below to reset your password. It expires in <strong>10 minutes</strong>.</p>
+              <p style='color:#555'>Use the code below to reset your password. It expires in <strong>2 minutes</strong>.</p>
               <div style='font-size:38px;font-weight:700;letter-spacing:10px;color:#1d4ed8;
                           background:#eef4ff;padding:22px;text-align:center;
                           border-radius:10px;margin:24px 0'>{otp}</div>

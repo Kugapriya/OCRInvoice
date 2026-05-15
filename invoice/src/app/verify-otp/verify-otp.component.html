@@ -5,9 +5,7 @@
 
       <!-- Brand inside card -->
       <div class="brand-block">
-        <div class="brand-icon">
-          <ion-icon name="shield-checkmark-outline"></ion-icon>
-        </div>
+        <img class="brand-logo" src="assets/logo.png" alt="DocMate logo" />
         <h1 class="brand-name">Verify OTP</h1>
         <p class="brand-sub">
           Enter the 6-digit code sent to<br>
@@ -17,16 +15,8 @@
 
       <!-- OTP boxes -->
       <div class="otp-boxes">
-        <input
-          *ngFor="let box of otpBoxes; let i = index"
-          #otpInput
-          type="tel"
-          inputmode="numeric"
-          maxlength="1"
-          class="otp-box"
-          [(ngModel)]="otpDigits[i]"
-          (input)="onDigitInput($event, i)"
-          (keydown)="onKeyDown($event, i)"
+        <input *ngFor="let box of otpBoxes; let i = index" #otpInput type="tel" inputmode="numeric" maxlength="1"
+          class="otp-box" [(ngModel)]="otpDigits[i]" (input)="onDigitInput($event, i)" (keydown)="onKeyDown($event, i)"
           (paste)="onPaste($event)">
       </div>
 

@@ -19,6 +19,14 @@
   margin-bottom: 24px;
 }
 
+.brand-logo {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 14px;
+}
+
 
 .brand-name {
   font-size: 26px;
@@ -54,8 +62,15 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(22px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Input fields ── */
@@ -106,8 +121,13 @@
     flex-shrink: 0;
     transition: color 0.15s;
 
-    &:hover { color: #606770; }
-    ion-icon { font-size: 20px; }
+    &:hover {
+      color: #606770;
+    }
+
+    ion-icon {
+      font-size: 20px;
+    }
   }
 }
 
