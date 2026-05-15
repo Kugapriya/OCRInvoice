@@ -315,17 +315,29 @@ ion-content { --background: #f0f4f8; }
 /* Status chips */
 .status-chip {
   flex-shrink: 0;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1;
+  padding: 5px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
 
-  &.status-pending    { background: #f1f5f9; color: #64748b; }
-  &.status-processing { background: #dbeafe; color: #1d4ed8; }
-  &.status-completed  { background: #dcfce7; color: #15803d; }
-  &.status-ocr_error  { background: #fee2e2; color: #b91c1c; }
+  &.status-completed {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+
+  &.status-ocr_error {
+    background: #ffe4e6;
+    color: #be123c;
+    border: 1px solid #fca5a5;
+  }
 }
 
 .file-actions {

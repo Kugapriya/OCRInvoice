@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
@@ -19,6 +19,7 @@ interface UploadedFile {
   invoiceType: string;
   uploadDate: string; // YYYY-MM-DD
   uploadTime: string; // HH:MM
+  isProcess?: number;
 }
 
 interface PendingFile {
@@ -41,7 +42,7 @@ interface FileGroup {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   selectedInvoice = '';
@@ -51,6 +52,7 @@ export class DashboardComponent implements OnInit {
 
   uploadedFiles: UploadedFile[] = [];
   showUploadSheet = false;
+  private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   // Preview modal (before confirming add)
   showPreviewModal = false;
@@ -116,6 +118,11 @@ export class DashboardComponent implements OnInit {
     }
 
     this.loadFromBackend();
+    this.refreshTimer = setInterval(() => this.loadFromBackend(), 2 * 60 * 1000);
+  }
+
+  ngOnDestroy() {
+    if (this.refreshTimer) clearInterval(this.refreshTimer);
   }
 
   private todayStr(): string {
@@ -148,6 +155,7 @@ export class DashboardComponent implements OnInit {
               invoiceType: f.processType || '',
               uploadDate: this.dateStr(d),
               uploadTime: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+              isProcess: f.isProcess as number,
             };
           });
 

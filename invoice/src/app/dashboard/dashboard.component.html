@@ -34,7 +34,7 @@
         <div class="date-group-label">{{ group.label }}</div>
         <div class="file-list">
           <div class="file-item" *ngFor="let file of group.files">
-            <div class="file-icon-wrap">
+            <div class="file-icon-wrap" [class.error-icon-wrap]="file.isProcess != null && file.isProcess !== 0 && file.isProcess !== 1 && file.isProcess !== 9">
               <ion-icon name="document-text-outline"></ion-icon>
             </div>
             <div class="file-details">
@@ -46,6 +46,8 @@
                 </span>
               </div>
             </div>
+            <span *ngIf="file.isProcess === 1" class="status-chip status-completed">success</span>
+            <span *ngIf="file.isProcess != null && file.isProcess !== 0 && file.isProcess !== 1 && file.isProcess !== 9" class="status-chip status-ocr_error">error</span>
           </div>
         </div>
       </div>
