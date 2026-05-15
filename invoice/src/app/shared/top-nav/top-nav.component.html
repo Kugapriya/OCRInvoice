@@ -2,20 +2,16 @@
   <ion-toolbar class="top-bar">
     <div class="toolbar-row">
 
-      <!-- Left: Customer ID (dashboard only) -->
+      <!-- Left: Brand -->
       <div class="toolbar-side">
-        <div class="customer-id-chip" *ngIf="showDetails">
-          <ion-icon name="person-circle-outline"></ion-icon>
-          <span class="cid-value">{{ customerId || '' }}</span>
+        <div class="brand">
+          <img class="brand-logo" src="assets/logo.png" alt="DocMate logo" />
+          <span class="docmate" *ngIf="!showDetails">DocMate</span>
         </div>
       </div>
 
-      <!-- Center: Brand + Store Name -->
+      <!-- Center: Store Name + Time -->
       <div class="center-content">
-        <div class="brand">
-          <img class="brand-logo" src="assets/logo.png" alt="DocMate logo" />
-          <span class="docmate">DocMate</span>
-        </div>
         <div class="store-name-center" *ngIf="selectedStoreNameDisplay && !isStorePage">
           <span class="store-name-text">{{ selectedStoreNameDisplay }}</span>
           <span class="store-id-text" *ngIf="selectedStoreIdDisplay">{{ selectedStoreIdDisplay }}</span>
@@ -27,12 +23,18 @@
         </div>
       </div>
 
-      <!-- Right: Logout -->
+      <!-- Right: Customer ID (above logout, dashboard only) + Logout -->
       <div class="toolbar-side right-side">
-        <button class="logout-btn" (click)="confirmLogout()">
-          <ion-icon name="log-out-outline"></ion-icon>
-          <span class="logout-label">Logout</span>
-        </button>
+        <div class="right-stack">
+          <div class="customer-id-chip" *ngIf="showDetails">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            <span class="cid-value">{{ customerId || '' }}</span>
+          </div>
+          <button class="logout-btn" (click)="confirmLogout()">
+            <ion-icon name="log-out-outline"></ion-icon>
+            <span class="logout-label">Logout</span>
+          </button>
+        </div>
       </div>
 
     </div>

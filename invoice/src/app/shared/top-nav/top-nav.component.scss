@@ -20,12 +20,23 @@
 .toolbar-side {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
 }
 
 .right-side {
   display: flex;
   justify-content: flex-end;
-  align-items: center;
+  align-items: flex-end;
+}
+
+.right-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 /* ── Center brand ── */
@@ -66,7 +77,6 @@
 .brand {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
   font-size: 1.2rem;
   font-weight: 800;
@@ -75,10 +85,11 @@
 }
 
 .brand-logo {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
   flex-shrink: 0;
+  border-radius: 8px;
 }
 
 .docmate {
@@ -137,7 +148,7 @@
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 22px;
   padding: 4px 8px 4px 6px;
-  margin-right: 12px;
+  margin-right: 0;
 
   ion-icon {
     font-size: 18px;
@@ -170,7 +181,7 @@
   cursor: pointer;
   transition: background 0.18s, transform 0.12s;
   white-space: nowrap;
-  margin-left: 12px;
+  margin-left: 0;
 
   ion-icon {
     font-size: 18px;
@@ -215,25 +226,18 @@
   }
 
   .customer-id-chip {
-    margin-right: 8px;
     padding: 3px 6px 3px 4px;
     font-size: 10px;
   }
 
   .logout-btn {
-    margin-left: 8px;
     height: 32px;
     padding: 0 8px;
   }
 }
 
 @media (max-width: 380px) {
-  .customer-id-chip {
-    margin-right: 4px;
-  }
-
   .logout-btn {
-    margin-left: 4px;
     padding: 0 6px;
   }
 }
