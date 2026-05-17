@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { RepositoryService } from '../core/services/repository.service';
+import { AuthService } from '../core/services/auth.service';
+import { ActivityService } from '../core/services/activity.service';
 import { filter } from 'rxjs/operators';
 import { SharedModule } from '../shared/shared.module';
 
@@ -26,7 +28,9 @@ export class BaseComponent implements OnInit {
 
   constructor(
     private router: Router,
-    public repository: RepositoryService
+    public repository: RepositoryService,
+    private authService: AuthService,
+    private activityService: ActivityService
   ) {
     if (!this.repository.loggedInUser) {
       const stored = localStorage.getItem('customer');
@@ -67,7 +71,8 @@ export class BaseComponent implements OnInit {
   }
 
   logout() {
-    localStorage.clear();
+    this.activityService.stopHeartbeat();
+    this.authService.logout();
     this.router.navigateByUrl('/login');
   }
 }

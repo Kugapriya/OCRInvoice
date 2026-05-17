@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using API.Dtos;
 using API.Repo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -15,12 +16,14 @@ namespace API.Controllers
         private readonly AuthRepository _repo;
         private readonly CustomerRepository _customerRepo;
         private readonly IConfiguration _config;
+        private readonly ActivityRepository _activityRepo;
 
-        public AuthController(AuthRepository repo, CustomerRepository customerRepo, IConfiguration config)
+        public AuthController(AuthRepository repo, CustomerRepository customerRepo, IConfiguration config, ActivityRepository activityRepo)
         {
             _config = config;
             _repo = repo;
             _customerRepo = customerRepo;
+            _activityRepo = activityRepo;
         }
 
         [HttpPost("login")]
@@ -53,8 +56,27 @@ namespace API.Controllers
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new { token = tokenHandler.WriteToken(token), user });
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var sessionId = Guid.NewGuid().ToString();
+            await _activityRepo.StartSessionAsync(user.Username, sessionId, ip);
+            await _activityRepo.LogActivityAsync(user.Username, "login", null, null, ip);
+
+            return Ok(new { token = tokenString, user });
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!string.IsNullOrEmpty(username))
+            {
+                var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+                await _activityRepo.EndSessionAsync(username, ip);
+            }
+            return Ok(new { message = "Logged out" });
         }
 
         [HttpPost("forgot-password")]

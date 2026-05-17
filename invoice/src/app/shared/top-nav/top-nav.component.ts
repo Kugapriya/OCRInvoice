@@ -3,6 +3,8 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, IonicModule } from '@ionic/angular';
 import { RepositoryService } from '../../core/services/repository.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ActivityService } from '../../core/services/activity.service';
 
 @Component({
   standalone: true,
@@ -25,6 +27,8 @@ export class TopNavComponent implements OnInit, OnDestroy {
     private router: Router,
     private alertController: AlertController,
     public repository: RepositoryService,
+    private authService: AuthService,
+    private activityService: ActivityService
   ) {}
 
   ngOnInit() {
@@ -78,7 +82,8 @@ export class TopNavComponent implements OnInit, OnDestroy {
           role: 'confirm',
           cssClass: 'logout-confirm-btn',
           handler: () => {
-            localStorage.clear();
+            this.activityService.stopHeartbeat();
+            this.authService.logout();
             this.router.navigateByUrl('/login');
           }
         }

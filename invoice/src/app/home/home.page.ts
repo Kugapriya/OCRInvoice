@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../core/services/auth.service';
+import { ActivityService } from '../core/services/activity.service';
 
 @Component({
   selector: 'app-home',
@@ -9,7 +11,11 @@ import { Router } from '@angular/router';
 })
 export class HomePage {
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private activityService: ActivityService
+  ) { }
   // menuItems = [
   //   { title: 'Dashboard', icon: 'speedometer-outline', url: '/site/dashboard' },
   //   // { title: 'Customers', icon: 'people-outline', url: '/site/customers' }
@@ -64,7 +70,8 @@ export class HomePage {
   }
 
   logout() {
-    localStorage.clear();
+    this.activityService.stopHeartbeat();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 

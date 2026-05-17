@@ -11,6 +11,8 @@ namespace API.DataAccess
         public DbSet<User> Users { get; set; }
         public DbSet<Store> Stores { get; set; }
         public DbSet<AssignedStores> AssignStore { get; set; }
+        public DbSet<UserActivityLog> UserActivityLogs { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AssignedStores>().HasKey(ans => new { ans.Username, ans.StoreId });

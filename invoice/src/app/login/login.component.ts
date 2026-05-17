@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { IonInput, IonicModule, LoadingController } from '@ionic/angular';
 import { AuthService } from '../core/services/auth.service';
 import { AlertService } from '../core/services/alert.service';
+import { ActivityService } from '../core/services/activity.service';
 
 @Component({
   standalone: true,
@@ -23,7 +24,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
     private router: Router,
     private authService: AuthService,
     private alertService: AlertService,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private activityService: ActivityService
   ) { }
 
   ngOnInit() { }
@@ -55,6 +57,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
           next: () => {
             this.alertService.showErrorAlert('Success', 'Logged in successfully');
             loadingEl.dismiss();
+            this.activityService.startHeartbeat();
             this.router.navigate(['/site']);
           },
           error: (err) => {

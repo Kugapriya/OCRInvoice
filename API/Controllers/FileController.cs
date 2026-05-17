@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using API.Models;
 using API.Repo;
 using API.Dtos;
@@ -7,16 +8,24 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class FileController : ControllerBase
 {
-
     private CustomerRepository _repo;
     private readonly IConfiguration _config;
     private UploadRepository _upload;
-    public FileController(CustomerRepository repo, IConfiguration config, UploadRepository upload)
+    private readonly ActivityRepository _activity;
+
+    public FileController(CustomerRepository repo, IConfiguration config, UploadRepository upload, ActivityRepository activity)
     {
         _repo = repo;
         _config = config;
         _upload = upload;
+        _activity = activity;
     }
+
+    private string? CurrentUsername =>
+        User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    private string? ClientIp =>
+        HttpContext.Connection.RemoteIpAddress?.ToString();
     [HttpPost("upload")]
     public async Task<IActionResult> Upload(List<IFormFile> files)
     {
@@ -89,13 +98,25 @@ public class FileController : ControllerBase
     [HttpPost("upload/{customerId}")]
     public async Task<IActionResult> UploadFilesWithMetadata(List<IFormFile> files, string customerId, [FromForm] List<string> vendors, [FromForm] List<string> invoiceTypes)
     {
+        var username = CurrentUsername;
+        var ip = ClientIp;
+        var fileNames = files?.Select(f => f.FileName).ToList() ?? new List<string>();
+        var detail = $"{fileNames.Count} file(s): {string.Join(", ", fileNames.Take(3))}";
+
         try
         {
-            var savedPaths = await _upload.UploadFilesAsync(files, customerId, vendors ?? new List<string>(), invoiceTypes ?? new List<string>());
+            var savedPaths = await _upload.UploadFilesAsync(files!, customerId, vendors ?? new List<string>(), invoiceTypes ?? new List<string>());
+
+            if (!string.IsNullOrEmpty(username))
+                await _activity.LogActivityAsync(username, "upload_success", detail, customerId, ip);
+
             return Ok(new { saved = savedPaths });
         }
         catch (Exception ex)
         {
+            if (!string.IsNullOrEmpty(username))
+                await _activity.LogActivityAsync(username, "upload_failed", $"{detail} | Error: {ex.Message}", customerId, ip);
+
             return StatusCode(500, "Upload failed: " + ex.Message);
         }
     }

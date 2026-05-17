@@ -6,6 +6,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { IonicModule } from '@ionic/angular';
 import { UploadedFiles } from 'src/app/_model/uploadedFiles';
 import { RepositoryService } from 'src/app/core/services/repository.service';
+import { ActivityService } from 'src/app/core/services/activity.service';
 import { environment } from 'src/environments/environment';
 
 const baseurl = environment.apiUrl;
@@ -36,10 +37,12 @@ export class UploadedFilesComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private repository: RepositoryService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private activityService: ActivityService
   ) {}
 
   ngOnInit(): void {
+    this.activityService.log('page_view', 'uploaded-files', this.repository.customerId ?? undefined);
     this.loadFiles();
   }
 
