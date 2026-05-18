@@ -10,6 +10,7 @@ import { Capacitor } from '@capacitor/core';
 import { PDFDocument } from 'pdf-lib';
 import { AlertService } from '../core/services/alert.service';
 import { RepositoryService } from '../core/services/repository.service';
+import { ActivityService } from '../core/services/activity.service';
 import { SharedModule } from '../shared/shared.module';
 
 interface UploadedFile {
@@ -97,6 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private zone: NgZone,
     private alertService: AlertService,
     public repository: RepositoryService,
+    private activityService: ActivityService,
   ) {}
 
   ngOnInit() {
@@ -117,6 +119,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.customerId = cust ? JSON.parse(cust).customerId : '';
     }
 
+    this.activityService.log('dashboard_page_view', 'dashboard', this.customerId);
     this.loadFromBackend();
     this.refreshTimer = setInterval(() => this.loadFromBackend(), 2 * 60 * 1000);
   }

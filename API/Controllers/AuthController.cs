@@ -34,7 +34,13 @@ namespace API.Controllers
 
             var user = await _repo.Login(dto.Username.Trim().ToLower(), dto.Password.Trim());
             if (user == null)
+            {
+                var failIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+                var existingUser = await _repo.FindUserByUsernameAsync(dto.Username.Trim().ToLower());
+                if (existingUser != null)
+                    await _activityRepo.LogActivityAsync(existingUser.Username, "login_failed", "Invalid password", null, failIp);
                 return Unauthorized(new { message = "Invalid username or password" });
+            }
 
             var claims = new[]
             {
@@ -184,9 +190,15 @@ namespace API.Controllers
             if (user == null)
                 return BadRequest(new { success = false, message = "User not found" });
 
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
             var updated = await _repo.UpdatePasswordAsync(user.Username, dto.NewPassword);
-            if (!updated) return BadRequest(new { success = false, message = "Failed to update password" });
+            if (!updated)
+            {
+                await _activityRepo.LogActivityAsync(user.Username, "password_reset_failed", "Failed to update password", null, ip);
+                return BadRequest(new { success = false, message = "Failed to update password" });
+            }
 
+            await _activityRepo.LogActivityAsync(user.Username, "password_reset_success", "Password reset successfully", null, ip);
             return Ok(new { success = true, message = "Password reset successfully" });
         }
 

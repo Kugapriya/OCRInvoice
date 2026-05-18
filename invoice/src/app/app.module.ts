@@ -21,6 +21,7 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { VerifyOtpComponent } from './verify-otp/verify-otp.component';
 import { FormsModule } from '@angular/forms';
 import { LoaderInterceptor } from './core/interceptors/loader-interceptor.service';
+import { TokenInterceptorProvider } from './core/interceptors/token-interceptor.service';
 import { FeaturesModule } from './features/features.module';
 
 
@@ -61,6 +62,7 @@ export function tokenGetter() {
     RepositoryService,
     AuthUserResolver,
     AuthGuard,
+    TokenInterceptorProvider,
   {
     provide: HTTP_INTERCEPTORS,
     useClass: LoaderInterceptor,
