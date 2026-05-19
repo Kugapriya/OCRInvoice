@@ -46,7 +46,7 @@ interface FileGroup {
 export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  selectedInvoice = '';
+  selectedInvoice = 'Purchase Invoice';
   role = '';
   email = '';
   customerId = '';

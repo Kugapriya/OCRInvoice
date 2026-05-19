@@ -7,13 +7,16 @@
       <ion-icon name="document-text-outline" class="label-icon"></ion-icon>
       <span class="card-label-text">Invoice Type</span>
     </div>
-    <ion-select [(ngModel)]="selectedInvoice" interface="popover" placeholder="Select invoice type" class="type-select">
-      <ion-select-option value="Purchase Invoice">Purchase Invoice</ion-select-option>
-      <ion-select-option value="Expenses Invoice">Expenses Invoice</ion-select-option>
-      <ion-select-option value="Service Invoice">Service Invoice</ion-select-option>
-      <ion-select-option value="Sales Invoice">Sales Invoice</ion-select-option>
-      <ion-select-option value="Commission Invoice">Commission Invoice</ion-select-option>
-    </ion-select>
+    <div class="select-wrap">
+      <ion-select [(ngModel)]="selectedInvoice" interface="popover" placeholder="Select invoice type" class="type-select">
+        <ion-select-option value="Purchase Invoice">Purchase Invoice</ion-select-option>
+        <ion-select-option value="Expenses Invoice">Expenses Invoice</ion-select-option>
+        <ion-select-option value="Service Invoice">Service Invoice</ion-select-option>
+        <ion-select-option value="Sales Invoice">Sales Invoice</ion-select-option>
+        <ion-select-option value="Commission Invoice">Commission Invoice</ion-select-option>
+      </ion-select>
+      <ion-icon name="chevron-down-outline" class="select-chevron"></ion-icon>
+    </div>
   </div>
 
   <div class="page-card files-card">
@@ -22,6 +25,9 @@
         <ion-icon name="layers-outline" class="label-icon"></ion-icon>
         <span class="card-label-text">Uploaded Files</span>
       </div>
+      <button class="header-add-btn" (click)="openUploadOptions()">
+        <ion-icon name="add-outline"></ion-icon>
+      </button>
     </div>
 
     <div class="empty-state" *ngIf="uploadedFiles.length === 0">
@@ -59,13 +65,6 @@
   <!-- Hidden file input -->
   <input type="file" multiple accept="image/*,application/pdf"
     (change)="onFilesSelected($event)" hidden #fileInput>
-
-  <!-- FAB -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button class="add-fab" (click)="openUploadOptions()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 
   <!-- UPLOAD OPTIONS MODAL -->
   <ion-modal

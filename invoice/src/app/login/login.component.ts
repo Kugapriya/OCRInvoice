@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
         this.authService.login(this.model).subscribe({
           next: () => {
-            this.alertService.showErrorAlert('Success', 'Logged in successfully');
+            // this.alertService.showErrorAlert('Success', 'Logged in successfully');
             loadingEl.dismiss();
             this.activityService.startHeartbeat();
             this.router.navigate(['/site']);

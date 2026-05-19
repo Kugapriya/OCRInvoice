@@ -45,16 +45,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 5px;
   padding: 0 8px;
   min-width: 0;
 }
 
-.store-name-center {
+.chips-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 2px;
-  min-width: 0;
+  gap: 6px;
+  flex-wrap: nowrap;
 }
 
 .store-name-text {
@@ -67,11 +68,25 @@
   word-break: break-word;
 }
 
-.store-id-text {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #a5b4fc;
-  letter-spacing: 0.04em;
+.store-id-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 22px;
+  padding: 3px 8px 3px 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+
+  ion-icon {
+    font-size: 18px;
+    color: #a5b4fc;
+    flex-shrink: 0;
+  }
 }
 
 .brand {
@@ -147,7 +162,7 @@
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 22px;
-  padding: 4px 8px 4px 6px;
+  padding: 3px 8px 3px 5px;
   margin-right: 0;
 
   ion-icon {
@@ -214,11 +229,6 @@
   }
 }
 
-.store-id-text {
-  @media (max-width: 480px) {
-    font-size: 0.65rem;
-  }
-}
 
 @media (max-width: 600px) {
   .top-bar {

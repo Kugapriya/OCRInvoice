@@ -10,11 +10,18 @@
         </div>
       </div>
 
-      <!-- Center: Store Name + Time -->
+      <!-- Center: Store Name + Customer ID + Time -->
       <div class="center-content">
-        <div class="store-name-center" *ngIf="selectedStoreNameDisplay && !isStorePage">
-          <span class="store-name-text">{{ selectedStoreNameDisplay }}</span>
-          <span class="store-id-text" *ngIf="selectedStoreIdDisplay">{{ selectedStoreIdDisplay }}</span>
+        <span class="store-name-text" *ngIf="selectedStoreNameDisplay && !isStorePage">{{ selectedStoreNameDisplay }}</span>
+        <div class="chips-row" *ngIf="showDetails">
+          <span class="store-id-chip" *ngIf="selectedStoreIdDisplay && !isStorePage">
+            <ion-icon name="storefront-outline"></ion-icon>
+            {{ selectedStoreIdDisplay }}
+          </span>
+          <span class="customer-id-chip">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            <span class="cid-value">{{ customerId || '' }}</span>
+          </span>
         </div>
         <div class="sub-info" *ngIf="showDetails">
           <div class="time-info">
@@ -23,13 +30,9 @@
         </div>
       </div>
 
-      <!-- Right: Customer ID (above logout, dashboard only) + Logout -->
+      <!-- Right: Logout -->
       <div class="toolbar-side right-side">
         <div class="right-stack">
-          <div class="customer-id-chip" *ngIf="showDetails">
-            <ion-icon name="person-circle-outline"></ion-icon>
-            <span class="cid-value">{{ customerId || '' }}</span>
-          </div>
           <button class="logout-btn" (click)="confirmLogout()">
             <ion-icon name="log-out-outline"></ion-icon>
             <span class="logout-label">Logout</span>
