@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
-import { DocumentScanner } from '@capgo/capacitor-document-scanner';
+import { DocumentScanner, ScannerMode } from '@capgo/capacitor-document-scanner';
 import { Capacitor } from '@capacitor/core';
 import { PDFDocument } from 'pdf-lib';
 import { AlertService } from '../core/services/alert.service';
@@ -99,7 +99,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private alertService: AlertService,
     public repository: RepositoryService,
     private activityService: ActivityService,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.repository.loadSelectedStoreFromStorage();
@@ -195,8 +195,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // responseType 'base64' returns image data directly — works on both Android and iOS
-      const result = await DocumentScanner.scanDocument({ responseType: 'base64' as any });
+      const result = await DocumentScanner.scanDocument({
+        responseType: 'base64' as any,
+        croppedImageQuality: 90,
+        scannerMode: ScannerMode.Full,
+        letUserAdjustCrop: true,
+        brightness: 4,
+        contrast: 1.25,
+      });
 
       // User cancelled — do nothing
       if (result.status === 'cancel') return;
