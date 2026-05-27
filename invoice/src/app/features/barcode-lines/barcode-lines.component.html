@@ -32,17 +32,24 @@
 
 <ion-content class="bl-content">
 
-  <!-- ─── Tab switcher ─── -->
-  <div class="tab-row" *ngIf="allLines.length > 0">
-    <button class="tab-btn" [class.active]="activeTab === 'nobarcode'" (click)="switchTab('nobarcode')">
-      <ion-icon name="barcode-outline"></ion-icon>
-      No Barcode
-      <span class="tab-count warn-count" *ngIf="noBarcode.length > 0">{{ noBarcode.length }}</span>
-    </button>
-    <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="switchTab('all')">
-      <ion-icon name="layers-outline"></ion-icon>
-      All Lines
-      <span class="tab-count">{{ allLines.length }}</span>
+  <!-- ─── Tab switcher with Save All ─── -->
+  <div class="tab-row-wrapper" *ngIf="allLines.length > 0">
+    <div class="tab-row">
+      <button class="tab-btn" [class.active]="activeTab === 'nobarcode'" (click)="switchTab('nobarcode')">
+        <ion-icon name="barcode-outline"></ion-icon>
+        No Barcode
+        <span class="tab-count warn-count" *ngIf="noBarcode.length > 0">{{ noBarcode.length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="switchTab('all')">
+        <ion-icon name="layers-outline"></ion-icon>
+        All Lines
+        <span class="tab-count">{{ allLines.length }}</span>
+        <span class="tab-count warn-count" *ngIf="unsavedCount > 0">{{ unsavedCount }} unsaved</span>
+      </button>
+    </div>
+    <button class="save-all-btn-tab" *ngIf="unsavedCount > 0" (click)="saveAllBarcodes()" [disabled]="saving">
+      <ion-icon name="checkmark-done-outline"></ion-icon>
+      <span>Save</span>
     </button>
   </div>
 
@@ -76,7 +83,7 @@
         <th class="td-bc">Barcode</th>
       </div>
       <div class="line-rows">
-        <div class="line-row" *ngFor="let line of displayLines" [class.editing-row]="editingId === line.id">
+        <div class="line-row" *ngFor="let line of displayLines" [class.editing-row]="editingId === line.id" [class.unsaved-line]="unsavedBarcodeIds.has(line.id)">
 
           <td class="td-line">{{ line.lineNo ?? '' }}</td>
           <td class="td-desc" [title]="line.description ?? ''">{{ line.description || '' }}</td>
@@ -108,10 +115,13 @@
               <button class="bc-cam-btn" (click)="scanBarcode(line)" [disabled]="saving" title="Scan">
                 <ion-icon name="camera-outline"></ion-icon>
               </button>
-              <input class="bc-input" [(ngModel)]="editValues[line.id]" placeholder="Barcode"
-                size="13" maxlength="13"
-                inputmode="numeric" (input)="filterDigits(line.id, $event)" (keyup.enter)="saveBarcode(line)"
-                (keyup.escape)="cancelEdit(line)" />
+              <div class="input-wrapper" [class.unsaved]="unsavedBarcodeIds.has(line.id)">
+                <input class="bc-input" [(ngModel)]="editValues[line.id]" placeholder="Barcode"
+                  size="13" maxlength="13"
+                  inputmode="numeric" (input)="filterDigits(line.id, $event)" (keyup.enter)="saveBarcode(line)"
+                  (keyup.escape)="cancelEdit(line)" />
+                <ion-icon *ngIf="unsavedBarcodeIds.has(line.id)" name="alert-circle-outline" class="unsaved-icon" title="Unsaved"></ion-icon>
+              </div>
               <button class="bc-save-btn" *ngIf="editValues[line.id]?.trim()" (click)="saveBarcode(line)"
                 [disabled]="saving">
                 <ion-icon name="checkmark-outline"></ion-icon>
@@ -119,6 +129,7 @@
               <button class="bc-cancel-btn" (click)="cancelEdit(line)" [disabled]="saving">
                 <ion-icon name="close-outline"></ion-icon>
               </button>
+              <ion-icon *ngIf="recentlySavedIds.has(line.id)" name="checkmark-circle" class="saved-checkmark" title="Saved"></ion-icon>
             </div>
 
           </td>

@@ -55,6 +55,8 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
   editingId: number | null = null;
   editValues: { [id: number]: string } = {};
   saving = false;
+  unsavedBarcodeIds = new Set<number>();
+  recentlySavedIds = new Set<number>();  // Track recently saved lines for checkmark animation
 
   // Web barcode scanner
   webScannerActive = false;
@@ -66,6 +68,10 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
 
   get supplierName(): string {
     return this.allLines[0]?.supplierName || '';
+  }
+
+  get unsavedCount(): number {
+    return this.unsavedBarcodeIds.size;
   }
 
   /** True when any input has a typed but unsaved value */
@@ -213,13 +219,70 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
         this.saving = false;
         this.noBarcode = this.allLines.filter(l => !l.barcode || l.barcode.trim() === '');
         this.withBarcode = this.allLines.filter(l => l.barcode && l.barcode.trim() !== '');
-        this.alertService.showSuccessToast('Barcode saved');
+        this.alertService.showSuccessToast('Saved (use Save All to finalize)');
+        // Keep in unsavedBarcodeIds - orange indicator stays visible until Save All
       },
       error: (err) => {
         this.alertService.showErrorToast(err?.error?.message || 'Failed to save barcode');
         this.saving = false;
       },
     });
+  }
+
+  saveAllBarcodes() {
+    const linesToSave = Array.from(this.unsavedBarcodeIds)
+      .map(id => this.allLines.find(l => l.id === id))
+      .filter(l => l !== undefined) as InvoiceLine[];
+
+    if (linesToSave.length === 0) {
+      this.alertService.showToast('No unsaved barcodes to save.', 3000, 'top');
+      return;
+    }
+
+    this.saving = true;
+    let savedCount = 0;
+    let failedCount = 0;
+
+    linesToSave.forEach(line => {
+      const val = (this.editValues[line.id] || '').trim();
+      if (!val || val.length > 13) return;
+
+      const encodedBarcode = encodeURIComponent(val);
+      this.http.put(
+        `${environment.apiUrl}file/updateLineBarcode/${line.id}/${encodedBarcode}`,
+        {}
+      ).subscribe({
+        next: () => {
+          line.barcode = val;
+          delete this.editValues[line.id];
+          this.unsavedBarcodeIds.delete(line.id);
+          savedCount++;
+          if (savedCount + failedCount === linesToSave.length) {
+            this.completeAllSave(savedCount, failedCount);
+          }
+        },
+        error: () => {
+          failedCount++;
+          if (savedCount + failedCount === linesToSave.length) {
+            this.completeAllSave(savedCount, failedCount);
+          }
+        },
+      });
+    });
+  }
+
+  private completeAllSave(savedCount: number, failedCount: number) {
+    this.saving = false;
+    this.noBarcode = this.allLines.filter(l => !l.barcode || l.barcode.trim() === '');
+    this.withBarcode = this.allLines.filter(l => l.barcode && l.barcode.trim() !== '');
+
+    if (failedCount === 0) {
+      this.alertService.showSuccessToast(`${savedCount} barcode${savedCount > 1 ? 's' : ''} saved`);
+    } else {
+      this.alertService.showErrorToast(`Saved ${savedCount}, failed ${failedCount}`);
+    }
+
+
   }
 
   async scanBarcode(line: InvoiceLine) {
@@ -249,8 +312,7 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
         const scanned = barcodes[0].rawValue ?? '';
         this.zone.run(() => {
           this.editValues[line.id] = scanned;
-          // Auto-save after scanning
-          this.saveBarcode(line);
+          this.unsavedBarcodeIds.add(line.id);  // Mark as unsaved
         });
       }
     } catch {
@@ -293,12 +355,9 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
                 controls.stop();
                 this.webScannerActive = false;
               } else if (this.editingId !== null) {
-                // Barcode is valid - save it
+                // Barcode is valid - show in input, user saves manually
                 this.editValues[this.editingId] = scannedBarcode;
-                const line = this.allLines.find(l => l.id === this.editingId);
-                if (line) {
-                  this.saveBarcode(line);
-                }
+                this.unsavedBarcodeIds.add(this.editingId);  // Mark as unsaved
                 controls.stop();
                 this.webScannerActive = false;
               }
@@ -330,6 +389,11 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
     const clean = el.value.replace(/\D/g, '').slice(0, 13);
     el.value = clean;
     this.editValues[lineId] = clean;
+    if (clean) {
+      this.unsavedBarcodeIds.add(lineId);
+    } else {
+      this.unsavedBarcodeIds.delete(lineId);
+    }
   }
 
   async goBack() {

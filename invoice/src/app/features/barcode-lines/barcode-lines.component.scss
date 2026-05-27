@@ -58,7 +58,37 @@
   }
 }
 
-/* chips row */
+.save-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+
+  ion-icon {
+    font-size: 0.95rem;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    opacity: 0.85;
+  }
+}
+
 .sub-chips {
   flex: 1;
   display: flex;
@@ -115,10 +145,18 @@
 /* ══════════════════════════════════════
    TAB SWITCHER
 ══════════════════════════════════════ */
+.tab-row-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 12px 0;
+  flex-wrap: wrap;
+}
+
 .tab-row {
   display: flex;
   justify-content: center;
-  padding: 10px 12px 0;
 }
 
 .tab-btn {
@@ -183,6 +221,38 @@
   .active & {
     background: rgba(255, 255, 255, 0.25);
     color: #fff;
+  }
+}
+
+.save-all-btn-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+
+  ion-icon {
+    font-size: 0.95rem;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    opacity: 0.85;
   }
 }
 
@@ -348,6 +418,11 @@ th {
   &.editing-row {
     background: #fef9f0;
   }
+
+  &.unsaved-line {
+    background: #feca8a;
+    border-left: 3px solid #ea580c;
+  }
 }
 
 .td {
@@ -481,13 +556,54 @@ th {
   width: 100%;
 }
 
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &.unsaved {
+    .bc-input {
+      border-color: #ea580c;
+      background: #fff9f5;
+    }
+  }
+}
+
+.unsaved-icon {
+  position: absolute;
+  right: 6px;
+  font-size: 14px;
+  color: #ea580c;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.saved-checkmark {
+  font-size: 18px;
+  color: #16a34a;
+  flex-shrink: 0;
+  animation: saveCheckmark 0.4s ease-out;
+}
+
+@keyframes saveCheckmark {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .bc-input {
   min-width: 110px;
   width: auto;
   height: 28px;
   border: 1.5px solid #4338ca;
   border-radius: 7px;
-  padding: 0 7px;
+  padding: 0 26px 0 7px;
   font-size: 14px;
   color: #1a1a2e;
   background: #fff;
@@ -552,6 +668,8 @@ th {
     filter: brightness(0.93);
   }
 }
+
+/* Save All button styling is in header section */
 
 .bottom-spacer {
   height: 80px;
