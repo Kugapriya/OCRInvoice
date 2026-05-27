@@ -8,7 +8,8 @@
       <span class="card-label-text">Invoice Type</span>
     </div>
     <div class="select-wrap">
-      <ion-select [(ngModel)]="selectedInvoice" interface="popover" placeholder="Select invoice type" class="type-select">
+      <ion-select [(ngModel)]="selectedInvoice" interface="popover" placeholder="Select invoice type"
+        class="type-select">
         <ion-select-option value="Purchase Invoice">Purchase Invoice</ion-select-option>
         <ion-select-option value="Expenses Invoice">Expenses Invoice</ion-select-option>
         <ion-select-option value="Service Invoice">Service Invoice</ion-select-option>
@@ -19,88 +20,122 @@
     </div>
   </div>
 
+  <!-- Uploaded Files card -->
   <div class="page-card files-card">
+
+    <!-- Card header -->
     <div class="files-header">
       <div class="card-label-row">
         <ion-icon name="layers-outline" class="label-icon"></ion-icon>
         <span class="card-label-text">Uploaded Files</span>
+        <span class="count-badge" *ngIf="uploadedFiles.length > 0">{{ uploadedFiles.length }}</span>
       </div>
       <button class="header-add-btn" (click)="openUploadOptions()">
         <ion-icon name="add-outline"></ion-icon>
       </button>
     </div>
 
+    <!-- Empty state -->
     <div class="empty-state" *ngIf="uploadedFiles.length === 0">
       <ion-icon name="cloud-upload-outline" class="empty-icon"></ion-icon>
       <p class="empty-text">No files yet.<br>Tap <strong>+</strong> to add.</p>
     </div>
 
+    <!-- File groups — card layout -->
     <div *ngIf="uploadedFiles.length > 0">
       <div *ngFor="let group of groupedFiles">
         <div class="date-group-label">{{ group.label }}</div>
+
         <div class="file-list">
-          <div class="file-item" *ngFor="let file of group.files">
-            <div class="file-icon-wrap" [class.error-icon-wrap]="file.isProcess != null && file.isProcess !== 0 && file.isProcess !== 1 && file.isProcess !== 9">
-              <ion-icon name="document-text-outline"></ion-icon>
+          <div class="file-card" *ngFor="let file of group.files" [class.card-success]="isSuccess(file)"
+            [class.card-error]="isError(file)" [class.card-pending]="isPending(file)">
+
+            <!-- Row 1: Invoice No / filename  +  time  +  status -->
+            <div class="fc-head">
+              <ion-icon name="document-text-outline" class="fc-doc-icon"></ion-icon>
+              <span class="fc-inv">{{ file.invoiceNo || file.name }}</span>
+              <span class="fc-head-time">
+                <ion-icon name="time-outline"></ion-icon>{{ file.uploadTime }}
+              </span>
+              <span class="status-chip status-success" *ngIf="isSuccess(file)">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>success
+              </span>
+              <span class="status-chip status-error" *ngIf="isError(file)">
+                <ion-icon name="close-circle-outline"></ion-icon>error
+              </span>
             </div>
-            <div class="file-details">
-              <div class="file-name">{{ file.name }}</div>
-              <div class="file-meta">
-                {{ file.invoiceType }}
-                <span *ngIf="file.uploadTime" class="upload-time">
-                  <ion-icon name="time-outline"></ion-icon> {{ file.uploadTime }}
-                </span>
-              </div>
+
+            <!-- Row 2: chips — always rendered, all chips always visible -->
+            <div class="fc-chips">
+              <span class="fc-chip fc-chip-id" *ngIf="file.id > 0">
+                <ion-icon name="pricetag-outline"></ion-icon>
+                <span>#{{ file.id }}</span>
+              </span>
+              <span class="fc-chip fc-chip-sup" [class.fc-chip-empty]="!file.supplierName">
+                <ion-icon name="business-outline"></ion-icon>
+                <span>{{ file.supplierName || '' }}</span>
+              </span>
             </div>
-            <span *ngIf="file.isProcess === 1" class="status-chip status-completed">success</span>
-            <span *ngIf="file.isProcess != null && file.isProcess !== 0 && file.isProcess !== 1 && file.isProcess !== 9" class="status-chip status-ocr_error">error</span>
-          </div>
-        </div>
-      </div>
+
+            <!-- Row 3: Action row — always rendered for consistent height -->
+            <div class="fc-actions">
+              <button class="fc-act-btn fc-act-lines" [class.fc-act-dim]="file.totalLines === 0"
+                [disabled]="file.totalLines === 0" (click)="goToAllLines(file)">
+                <ion-icon name="list-outline"></ion-icon>
+                <span>{{ file.totalLines || '' }} Lines</span>
+                <ion-icon name="chevron-forward-outline" class="fc-chev" *ngIf="file.totalLines > 0"></ion-icon>
+              </button>
+
+              <button class="fc-act-btn fc-act-bc" *ngIf="file.noBarcodeCount > 0" (click)="goToBarcodeLines(file)">
+                <ion-icon name="barcode-outline"></ion-icon>
+                <span>{{ file.noBarcodeCount }} No Barcode</span>
+                <ion-icon name="chevron-forward-outline" class="fc-chev"></ion-icon>
+              </button>
+
+              <button class="fc-act-btn fc-act-ok" *ngIf="file.noBarcodeCount === 0 && file.totalLines > 0"
+                (click)="goToAllLines(file)">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <span>All OK</span>
+                <ion-icon name="chevron-forward-outline" class="fc-chev"></ion-icon>
+              </button>
+            </div>
+
+          </div><!-- /file-card -->
+        </div><!-- /file-list -->
+      </div><!-- /group -->
     </div>
-  </div>
+
+  </div><!-- /files-card -->
 
   <div class="bottom-spacer"></div>
 
   <!-- Hidden file input -->
-  <input type="file" multiple accept="image/*,application/pdf"
-    (change)="onFilesSelected($event)" hidden #fileInput>
+  <input type="file" multiple accept="image/*,application/pdf" (change)="onFilesSelected($event)" hidden #fileInput>
 
   <!-- UPLOAD OPTIONS MODAL -->
-  <ion-modal
-    [isOpen]="showUploadSheet"
-    [initialBreakpoint]="0.38"
-    [breakpoints]="[0, 0.38]"
-    (didDismiss)="showUploadSheet = false"
-    cssClass="upload-sheet-modal">
+  <ion-modal [isOpen]="showUploadSheet" [initialBreakpoint]="0.38" [breakpoints]="[0, 0.38]"
+    (didDismiss)="showUploadSheet = false" cssClass="upload-sheet-modal">
     <ng-template>
       <div class="upload-sheet-wrap">
         <div class="sheet-pill"></div>
         <p class="sheet-title">Add Document</p>
         <div class="sheet-options">
-
           <button class="opt-card" (click)="captureAndClose()">
-            <div class="opt-icon cam-icon">
-              <ion-icon name="camera-outline"></ion-icon>
-            </div>
+            <div class="opt-icon cam-icon"><ion-icon name="camera-outline"></ion-icon></div>
             <span class="opt-label">Camera / Scan</span>
             <span class="opt-sub">Use device camera</span>
           </button>
-
           <button class="opt-card" (click)="galleryAndClose()">
-            <div class="opt-icon gal-icon">
-              <ion-icon name="images-outline"></ion-icon>
-            </div>
+            <div class="opt-icon gal-icon"><ion-icon name="images-outline"></ion-icon></div>
             <span class="opt-label">Gallery / Drive</span>
             <span class="opt-sub">Pick from files</span>
           </button>
-
         </div>
       </div>
     </ng-template>
   </ion-modal>
 
-  <!-- PREVIEW MODAL (before confirming) -->
+  <!-- PREVIEW MODAL -->
   <ion-modal [isOpen]="showPreviewModal" (didDismiss)="discardPreview()" cssClass="preview-modal">
     <ng-template>
       <div class="modal-wrap">
@@ -111,36 +146,26 @@
           </ion-button>
         </div>
 
-        <!-- File tabs (multiple files) -->
         <div class="preview-tabs" *ngIf="pendingFiles.length > 1">
-          <div class="preview-tab"
-            *ngFor="let pf of pendingFiles; let j = index"
-            [class.active-tab]="previewSelectedIndex === j"
-            (click)="selectPreviewFile(j)">
+          <div class="preview-tab" *ngFor="let pf of pendingFiles; let j = index"
+            [class.active-tab]="previewSelectedIndex === j" (click)="selectPreviewFile(j)">
             {{ pf.file.name | slice:0:18 }}…
           </div>
         </div>
 
-        <!-- Preview area -->
         <div class="preview-area">
           <div *ngIf="previewFileUrl && previewIsPdf" class="pdf-wrap">
-            <ngx-extended-pdf-viewer
-              [src]="previewFileUrl"
-              [(page)]="previewPage"
-              [pageViewMode]="'single'"
-              (pagesLoaded)="onPreviewPagesLoaded($event)"
-              [height]="'52vh'"
-[disableForms]="true"
+            <ngx-extended-pdf-viewer [src]="previewFileUrl" [(page)]="previewPage" [pageViewMode]="'single'"
+              (pagesLoaded)="onPreviewPagesLoaded($event)" [height]="'52vh'" [disableForms]="true"
               [showToolbar]="false">
             </ngx-extended-pdf-viewer>
             <div class="pdf-nav">
-              <ion-button size="small" fill="clear"
-                (click)="prevPreviewPage()" [disabled]="previewPage <= 1">
+              <ion-button size="small" fill="clear" (click)="prevPreviewPage()" [disabled]="previewPage <= 1">
                 <ion-icon name="arrow-back-outline"></ion-icon>
               </ion-button>
               <span>{{ previewPage }} / {{ previewTotalPages }}</span>
-              <ion-button size="small" fill="clear"
-                (click)="nextPreviewPage()" [disabled]="previewPage >= previewTotalPages">
+              <ion-button size="small" fill="clear" (click)="nextPreviewPage()"
+                [disabled]="previewPage >= previewTotalPages">
                 <ion-icon name="arrow-forward-outline"></ion-icon>
               </ion-button>
             </div>
@@ -155,13 +180,11 @@
           </div>
         </div>
 
-        <!-- File name -->
         <div class="preview-filename" *ngIf="pendingFiles[previewSelectedIndex]">
           <ion-icon name="document-text-outline"></ion-icon>
           <span>{{ pendingFiles[previewSelectedIndex].file.name }}</span>
         </div>
 
-        <!-- Actions -->
         <div class="preview-actions">
           <ion-button fill="outline" color="danger" expand="block" (click)="discardPreview()">
             <ion-icon name="trash-outline" slot="start"></ion-icon>

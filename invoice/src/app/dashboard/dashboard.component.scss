@@ -280,14 +280,14 @@ ion-content {
 
 
 .date-group-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  color: #1e5f74;
-  padding: 10px 4px 4px;
-  border-bottom: 1px solid rgba(30, 95, 116, 0.15);
-  margin-bottom: 4px;
+  color: #64748b;
+  padding: 12px 4px 5px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 6px;
 }
 
 .file-list {
@@ -854,4 +854,208 @@ ion-badge {
 
 ion-select {
   margin-top: 0;
+}
+
+/* ══════════════════════════════
+   FILE CARDS (dashboard)
+══════════════════════════════ */
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 3px 2px;
+}
+
+/* ── Card shell ── */
+.file-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #dde3ec;
+  border-left: 3px solid #94a3b8;    /* default: pending grey */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+  min-height: 100px;
+
+  &:active { box-shadow: 0 1px 2px rgba(0,0,0,0.05); opacity: 0.92; }
+
+  /* Left accent by status */
+  &.card-success { border-left-color: #16a34a; }
+  &.card-error   { border-left-color: #dc2626; }
+  &.card-pending { border-left-color: #94a3b8; }
+}
+
+/* ── Row 1: Invoice / filename  +  time  +  status icon ── */
+.fc-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px 4px 10px;
+  min-height: 24px;
+}
+
+.fc-doc-icon {
+  font-size: 0.88rem;
+  color: #4338ca;
+  flex-shrink: 0;
+}
+
+.fc-inv {
+  flex: 1;
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.fc-head-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: #94a3b8;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 10px; }
+}
+
+/* ── Row 2: chips — min-height keeps all cards same height ── */
+.fc-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 2px 10px 7px;
+  min-height: 26px;
+}
+
+.fc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 10px; flex-shrink: 0; }
+
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &.fc-chip-id {
+    background: #e8f0fe;
+    color: #1a73e8;
+    span { max-width: 54px; }
+  }
+
+  &.fc-chip-sup {
+    background: #ede9fe;
+    color: #4338ca;
+    span { max-width: 160px; }
+
+    /* Empty state — shown before backend fills in supplier */
+    &.fc-chip-empty {
+      background: #f1f5f9;
+      color: #94a3b8;
+      border: 1px dashed #cbd5e1;
+    }
+  }
+}
+
+/* ── Row 3: Action buttons ── */
+.fc-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  min-height: 28px;
+}
+
+.fc-act-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  transition: background 0.13s;
+
+  span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  ion-icon { font-size: 12px; flex-shrink: 0; }
+  .fc-chev { font-size: 10px; opacity: 0.55; }
+
+  &:active { background: rgba(0,0,0,0.05); }
+
+  &.fc-act-lines {
+    color: #0891b2;
+    border-right: 1px solid #e8edf2;
+  }
+
+  &.fc-act-dim {
+    color: #94a3b8;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  &.fc-act-bc { color: #c2410c; }
+}
+
+/* All OK — also a clickable button */
+.fc-act-ok {
+  color: #16a34a;
+}
+
+/* ── Status chips ── */
+.status-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+
+  ion-icon { font-size: 11px; }
+
+  &.status-success {
+    background: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #86efac;
+  }
+  &.status-error {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+  }
+}
+
+.muted {
+  color: #cbd5e1;
+  font-size: 11px;
 }

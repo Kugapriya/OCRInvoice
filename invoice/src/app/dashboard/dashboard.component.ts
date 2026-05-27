@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 import { environment } from 'src/environments/environment';
@@ -12,15 +13,22 @@ import { AlertService } from '../core/services/alert.service';
 import { RepositoryService } from '../core/services/repository.service';
 import { ActivityService } from '../core/services/activity.service';
 import { SharedModule } from '../shared/shared.module';
+import { FileSummary } from '../_model/file-summary';
 
 interface UploadedFile {
+  id: number;
   name: string;
   file?: File;
   url?: string;
   invoiceType: string;
-  uploadDate: string; // YYYY-MM-DD
-  uploadTime: string; // HH:MM
+  supplierName: string;
+  invoiceNo: string;
+  uploadDate: string;   // YYYY-MM-DD
+  uploadTime: string;   // HH:MM
   isProcess?: number;
+  totalLines: number;
+  noBarcodeCount: number;
+  fromSession?: boolean;
 }
 
 interface PendingFile {
@@ -74,7 +82,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   get groupedFiles(): FileGroup[] {
-    const today = this.todayStr();
+    const today     = this.todayStr();
     const yesterday = this.dateStr(new Date(Date.now() - 86400000));
 
     const map = new Map<string, UploadedFile[]>();
@@ -96,6 +104,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private http: HttpClient,
     private zone: NgZone,
+    private router: Router,
     private alertService: AlertService,
     public repository: RepositoryService,
     private activityService: ActivityService,
@@ -110,7 +119,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const parsed = JSON.parse(userData);
       const user = parsed.user ?? parsed;
       this.email = user.email ?? '';
-      this.role = user.role ?? '';
+      this.role  = user.role  ?? '';
     }
 
     this.customerId = this.repository.customerId ?? '';
@@ -128,9 +137,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.refreshTimer) clearInterval(this.refreshTimer);
   }
 
-  private todayStr(): string {
-    return this.dateStr(new Date());
+  // ── Status helpers ────────────────────────────────────────────────────────
+  isSuccess(file: UploadedFile) { return file.isProcess === 1 || file.isProcess === 9; }
+  isPending(file: UploadedFile) { return file.isProcess === 0 || file.isProcess == null; }
+  isError(file: UploadedFile)   {
+    return file.isProcess != null
+      && file.isProcess !== 0
+      && file.isProcess !== 1
+      && file.isProcess !== 9;
   }
+
+  statusLabel(file: UploadedFile): string {
+    if (this.isSuccess(file)) return 'success';
+    if (this.isError(file))   return 'error';
+    return 'pending';
+  }
+
+  goToBarcodeLines(file: UploadedFile) {
+    if (!file.invoiceNo) {
+      this.alertService.showToast('No invoice number available for this file.', 3000, 'top');
+      return;
+    }
+    this.router.navigate(['/site/dashboard/barcode-lines'], {
+      state: { invoiceNumber: file.invoiceNo, fileId: file.id, fileName: file.name, tab: 'nobarcode' }
+    });
+  }
+
+  goToAllLines(file: UploadedFile) {
+    if (!file.invoiceNo) {
+      this.alertService.showToast('No invoice number available for this file.', 3000, 'top');
+      return;
+    }
+    this.router.navigate(['/site/dashboard/barcode-lines'], {
+      state: { invoiceNumber: file.invoiceNo, fileId: file.id, fileName: file.name, tab: 'all' }
+    });
+  }
+
+  // ── Data loading ──────────────────────────────────────────────────────────
+  private todayStr(): string { return this.dateStr(new Date()); }
 
   private dateStr(d: Date): string {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -142,23 +186,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private loadFromBackend() {
     if (!this.customerId) return;
-    this.http.get<any[]>(`${environment.apiUrl}file/getuploadedFiles/${this.customerId}`).subscribe({
+    this.http.get<FileSummary[]>(`${environment.apiUrl}file/getFileSummaries/${this.customerId}`).subscribe({
       next: (files) => {
-        const sessionFiles = this.uploadedFiles.filter(f => !!f.file);
-        const sessionNames = new Set(sessionFiles.map(f => f.name));
+        const sessionFiles  = this.uploadedFiles.filter(f => !!f.fromSession);
+        const sessionNames  = new Set(sessionFiles.map(f => f.name));
 
         const backendFiles: UploadedFile[] = (files || [])
           .filter(f => !!f.fileName && !sessionNames.has(f.fileName))
           .map(f => {
-            const dt = f.uploadedTime ? new Date(f.uploadedTime) : null;
+            const dt    = f.uploadedTime ? new Date(f.uploadedTime) : null;
             const valid = dt && !isNaN(dt.getTime());
-            const d = valid ? dt! : new Date();
+            const d     = valid ? dt! : new Date();
             return {
-              name: f.fileName,
-              invoiceType: f.processType || '',
-              uploadDate: this.dateStr(d),
-              uploadTime: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
-              isProcess: f.isProcess as number,
+              id:            f.id,
+              name:          f.fileName,
+              invoiceType:   f.processType || '',
+              supplierName:  f.supplierName || '',
+              invoiceNo:     f.invoiceNumber || '',
+              uploadDate:    this.dateStr(d),
+              uploadTime:    `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,
+              isProcess:     f.isProcess,
+              totalLines:    f.totalLines   ?? 0,
+              noBarcodeCount:f.noBarcodeCount ?? 0,
             };
           });
 
@@ -204,7 +253,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         contrast: 1.25,
       });
 
-      // User cancelled — do nothing
       if (result.status === 'cancel') return;
 
       const images: string[] = result.scannedImages ?? [];
@@ -215,9 +263,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
         if (img.startsWith('data:')) {
           pages.push(img);
         } else {
-          // Raw base64 — detect PNG (magic: 0x89 0x50) vs JPEG (0xFF 0xD8)
           const header = atob(img.substring(0, 8));
-          const isPng = header.charCodeAt(0) === 0x89 && header.charCodeAt(1) === 0x50;
+          const isPng  = header.charCodeAt(0) === 0x89 && header.charCodeAt(1) === 0x50;
           pages.push(`data:image/${isPng ? 'png' : 'jpeg'};base64,${img}`);
         }
       }
@@ -234,27 +281,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const pdfDoc = await PDFDocument.create();
 
       for (const dataUrl of pages) {
-        const isPng = dataUrl.startsWith('data:image/png');
-        const rawBytes = this.dataUrlToBytes(dataUrl);
-
-        // Use the correct embedder — wrong type throws inside pdf-lib
+        const isPng      = dataUrl.startsWith('data:image/png');
+        const rawBytes   = this.dataUrlToBytes(dataUrl);
         const embeddedImg = isPng
           ? await pdfDoc.embedPng(rawBytes)
           : await pdfDoc.embedJpg(rawBytes);
 
-        const page = pdfDoc.addPage([595, 842]); // A4 portrait
-        page.drawImage(embeddedImg, {
-          x: 0, y: 0,
-          width: page.getWidth(),
-          height: page.getHeight(),
-        });
+        const page = pdfDoc.addPage([595, 842]);
+        page.drawImage(embeddedImg, { x: 0, y: 0, width: page.getWidth(), height: page.getHeight() });
       }
 
       const pdfBytes = await pdfDoc.save();
-      const pdfBlob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
+      const pdfBlob  = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
 
       const now = new Date();
-      const ts = [
+      const ts  = [
         now.getFullYear(),
         String(now.getMonth() + 1).padStart(2, '0'),
         String(now.getDate()).padStart(2, '0'),
@@ -263,12 +304,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         String(now.getSeconds()).padStart(2, '0'),
       ].join('_');
 
-      const pdfFile = new File(
-        [pdfBlob],
-        `${this.customerId}_${ts}.pdf`,
-        { type: 'application/pdf' }
-      );
-
+      const pdfFile = new File([pdfBlob], `${this.customerId}_${ts}.pdf`, { type: 'application/pdf' });
       this.zone.run(() => this.addToPending([pdfFile]));
     } catch {
       this.alertService.showErrorToast('PDF creation failed.', 3000, 'middle');
@@ -278,22 +314,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onFilesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
-    const files = Array.from(input.files);
-    this.addToPending(files);
+    this.addToPending(Array.from(input.files));
     input.value = '';
   }
 
   addToPending(files: File[]) {
     this.pendingFiles = files.map(f => ({
       file: f,
-      url: URL.createObjectURL(f),
-      isPdf: f.type === 'application/pdf',
-      isImage: f.type.startsWith('image/'),
+      url:  URL.createObjectURL(f),
+      isPdf:    f.type === 'application/pdf',
+      isImage:  f.type.startsWith('image/'),
     }));
     this.previewSelectedIndex = 0;
-    this.previewPage = 1;
+    this.previewPage       = 1;
     this.previewTotalPages = 0;
-    this.showPreviewModal = true;
+    this.showPreviewModal  = true;
     this.setPreviewFile(0);
   }
 
@@ -301,35 +336,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const pf = this.pendingFiles[index];
     if (!pf) return;
     this.previewSelectedIndex = index;
-    this.previewFileUrl = pf.url;
-    this.previewIsPdf = pf.isPdf;
-    this.previewIsImage = pf.isImage;
-    this.previewPage = 1;
+    this.previewFileUrl  = pf.url;
+    this.previewIsPdf    = pf.isPdf;
+    this.previewIsImage  = pf.isImage;
+    this.previewPage     = 1;
   }
 
-  selectPreviewFile(index: number) {
-    this.setPreviewFile(index);
-  }
+  selectPreviewFile(index: number) { this.setPreviewFile(index); }
 
-  onPreviewPagesLoaded(event: any) {
-    this.previewTotalPages = event.pagesCount;
-  }
+  onPreviewPagesLoaded(event: any) { this.previewTotalPages = event.pagesCount; }
 
   confirmPreview() {
-    const now = new Date();
+    const now   = new Date();
     const batch: UploadedFile[] = this.pendingFiles.map(pf => ({
-      name: pf.file.name,
-      file: pf.file,
-      url: pf.url,
-      invoiceType: this.selectedInvoice,
-      uploadDate: this.todayStr(),
-      uploadTime: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+      id:            0,
+      name:          pf.file.name,
+      file:          pf.file,
+      url:           pf.url,
+      invoiceType:   this.selectedInvoice,
+      supplierName:  '',
+      invoiceNo:     '',
+      uploadDate:    this.todayStr(),
+      uploadTime:    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
+      totalLines:    0,
+      noBarcodeCount:0,
+      fromSession:   true,
     }));
 
     for (const f of batch) this.uploadedFiles.unshift(f);
-    this.pendingFiles = [];
+    this.pendingFiles     = [];
     this.showPreviewModal = false;
-    this.previewFileUrl = '';
+    this.previewFileUrl   = '';
 
     if (!this.customerId) {
       this.alertService.showErrorToast('Customer ID is required');
@@ -343,9 +380,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     this.http.post<any>(`${environment.apiUrl}file/upload/${this.customerId}`, formData).subscribe({
-      next: () => {
-        this.alertService.showSuccessToast('Upload successful');
-      },
+      next: () => { this.alertService.showSuccessToast('Upload successful'); },
       error: (err) => {
         this.alertService.showErrorToast(err?.error?.message || err?.message || 'Upload failed');
       },
@@ -353,32 +388,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   discardPreview() {
-    for (const pf of this.pendingFiles) {
-      URL.revokeObjectURL(pf.url);
-    }
-    this.pendingFiles = [];
+    for (const pf of this.pendingFiles) URL.revokeObjectURL(pf.url);
+    this.pendingFiles     = [];
     this.showPreviewModal = false;
-    this.previewFileUrl = '';
+    this.previewFileUrl   = '';
   }
 
   prevPreviewPage() { if (this.previewPage > 1) this.previewPage--; }
   nextPreviewPage() { if (this.previewPage < this.previewTotalPages) this.previewPage++; }
 
-  // Converts a data-URL (data:mime;base64,xxx) to raw bytes
   dataUrlToBytes(dataUrl: string): Uint8Array {
-    const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+    const b64    = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
     const binary = atob(b64);
-    const bytes = new Uint8Array(binary.length);
+    const bytes  = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
     return bytes;
   }
 
-  base64ToUint8Array(base64: string): Uint8Array {
-    return this.dataUrlToBytes(base64);
-  }
+  base64ToUint8Array(base64: string): Uint8Array { return this.dataUrlToBytes(base64); }
 
   dataURLtoBlob(dataUrl: string): Blob {
-    const arr = dataUrl.split(',');
+    const arr  = dataUrl.split(',');
     const mime = arr[0].match(/:(.*?);/)![1];
     const bstr = atob(arr[1]);
     const u8arr = new Uint8Array(bstr.length);
