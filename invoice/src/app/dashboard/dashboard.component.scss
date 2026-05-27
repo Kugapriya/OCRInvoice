@@ -409,6 +409,11 @@ ion-content {
     color: #be123c;
     border: 1px solid #fca5a5;
   }
+  &.status-not-completed {
+  background: #fff7ed;
+  color: #882c07;
+  border: 1px solid #fdba74;
+}
 }
 
 .file-actions {

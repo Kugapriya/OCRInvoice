@@ -60,6 +60,9 @@
               <span class="status-chip status-success" *ngIf="isSuccess(file)">
                 <ion-icon name="checkmark-circle-outline"></ion-icon>success
               </span>
+              <span class="status-chip status-not-completed" *ngIf="isNotCompleted(file)">
+              <ion-icon name="warning-outline"></ion-icon>Incomplete
+            </span>
               <span class="status-chip status-error" *ngIf="isError(file)">
                 <ion-icon name="close-circle-outline"></ion-icon>error
               </span>

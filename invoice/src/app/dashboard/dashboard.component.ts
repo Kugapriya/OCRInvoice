@@ -138,18 +138,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   // ── Status helpers ────────────────────────────────────────────────────────
-  isSuccess(file: UploadedFile) { return file.isProcess === 1 || file.isProcess === 9; }
+  isSuccess(file: UploadedFile) { return file.isProcess === 1 && file.noBarcodeCount === 0 && file.totalLines > 0; }
   isPending(file: UploadedFile) { return file.isProcess === 0 || file.isProcess == null; }
+  isNotCompleted(file: UploadedFile) { return file.isProcess === 1 && file.noBarcodeCount > 0 && file.totalLines > 0; }
   isError(file: UploadedFile)   {
-    return file.isProcess != null
-      && file.isProcess !== 0
-      && file.isProcess !== 1
-      && file.isProcess !== 9;
+    // return file.isProcess != null
+    //   && file.isProcess !== 0
+    //   && file.isProcess !== 1
+    //   && file.isProcess !== 9;
+    return !this.isSuccess(file) && !this.isNotCompleted(file);
   }
 
   statusLabel(file: UploadedFile): string {
     if (this.isSuccess(file)) return 'success';
     if (this.isError(file))   return 'error';
+    if(this.isNotCompleted(file)) return 'Incomplete';
     return 'pending';
   }
 
