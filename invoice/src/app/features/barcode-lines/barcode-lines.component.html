@@ -1,0 +1,160 @@
+<!-- ─── Top Nav ─── -->
+<app-top-nav [showDetails]="true"></app-top-nav>
+
+<!-- ─── Sub-header ─── -->
+<div class="bl-subheader">
+
+  <button class="back-btn" (click)="goBack()">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+    <span>Back</span>
+  </button>
+
+  <div class="sub-chips">
+    <span class="sub-chip chip-inv" *ngIf="invoiceNumber">
+      <ion-icon name="document-text-outline"></ion-icon>
+      {{ invoiceNumber }}
+    </span>
+    <span class="sub-chip chip-id" *ngIf="fileId">
+      <ion-icon name="cloud-upload-outline"></ion-icon>
+      #{{ fileId }}
+    </span>
+    <span class="sub-chip chip-sup" *ngIf="supplierName">
+      <ion-icon name="business-outline"></ion-icon>
+      {{ supplierName }}
+    </span>
+  </div>
+
+  <button class="reload-btn" (click)="loadLines()">
+    <ion-icon name="refresh-outline"></ion-icon>
+  </button>
+
+</div>
+
+<ion-content class="bl-content">
+
+  <!-- ─── Tab switcher ─── -->
+  <div class="tab-row" *ngIf="allLines.length > 0">
+    <button class="tab-btn" [class.active]="activeTab === 'nobarcode'" (click)="switchTab('nobarcode')">
+      <ion-icon name="barcode-outline"></ion-icon>
+      No Barcode
+      <span class="tab-count warn-count" *ngIf="noBarcode.length > 0">{{ noBarcode.length }}</span>
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="switchTab('all')">
+      <ion-icon name="layers-outline"></ion-icon>
+      All Lines
+      <span class="tab-count">{{ allLines.length }}</span>
+    </button>
+  </div>
+
+  <!-- ─── Empty state ─── -->
+  <div class="empty-state" *ngIf="allLines.length === 0">
+    <ion-icon name="document-outline" class="empty-icon"></ion-icon>
+    <p class="empty-title">No lines found</p>
+    <p class="empty-sub">No invoice lines were found for <strong>{{ invoiceNumber || 'this invoice' }}</strong>.</p>
+  </div>
+
+  <!-- ─── No barcode empty ─── -->
+  <div class="empty-state" *ngIf="activeTab === 'nobarcode' && noBarcode.length === 0 && allLines.length > 0">
+    <ion-icon name="checkmark-circle-outline" class="empty-icon ok-icon"></ion-icon>
+    <p class="empty-title">All barcodes assigned!</p>
+    <p class="empty-sub">Every line on this invoice has a barcode.</p>
+  </div>
+
+  <!-- ─── Lines table ─── -->
+  <div class="lines-card" *ngIf="displayLines.length > 0">
+
+    <!-- Rows + sticky header inside same scroll container -->
+    <div class="table-wrap">
+      <div class="tbl-header">
+        <th class="td-line">Line</th>
+        <th class="td-desc">Description</th>
+        <th class="td-cp">Case Pack</th>
+        <th class="td-us">Unit Size</th>
+        <th class="td-qty">Qty</th>
+        <th class="td-price">Unit Price</th>
+        <!-- <th class="td-net">Net Price</th> -->
+        <th class="td-bc">Barcode</th>
+      </div>
+      <div class="line-rows">
+        <div class="line-row" *ngFor="let line of displayLines" [class.editing-row]="editingId === line.id">
+
+          <td class="td-line">{{ line.lineNo ?? '' }}</td>
+          <td class="td-desc" [title]="line.description ?? ''">{{ line.description || '' }}</td>
+          <td class="td-cp">{{ line.casePack ?? '—' }}</td>
+          <td class="td-us" [title]="line.unitSize ?? ''">{{ line.unitSize || '—' }}</td>
+          <td class="td-qty">{{ line.qty ?? '—' }}</td>
+          <td class="td-price">{{ line.unitPrice !== null ? (line.unitPrice | number:'1.2-2') : '—' }}</td>
+
+          <!-- Line Net -->
+          <!-- <td class="td-net">
+            <span class="net-val" *ngIf="line.lineNet !== null">{{ line.lineNet | number:'1.2-2' }}</span>
+            <span class="muted" *ngIf="line.lineNet === null">—</span>
+          </td> -->
+
+          <!-- Barcode column -->
+          <td class="td-bc">
+
+            <!-- Lines WITH a barcode: show value; click to edit -->
+            <ng-container *ngIf="line.barcode && editingId !== line.id">
+              <button class="bc-display bc-has" (click)="startEdit(line)" title="Click to edit">
+                <ion-icon name="barcode-outline"></ion-icon>
+                <span class="bc-val">{{ line.barcode }}</span>
+                <ion-icon name="pencil-outline" class="edit-hint"></ion-icon>
+              </button>
+            </ng-container>
+
+            <!-- Input wrap: always visible for no-barcode lines; shown when editing a bc-has line -->
+            <div class="bc-edit-wrap" *ngIf="!line.barcode || editingId === line.id">
+              <button class="bc-cam-btn" (click)="scanBarcode(line)" [disabled]="saving" title="Scan">
+                <ion-icon name="camera-outline"></ion-icon>
+              </button>
+              <input class="bc-input" [(ngModel)]="editValues[line.id]" placeholder="Barcode"
+                size="13" maxlength="13"
+                inputmode="numeric" (input)="filterDigits(line.id, $event)" (keyup.enter)="saveBarcode(line)"
+                (keyup.escape)="cancelEdit(line)" />
+              <button class="bc-save-btn" *ngIf="editValues[line.id]?.trim()" (click)="saveBarcode(line)"
+                [disabled]="saving">
+                <ion-icon name="checkmark-outline"></ion-icon>
+              </button>
+              <button class="bc-cancel-btn" (click)="cancelEdit(line)" [disabled]="saving">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </div>
+
+          </td>
+
+        </div><!-- /line-row -->
+      </div><!-- /line-rows -->
+
+    </div><!-- /table-wrap -->
+  </div><!-- /lines-card -->
+
+  <div class="bottom-spacer"></div>
+
+</ion-content>
+
+<!-- ─── Web barcode scanner overlay (always in DOM, shown/hidden via CSS) ─── -->
+<div class="web-scan-overlay" [class.web-scan-visible]="webScannerActive">
+  <div class="web-scan-header">
+    <ion-icon name="scan-outline" class="scan-header-icon"></ion-icon>
+    <span>Point camera at barcode</span>
+    <button class="scan-close-btn" (click)="stopWebScan()">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+
+  <div class="web-scan-body">
+    <video #webVideoEl class="web-scan-video" playsinline muted></video>
+    <div class="scan-frame">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+    </div>
+  </div>
+
+  <div class="web-scan-hint" *ngIf="webScannerActive">
+    <ion-spinner name="dots" color="light"></ion-spinner>
+    <span>Scanning…</span>
+  </div>
+</div>

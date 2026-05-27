@@ -23,5 +23,7 @@ namespace API.Models
         public int HeaderId { get; set; }
         public int LineIdStart { get; set; }
         public int LineIdEnd { get; set; }
+        public string InvoiceNumber { get; set; } = "";
+        public string InvoiceDate { get; set; }= "";
     }
 }

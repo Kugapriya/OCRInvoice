@@ -42,6 +42,7 @@ namespace API
             const string sql = @"
                     SELECT  [Id],[CustomerId],[SupplierName],[FileName],[FilePath],[ProcessType]
                     ,[UploadedTime],[IsProcess],[HeaderId],[LineIdStart],[LineIdEnd]
+                    ,[InvoiceNumber],[InvoiceDate]
                     FROM UploadedFiles
                     WHERE CustomerId = @customerId
                     ORDER BY UploadedTime DESC; ";
@@ -51,7 +52,6 @@ namespace API
 
             await using var cmd = new SqlCommand(sql, conn);
             cmd.Parameters.Add(new SqlParameter("@customerId", SqlDbType.NVarChar, 100) { Value = customerId });
-            // cmd.Parameters.Add(new SqlParameter("@supplierName", SqlDbType.NVarChar, 255) { Value = supplierName });
 
             await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -69,7 +69,9 @@ namespace API
                     IsProcess = reader.GetInt32(7),
                     HeaderId = reader.IsDBNull(8) ? 0 : reader.GetInt32(8),
                     LineIdStart = reader.IsDBNull(9) ? 0 : reader.GetInt32(9),
-                    LineIdEnd = reader.IsDBNull(10) ? 0 : reader.GetInt32(10)
+                    LineIdEnd = reader.IsDBNull(10) ? 0 : reader.GetInt32(10),
+                    InvoiceNumber = reader.IsDBNull(11) ? "" : reader.GetString(11),
+                    InvoiceDate = reader.IsDBNull(12) ? "" : reader.GetString(12)
                 });
             }
             return files;

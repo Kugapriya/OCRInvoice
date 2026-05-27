@@ -10,6 +10,8 @@ export class UploadedFiles {
         public isProcess: number = 0,
         public headerId: number = 0,
         public lineIdStart: number = 0,
-        public lineIdEnd: number = 0
+        public lineIdEnd: number = 0,
+        public invoiceNumber: string = '',
+        public invoiceDate: string = ''
     ) { }
 }

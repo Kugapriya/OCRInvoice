@@ -37,5 +37,6 @@ namespace API.Dtos
         public bool? StartSync { get; set; }
         public bool? EndSync { get; set; }
         public int OriginalId { get; set; }
+        public bool? IsManual { get; set; }
     }
 }

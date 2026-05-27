@@ -12,6 +12,8 @@ import { ResetPasswordComponent } from './reset-password/reset-password.componen
 import { VerifyOtpComponent } from './verify-otp/verify-otp.component';
 import { InvoiceHeadersComponent } from './features/invoice-headers/invoice-headers.component';
 import { VendorsComponent } from './features/vendors/vendors.component';
+import { BarcodeLinesComponent } from './features/barcode-lines/barcode-lines.component';
+import { unsavedBarcodeGuard } from './core/_guards/unsaved-barcode.guard';
 
 // const routes: Routes = [
 //   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -49,6 +51,8 @@ const routes: Routes = [
 
       { path: 'dashboard', component: DashboardComponent },
 
+      { path: 'dashboard/barcode-lines', component: BarcodeLinesComponent, canDeactivate: [unsavedBarcodeGuard] },
+
       {
         path: 'home', runGuardsAndResolvers: 'always',
         component: BaseComponent,
@@ -56,8 +60,8 @@ const routes: Routes = [
           { path: '', loadChildren: () => import('./home/home.module').then(m => m.HomePageModule) },
           // { path: 'customers', component: CustomerProfileComponent },
           { path: 'uploadedfiles', component: UploadedFilesComponent },
-          {path: 'invoiceheaders', component: InvoiceHeadersComponent},
-          {path: 'vendors', component: VendorsComponent}
+          { path: 'invoiceheaders', component: InvoiceHeadersComponent },
+          { path: 'vendors', component: VendorsComponent }
         ]
       }
     ]

@@ -126,6 +126,34 @@ public class FileController : ControllerBase
         return await _upload.GetFilesByCustomerAndSupplierAsync(customerId);
     }
 
+    [HttpGet("getFileSummaries/{customerId}")]
+    public async Task<ActionResult<List<FileSummaryDto>>> GetFileSummaries(string customerId)
+    {
+        try
+        {
+            var summaries = await _upload.GetFileSummariesAsync(customerId);
+            return Ok(summaries);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+    }
+
+    [HttpGet("getLinesByInvoice/{invoiceNumber}")]
+    public async Task<ActionResult<List<DocMateInvoiceLineDto>>> GetLinesByInvoice(string invoiceNumber)
+    {
+        try
+        {
+            var lines = await _upload.GetLinesByInvoiceNumberAsync(invoiceNumber);
+            return Ok(lines);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { success = false, message = ex.Message });
+        }
+    }
+
     [HttpGet("getuploadedFileDetails/{customerId}")]
     public async Task<ActionResult<List<InvoiceFileDetailDto>>> GetUploadedFileDetails(string customerId)
     {
@@ -202,13 +230,11 @@ public class FileController : ControllerBase
         }
     }
 
-    [HttpPut("updateLineBarcode/{lineId}")]
-    public async Task<IActionResult> UpdateLineBarcode(int lineId, [FromBody] dynamic? request)
+    [HttpPut("updateLineBarcode/{lineId}/{barcode}")]
+    public async Task<IActionResult> UpdateLineBarcode(int lineId, string barcode)
     {
         try
         {
-            string? barcode = request?.barcode;
-
             var success = await _upload.UpdateLineBarcodeAsync(lineId, barcode);
 
             if (!success)
