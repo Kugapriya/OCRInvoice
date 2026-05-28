@@ -61,8 +61,8 @@
                 <ion-icon name="checkmark-circle-outline"></ion-icon>success
               </span>
               <span class="status-chip status-not-completed" *ngIf="isNotCompleted(file)">
-              <ion-icon name="warning-outline"></ion-icon>Incomplete
-            </span>
+                <ion-icon name="warning-outline"></ion-icon>Incomplete
+              </span>
               <span class="status-chip status-error" *ngIf="isError(file)">
                 <ion-icon name="close-circle-outline"></ion-icon>error
               </span>
@@ -94,13 +94,6 @@
                 <span>{{ file.noBarcodeCount }} No Barcode</span>
                 <ion-icon name="chevron-forward-outline" class="fc-chev"></ion-icon>
               </button>
-
-              <button class="fc-act-btn fc-act-ok" *ngIf="file.noBarcodeCount === 0 && file.totalLines > 0"
-                (click)="goToAllLines(file)">
-                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                <span>All OK</span>
-                <ion-icon name="chevron-forward-outline" class="fc-chev"></ion-icon>
-              </button>
             </div>
 
           </div><!-- /file-card -->
@@ -112,27 +105,47 @@
 
   <div class="bottom-spacer"></div>
 
-  <!-- Hidden file input -->
   <input type="file" multiple accept="image/*,application/pdf" (change)="onFilesSelected($event)" hidden #fileInput>
+  <input type="file" multiple accept="image/*" (change)="onImagesSelected($event)" hidden #imageInput>
 
   <!-- UPLOAD OPTIONS MODAL -->
-  <ion-modal [isOpen]="showUploadSheet" [initialBreakpoint]="0.38" [breakpoints]="[0, 0.38]"
-    (didDismiss)="showUploadSheet = false" cssClass="upload-sheet-modal">
+  <ion-modal [isOpen]="showUploadSheet" [initialBreakpoint]="showGallerySubOptions ? 0.55 : 0.38"
+    [breakpoints]="[0, showGallerySubOptions ? 0.55 : 0.38]"
+    (didDismiss)="showUploadSheet = false; showGallerySubOptions = false;" cssClass="upload-sheet-modal">
     <ng-template>
       <div class="upload-sheet-wrap">
         <div class="sheet-pill"></div>
-        <p class="sheet-title">Add Document</p>
-        <div class="sheet-options">
-          <button class="opt-card" (click)="captureAndClose()">
-            <div class="opt-icon cam-icon"><ion-icon name="camera-outline"></ion-icon></div>
-            <span class="opt-label">Camera / Scan</span>
-            <span class="opt-sub">Use device camera</span>
-          </button>
-          <button class="opt-card" (click)="galleryAndClose()">
-            <div class="opt-icon gal-icon"><ion-icon name="images-outline"></ion-icon></div>
-            <span class="opt-label">Gallery / Drive</span>
-            <span class="opt-sub">Pick from files</span>
-          </button>
+
+        <div *ngIf="!showGallerySubOptions">
+          <p class="sheet-title">Add Document</p>
+          <div class="sheet-options">
+            <button class="opt-card" (click)="captureAndClose()">
+              <div class="opt-icon cam-icon"><ion-icon name="camera-outline"></ion-icon></div>
+              <span class="opt-label">Camera / Scan</span>
+              <span class="opt-sub">Use device camera</span>
+            </button>
+            <button class="opt-card" (click)="galleryAndClose()">
+              <div class="opt-icon gal-icon"><ion-icon name="images-outline"></ion-icon></div>
+              <span class="opt-label">Gallery / Drive</span>
+              <span class="opt-sub">Pick from files</span>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="showGallerySubOptions">
+          <p class="sheet-title">Pick Files From</p>
+          <div class="sheet-options gallery-options-grid">
+            <button class="opt-card gallery-card" (click)="selectImagesAsPages()">
+              <div class="opt-icon pages-icon"><ion-icon name="image-outline"></ion-icon></div>
+              <span class="opt-label">Images/Pages</span>
+              <span class="opt-sub">Select multiple images<br>Combine into ONE PDF</span>
+            </button>
+            <button class="opt-card gallery-card" (click)="selectFiles()">
+              <div class="opt-icon files-icon"><ion-icon name="documents-outline"></ion-icon></div>
+              <span class="opt-label">Files</span>
+              <span class="opt-sub">Select multiple files<br>Upload separately</span>
+            </button>
+          </div>
         </div>
       </div>
     </ng-template>

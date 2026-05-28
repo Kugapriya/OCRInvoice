@@ -53,6 +53,7 @@ interface FileGroup {
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
 
   selectedInvoice = 'Purchase Invoice';
   role = '';
@@ -61,6 +62,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   uploadedFiles: UploadedFile[] = [];
   showUploadSheet = false;
+  showGallerySubOptions = false;
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
 
   // Preview modal (before confirming add)
@@ -82,7 +84,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   get groupedFiles(): FileGroup[] {
-    const today     = this.todayStr();
+    const today = this.todayStr();
     const yesterday = this.dateStr(new Date(Date.now() - 86400000));
 
     const map = new Map<string, UploadedFile[]>();
@@ -119,7 +121,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const parsed = JSON.parse(userData);
       const user = parsed.user ?? parsed;
       this.email = user.email ?? '';
-      this.role  = user.role  ?? '';
+      this.role = user.role ?? '';
     }
 
     this.customerId = this.repository.customerId ?? '';
@@ -137,22 +139,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.refreshTimer) clearInterval(this.refreshTimer);
   }
 
-  // ── Status helpers ────────────────────────────────────────────────────────
   isSuccess(file: UploadedFile) { return file.isProcess === 1 && file.noBarcodeCount === 0 && file.totalLines > 0; }
   isPending(file: UploadedFile) { return file.isProcess === 0 || file.isProcess == null; }
   isNotCompleted(file: UploadedFile) { return file.isProcess === 1 && file.noBarcodeCount > 0 && file.totalLines > 0; }
-  isError(file: UploadedFile)   {
-    // return file.isProcess != null
-    //   && file.isProcess !== 0
-    //   && file.isProcess !== 1
-    //   && file.isProcess !== 9;
-    return !this.isSuccess(file) && !this.isNotCompleted(file);
+  isError(file: UploadedFile) {
+    return file.isProcess != null
+      && file.isProcess !== 0
+      && file.isProcess !== 1
+      && file.isProcess !== 9;
   }
 
   statusLabel(file: UploadedFile): string {
     if (this.isSuccess(file)) return 'success';
-    if (this.isError(file))   return 'error';
-    if(this.isNotCompleted(file)) return 'Incomplete';
+    if (this.isError(file)) return 'error';
+    if (this.isNotCompleted(file)) return 'Incomplete';
     return 'pending';
   }
 
@@ -176,7 +176,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Data loading ──────────────────────────────────────────────────────────
   private todayStr(): string { return this.dateStr(new Date()); }
 
   private dateStr(d: Date): string {
@@ -191,26 +190,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!this.customerId) return;
     this.http.get<FileSummary[]>(`${environment.apiUrl}file/getFileSummaries/${this.customerId}`).subscribe({
       next: (files) => {
-        const sessionFiles  = this.uploadedFiles.filter(f => !!f.fromSession);
-        const sessionNames  = new Set(sessionFiles.map(f => f.name));
+        const sessionFiles = this.uploadedFiles.filter(f => !!f.fromSession);
+        const sessionNames = new Set(sessionFiles.map(f => f.name));
 
         const backendFiles: UploadedFile[] = (files || [])
           .filter(f => !!f.fileName && !sessionNames.has(f.fileName))
           .map(f => {
-            const dt    = f.uploadedTime ? new Date(f.uploadedTime) : null;
+            const dt = f.uploadedTime ? new Date(f.uploadedTime) : null;
             const valid = dt && !isNaN(dt.getTime());
-            const d     = valid ? dt! : new Date();
+            const d = valid ? dt! : new Date();
             return {
-              id:            f.id,
-              name:          f.fileName,
-              invoiceType:   f.processType || '',
-              supplierName:  f.supplierName || '',
-              invoiceNo:     f.invoiceNumber || '',
-              uploadDate:    this.dateStr(d),
-              uploadTime:    `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,
-              isProcess:     f.isProcess,
-              totalLines:    f.totalLines   ?? 0,
-              noBarcodeCount:f.noBarcodeCount ?? 0,
+              id: f.id,
+              name: f.fileName,
+              invoiceType: f.processType || '',
+              supplierName: f.supplierName || '',
+              invoiceNo: f.invoiceNumber || '',
+              uploadDate: this.dateStr(d),
+              uploadTime: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+              isProcess: f.isProcess,
+              totalLines: f.totalLines ?? 0,
+              noBarcodeCount: f.noBarcodeCount ?? 0,
             };
           });
 
@@ -231,13 +230,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   captureAndClose() {
+    this.capturePhoto();
     this.showUploadSheet = false;
-    setTimeout(() => this.capturePhoto(), 200);
   }
 
   galleryAndClose() {
+    this.showGallerySubOptions = true;
+  }
+
+  selectImagesAsPages() {
+    this.imageInput.nativeElement.click();
     this.showUploadSheet = false;
-    setTimeout(() => this.fileInput.nativeElement.click(), 200);
+    this.showGallerySubOptions = false;
+  }
+
+  selectFiles() {
+    this.fileInput.nativeElement.click();
+    this.showUploadSheet = false;
+    this.showGallerySubOptions = false;
   }
 
   async capturePhoto() {
@@ -267,7 +277,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           pages.push(img);
         } else {
           const header = atob(img.substring(0, 8));
-          const isPng  = header.charCodeAt(0) === 0x89 && header.charCodeAt(1) === 0x50;
+          const isPng = header.charCodeAt(0) === 0x89 && header.charCodeAt(1) === 0x50;
           pages.push(`data:image/${isPng ? 'png' : 'jpeg'};base64,${img}`);
         }
       }
@@ -284,8 +294,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const pdfDoc = await PDFDocument.create();
 
       for (const dataUrl of pages) {
-        const isPng      = dataUrl.startsWith('data:image/png');
-        const rawBytes   = this.dataUrlToBytes(dataUrl);
+        const isPng = dataUrl.startsWith('data:image/png');
+        const rawBytes = this.dataUrlToBytes(dataUrl);
         const embeddedImg = isPng
           ? await pdfDoc.embedPng(rawBytes)
           : await pdfDoc.embedJpg(rawBytes);
@@ -295,10 +305,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
 
       const pdfBytes = await pdfDoc.save();
-      const pdfBlob  = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
+      const pdfBlob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
 
       const now = new Date();
-      const ts  = [
+      const ts = [
         now.getFullYear(),
         String(now.getMonth() + 1).padStart(2, '0'),
         String(now.getDate()).padStart(2, '0'),
@@ -314,6 +324,64 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  async onImagesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+
+    const imageFiles = Array.from(input.files);
+    input.value = '';
+
+    try {
+      await this.combineImagesToSinglePdf(imageFiles);
+    } catch (error) {
+      this.alertService.showErrorToast('Failed to process images. Please try again.', 3000, 'middle');
+    }
+  }
+
+  private async combineImagesToSinglePdf(imageFiles: File[]) {
+    if (!imageFiles.length) return;
+
+    try {
+      const pdfDoc = await PDFDocument.create();
+
+      for (const imageFile of imageFiles) {
+        const arrayBuffer = await imageFile.arrayBuffer();
+        const isPng = imageFile.type === 'image/png';
+        const isJpg = imageFile.type === 'image/jpeg';
+
+        if (!isPng && !isJpg) {
+          this.alertService.showToast(`Skipping ${imageFile.name}: Only PNG and JPG supported`, 3000, 'middle');
+          continue;
+        }
+
+        const embeddedImg = isPng
+          ? await pdfDoc.embedPng(arrayBuffer)
+          : await pdfDoc.embedJpg(arrayBuffer);
+
+        const page = pdfDoc.addPage([595, 842]);
+        page.drawImage(embeddedImg, { x: 0, y: 0, width: page.getWidth(), height: page.getHeight() });
+      }
+
+      const pdfBytes = await pdfDoc.save();
+      const pdfBlob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: 'application/pdf' });
+
+      const now = new Date();
+      const ts = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0'),
+        String(now.getHours()).padStart(2, '0'),
+        String(now.getMinutes()).padStart(2, '0'),
+        String(now.getSeconds()).padStart(2, '0'),
+      ].join('_');
+
+      const pdfFile = new File([pdfBlob], `${this.customerId}_${ts}_combined.pdf`, { type: 'application/pdf' });
+      this.zone.run(() => this.addToPending([pdfFile]));
+    } catch (error) {
+      this.alertService.showErrorToast('Failed to combine images into PDF.', 3000, 'middle');
+    }
+  }
+
   onFilesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) return;
@@ -324,14 +392,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   addToPending(files: File[]) {
     this.pendingFiles = files.map(f => ({
       file: f,
-      url:  URL.createObjectURL(f),
-      isPdf:    f.type === 'application/pdf',
-      isImage:  f.type.startsWith('image/'),
+      url: URL.createObjectURL(f),
+      isPdf: f.type === 'application/pdf',
+      isImage: f.type.startsWith('image/'),
     }));
     this.previewSelectedIndex = 0;
-    this.previewPage       = 1;
+    this.previewPage = 1;
     this.previewTotalPages = 0;
-    this.showPreviewModal  = true;
+    this.showPreviewModal = true;
     this.setPreviewFile(0);
   }
 
@@ -339,10 +407,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const pf = this.pendingFiles[index];
     if (!pf) return;
     this.previewSelectedIndex = index;
-    this.previewFileUrl  = pf.url;
-    this.previewIsPdf    = pf.isPdf;
-    this.previewIsImage  = pf.isImage;
-    this.previewPage     = 1;
+    this.previewFileUrl = pf.url;
+    this.previewIsPdf = pf.isPdf;
+    this.previewIsImage = pf.isImage;
+    this.previewPage = 1;
   }
 
   selectPreviewFile(index: number) { this.setPreviewFile(index); }
@@ -350,26 +418,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
   onPreviewPagesLoaded(event: any) { this.previewTotalPages = event.pagesCount; }
 
   confirmPreview() {
-    const now   = new Date();
+    const now = new Date();
     const batch: UploadedFile[] = this.pendingFiles.map(pf => ({
-      id:            0,
-      name:          pf.file.name,
-      file:          pf.file,
-      url:           pf.url,
-      invoiceType:   this.selectedInvoice,
-      supplierName:  '',
-      invoiceNo:     '',
-      uploadDate:    this.todayStr(),
-      uploadTime:    `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
-      totalLines:    0,
-      noBarcodeCount:0,
-      fromSession:   true,
+      id: 0,
+      name: pf.file.name,
+      file: pf.file,
+      url: pf.url,
+      invoiceType: this.selectedInvoice,
+      supplierName: '',
+      invoiceNo: '',
+      uploadDate: this.todayStr(),
+      uploadTime: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+      totalLines: 0,
+      noBarcodeCount: 0,
+      fromSession: true,
     }));
 
     for (const f of batch) this.uploadedFiles.unshift(f);
-    this.pendingFiles     = [];
+    this.pendingFiles = [];
     this.showPreviewModal = false;
-    this.previewFileUrl   = '';
+    this.previewFileUrl = '';
 
     if (!this.customerId) {
       this.alertService.showErrorToast('Customer ID is required');
@@ -383,7 +451,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     this.http.post<any>(`${environment.apiUrl}file/upload/${this.customerId}`, formData).subscribe({
-      next: () => { this.alertService.showSuccessToast('Upload successful'); },
+      next: () => {
+        this.alertService.showSuccessToast('Upload successful');
+        // Close modals after successful upload
+        this.showUploadSheet = false;
+        this.showGallerySubOptions = false;
+      },
       error: (err) => {
         this.alertService.showErrorToast(err?.error?.message || err?.message || 'Upload failed');
       },
@@ -392,18 +465,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   discardPreview() {
     for (const pf of this.pendingFiles) URL.revokeObjectURL(pf.url);
-    this.pendingFiles     = [];
+    this.pendingFiles = [];
     this.showPreviewModal = false;
-    this.previewFileUrl   = '';
+    this.previewFileUrl = '';
   }
 
   prevPreviewPage() { if (this.previewPage > 1) this.previewPage--; }
   nextPreviewPage() { if (this.previewPage < this.previewTotalPages) this.previewPage++; }
 
   dataUrlToBytes(dataUrl: string): Uint8Array {
-    const b64    = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+    const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
     const binary = atob(b64);
-    const bytes  = new Uint8Array(binary.length);
+    const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
     return bytes;
   }
@@ -411,7 +484,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   base64ToUint8Array(base64: string): Uint8Array { return this.dataUrlToBytes(base64); }
 
   dataURLtoBlob(dataUrl: string): Blob {
-    const arr  = dataUrl.split(',');
+    const arr = dataUrl.split(',');
     const mime = arr[0].match(/:(.*?);/)![1];
     const bstr = atob(arr[1]);
     const u8arr = new Uint8Array(bstr.length);

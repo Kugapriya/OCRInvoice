@@ -590,6 +590,57 @@ ion-content {
   color: #94a3b8;
 }
 
+.gallery-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+.gallery-card {
+  max-width: 100%;
+  padding: 20px 14px 16px;
+  gap: 8px;
+
+  .opt-icon {
+    width: 48px;
+    height: 48px;
+
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+
+  .opt-label {
+    font-size: 12px;
+  }
+
+  .opt-sub {
+    font-size: 10px;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  &.pages-icon {
+    background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
+  }
+
+  &.files-icon {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+  }
+}
+
+.pages-icon {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
+}
+
+.files-icon {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+}
 
 .preview-modal {
   --width: 96%;
@@ -880,18 +931,30 @@ ion-select {
   background: #fff;
   border-radius: 10px;
   border: 1px solid #dde3ec;
-  border-left: 3px solid #94a3b8;    /* default: pending grey */
+  border-left: 3px solid #94a3b8;
+  /* default: pending grey */
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
   overflow: hidden;
   transition: box-shadow 0.15s;
   min-height: 100px;
 
-  &:active { box-shadow: 0 1px 2px rgba(0,0,0,0.05); opacity: 0.92; }
+  &:active {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    opacity: 0.92;
+  }
 
   /* Left accent by status */
-  &.card-success { border-left-color: #16a34a; }
-  &.card-error   { border-left-color: #dc2626; }
-  &.card-pending { border-left-color: #94a3b8; }
+  &.card-success {
+    border-left-color: #16a34a;
+  }
+
+  &.card-error {
+    border-left-color: #dc2626;
+  }
+
+  &.card-pending {
+    border-left-color: #94a3b8;
+  }
 }
 
 /* ── Row 1: Invoice / filename  +  time  +  status icon ── */
@@ -929,7 +992,9 @@ ion-select {
   white-space: nowrap;
   flex-shrink: 0;
 
-  ion-icon { font-size: 10px; }
+  ion-icon {
+    font-size: 10px;
+  }
 }
 
 /* ── Row 2: chips — min-height keeps all cards same height ── */
@@ -953,7 +1018,10 @@ ion-select {
   white-space: nowrap;
   flex-shrink: 0;
 
-  ion-icon { font-size: 10px; flex-shrink: 0; }
+  ion-icon {
+    font-size: 10px;
+    flex-shrink: 0;
+  }
 
   span {
     display: block;
@@ -965,13 +1033,19 @@ ion-select {
   &.fc-chip-id {
     background: #e8f0fe;
     color: #1a73e8;
-    span { max-width: 54px; }
+
+    span {
+      max-width: 54px;
+    }
   }
 
   &.fc-chip-sup {
     background: #ede9fe;
     color: #4338ca;
-    span { max-width: 160px; }
+
+    span {
+      max-width: 160px;
+    }
 
     /* Empty state — shown before backend fills in supplier */
     &.fc-chip-empty {
@@ -1006,12 +1080,25 @@ ion-select {
   font-weight: 700;
   transition: background 0.13s;
 
-  span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
-  ion-icon { font-size: 12px; flex-shrink: 0; }
-  .fc-chev { font-size: 10px; opacity: 0.55; }
+  ion-icon {
+    font-size: 12px;
+    flex-shrink: 0;
+  }
 
-  &:active { background: rgba(0,0,0,0.05); }
+  .fc-chev {
+    font-size: 10px;
+    opacity: 0.55;
+  }
+
+  &:active {
+    background: rgba(0, 0, 0, 0.05);
+  }
 
   &.fc-act-lines {
     color: #0891b2;
@@ -1024,7 +1111,9 @@ ion-select {
     pointer-events: none;
   }
 
-  &.fc-act-bc { color: #c2410c; }
+  &.fc-act-bc {
+    color: #c2410c;
+  }
 }
 
 /* All OK — also a clickable button */
@@ -1046,13 +1135,16 @@ ion-select {
   border-radius: 20px;
   white-space: nowrap;
 
-  ion-icon { font-size: 11px; }
+  ion-icon {
+    font-size: 11px;
+  }
 
   &.status-success {
     background: #dcfce7;
     color: #16a34a;
     border: 1px solid #86efac;
   }
+
   &.status-error {
     background: #fee2e2;
     color: #dc2626;
