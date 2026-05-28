@@ -166,12 +166,15 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
     return role === 'confirm';
   }
 
-  // ──────────────────────────────────────────────────────────
 
   loadLines() {
-    if (!this.invoiceNumber) return;
+    if (!this.invoiceNumber || !this.repository.customerId) {
+      this.alertService.showErrorToast('Invoice number and Customer ID are required');
+      return;
+    }
+
     this.http.get<InvoiceLine[]>(
-      `${environment.apiUrl}file/getLinesByInvoice/${encodeURIComponent(this.invoiceNumber)}`
+      `${environment.apiUrl}file/getLinesByInvoice/${this.invoiceNumber}/${this.repository.customerId}`
     ).subscribe({
       next: (lines) => {
         this.allLines = lines || [];

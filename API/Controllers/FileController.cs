@@ -140,12 +140,12 @@ public class FileController : ControllerBase
         }
     }
 
-    [HttpGet("getLinesByInvoice/{invoiceNumber}")]
-    public async Task<ActionResult<List<DocMateInvoiceLineDto>>> GetLinesByInvoice(string invoiceNumber)
+    [HttpGet("getLinesByInvoice/{invoiceNumber}/{customerId}")]
+    public async Task<ActionResult<List<DocMateInvoiceLineDto>>> GetLinesByInvoice(string invoiceNumber,string customerId)
     {
         try
         {
-            var lines = await _upload.GetLinesByInvoiceNumberAsync(invoiceNumber);
+            var lines = await _upload.GetLinesByInvoiceNumberAsync(invoiceNumber,customerId);
             return Ok(lines);
         }
         catch (Exception ex)
