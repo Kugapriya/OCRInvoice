@@ -123,7 +123,7 @@
                 <ion-icon *ngIf="unsavedBarcodeIds.has(line.id)" name="alert-circle-outline" class="unsaved-icon" title="Unsaved"></ion-icon>
               </div>
               <button class="bc-save-btn" *ngIf="editValues[line.id]?.trim()" (click)="saveBarcode(line)"
-                [disabled]="saving">
+                [disabled]="saving" [class.unsaved]="unsavedBarcodeIds.has(line.id)">
                 <ion-icon name="checkmark-outline"></ion-icon>
               </button>
               <button class="bc-cancel-btn" (click)="cancelEdit(line)" [disabled]="saving">

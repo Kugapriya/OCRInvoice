@@ -219,7 +219,7 @@
   color: #c2410c;
 
   .active & {
-    background: rgba(255, 255, 255, 0.25);
+    background: #ff6b35;
     color: #fff;
   }
 }
@@ -332,6 +332,10 @@
     background: #c7d2fe;
     border-radius: 4px;
   }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 // Column layout: Line | Desc | CasePk | UnitSz | Qty | UnitPrice | Barcode
@@ -351,11 +355,13 @@ $tbl-cols: $c-line $c-desc $c-cp $c-us $c-qty $c-price $c-bc;
   gap: $tbl-gap;
   padding: 12px 16px;
   background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4338ca 100%);
+  background-attachment: fixed;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
   top: 0;
-  z-index: 10;
-  min-width: 800px;
+  z-index: 9999;
+  min-width: 1000px;
+  will-change: position;
 }
 
 th {
@@ -394,6 +400,7 @@ th {
 .line-rows {
   display: flex;
   flex-direction: column;
+  background: #fff;
   /* scrolling handled by .table-wrap — no overflow here */
 }
 
@@ -405,7 +412,8 @@ th {
   padding: 12px 16px;
   border-bottom: 1px solid #e8edf2;
   transition: background 0.12s;
-  min-width: 800px;
+  min-width: 1000px;
+  min-height: 50px;
 
   &:last-child {
     border-bottom: none;
@@ -429,7 +437,7 @@ th {
   display: flex;
   align-items: center;
   min-width: 0;
-  font-size: 14px;
+  font-size: 12px;
   color: #000;
   word-break: break-word;
 }
@@ -465,7 +473,7 @@ th {
 
 /* Description */
 .td-desc {
-  font-size: 13px;
+  font-size: 12px;
   color: #000;
   white-space: normal;
   word-break: break-word;
@@ -475,10 +483,12 @@ th {
 /* Qty */
 .td-qty {
   justify-content: center;
+  font-size: 12px;
+  color: #000;
 }
 
 .qty-val {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #000;
 }
@@ -648,6 +658,7 @@ th {
 .bc-save-btn {
   background: #16a34a;
   color: #fff;
+  border: 1.5px solid #16a34a;
 
   &:active {
     filter: brightness(0.88);
@@ -656,6 +667,11 @@ th {
   &:disabled {
     opacity: 0.5;
     cursor: default;
+  }
+
+  &.unsaved {
+    background: #ea580c;
+    border-color: #ea580c;
   }
 }
 

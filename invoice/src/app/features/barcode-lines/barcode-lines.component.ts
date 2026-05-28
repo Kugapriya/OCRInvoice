@@ -74,23 +74,22 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
     return this.unsavedBarcodeIds.size;
   }
 
-  /** True when any input has a typed but unsaved value */
   get hasUnsavedChanges(): boolean {
-    // No-barcode lines with typed values
-    const noBarcodeDirty = this.noBarcode.some(
-      l => (this.editValues[l.id] || '').trim() !== ''
-    );
-    // bc-has line in edit mode whose value differs from saved barcode
-    let editDirty = false;
+    if (this.unsavedBarcodeIds.size > 0) {
+      return true;
+    }
+    
     if (this.editingId !== null) {
       const line = this.allLines.find(l => l.id === this.editingId);
       if (line) {
-        editDirty =
+        const editDirty =
           (this.editValues[this.editingId] || '').trim() !==
           (line.barcode || '').trim();
+        if (editDirty) return true;
       }
     }
-    return noBarcodeDirty || editDirty;
+    
+    return false;
   }
 
   constructor(
@@ -219,7 +218,6 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
         this.saving = false;
         this.noBarcode = this.allLines.filter(l => !l.barcode || l.barcode.trim() === '');
         this.withBarcode = this.allLines.filter(l => l.barcode && l.barcode.trim() !== '');
-        this.alertService.showSuccessToast('Saved (use Save All to finalize)');
         // Keep in unsavedBarcodeIds - orange indicator stays visible until Save All
       },
       error: (err) => {
@@ -312,7 +310,7 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
         const scanned = barcodes[0].rawValue ?? '';
         this.zone.run(() => {
           this.editValues[line.id] = scanned;
-          this.unsavedBarcodeIds.add(line.id);  // Mark as unsaved
+          // Don't auto-mark as unsaved - let user manually save
         });
       }
     } catch {
@@ -357,7 +355,7 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
               } else if (this.editingId !== null) {
                 // Barcode is valid - show in input, user saves manually
                 this.editValues[this.editingId] = scannedBarcode;
-                this.unsavedBarcodeIds.add(this.editingId);  // Mark as unsaved
+                // Don't auto-mark as unsaved - let user manually save
                 controls.stop();
                 this.webScannerActive = false;
               }
