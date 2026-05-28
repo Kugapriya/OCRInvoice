@@ -340,14 +340,38 @@
 
 
 $c-line: 40px;
-$c-desc: minmax(100px, 1fr);
+$c-code: 70px;
+$c-desc: minmax(140px, 1fr);
 $c-cp: 60px;
 $c-us: 70px;
 $c-qty: 45px;
 $c-price: 70px;
 $c-bc: 180px;
 $tbl-gap: 6px;
-$tbl-cols: $c-line $c-desc $c-cp $c-us $c-qty $c-price $c-bc;
+$tbl-cols: $c-line $c-code $c-desc $c-cp $c-us $c-qty $c-price $c-bc;
+
+/* Table typography: enforce a single, consistent font size for all table text */
+$tbl-font-size: 12px;
+
+.lines-card {
+
+  .tbl-header th,
+  .line-row .td,
+  .line-row .td *,
+  .tbl-header .td-desc,
+  .tbl-header .td-code,
+  .tbl-header .td-line {
+    font-size: $tbl-font-size !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Barcode controls inside table should visually match text size */
+  .bc-display,
+  .bc-val,
+  .bc-input {
+    font-size: $tbl-font-size !important;
+  }
+}
 
 .tbl-header {
   display: grid;
@@ -360,17 +384,28 @@ $tbl-cols: $c-line $c-desc $c-cp $c-us $c-qty $c-price $c-bc;
   position: sticky;
   top: 0;
   z-index: 9999;
-  min-width: 1000px;
+  min-width: 900px;
   will-change: position;
 }
 
 th {
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;
   color: #fff;
   white-space: nowrap;
+}
+
+/* unify header and cell font sizes */
+.tbl-header th,
+.line-row .td {
+  font-size: 12px;
+}
+
+/* center the Description header text */
+.tbl-header .td-desc {
+  justify-content: center;
 }
 
 
@@ -388,6 +423,7 @@ th {
 
 /* Force white text on all header columns */
 .tbl-header .td-line,
+.tbl-header .td-code,
 .tbl-header .td-desc,
 .tbl-header .td-cp,
 .tbl-header .td-us,
@@ -412,7 +448,7 @@ th {
   padding: 12px 16px;
   border-bottom: 1px solid #e8edf2;
   transition: background 0.12s;
-  min-width: 1000px;
+  min-width: 900px;
   min-height: 50px;
 
   &:last-child {
@@ -481,24 +517,12 @@ th {
   font-size: 12px;
   color: #000;
   white-space: normal;
+  /* allow wrapping */
   word-break: break-word;
+  overflow: visible;
+  /* show full content */
   line-height: 1.4;
-  max-height: 80px;
-  overflow-y: auto;
   padding-right: 6px;
-
-  &::-webkit-scrollbar {
-    width: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 2px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
 }
 
 /* Qty */
@@ -535,6 +559,17 @@ th {
 /* ─── Barcode column ─── */
 .td-bc {
   gap: 4px;
+}
+
+/* Keep barcode cell sticky on the right so controls stay visible while horizontally scrolling */
+.line-row .td-bc {
+  position: sticky;
+  right: 0;
+  z-index: 9998;
+  background: #fff;
+  box-shadow: -6px 0 8px -6px rgba(16, 24, 40, 0.06);
+  padding-right: 12px;
+  justify-content: flex-end;
 }
 
 .bc-display {

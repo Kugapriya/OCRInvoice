@@ -801,6 +801,53 @@ ion-content {
   margin: 0 auto;
 }
 
+/* Pagination styles */
+.pagination-card {
+  max-width: 700px;
+  margin: 8px auto;
+  padding: 8px 12px;
+  background: #fff;
+  color: #334155;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pg-icon {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --border-radius: 10px;
+  height: 36px;
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e6eefc;
+  background: #ffffff;
+  color: #1a73e8; /* arrow color */
+  border-radius: 10px;
+}
+
+.pg-icon ion-icon { color: inherit; font-size: 16px; }
+
+.pg-icon[disabled] { opacity: 0.45; color: #94a3b8; background: #ffffff; }
+
+.pg-info { font-size: 0.95rem; color: #1f2937; font-weight: 700; padding: 0 10px; }
+
+@media (max-width: 520px) {
+  .pagination-card { margin: 6px 10px; padding: 6px 8px; }
+  .pagination-controls { gap: 6px; }
+  .pg-icon { height: 32px; width: 32px; }
+  .pg-info { font-size: 0.88rem; padding: 0 6px; }
+  .pg-label { display: none; }
+}
+
 .view-img {
   max-height: 68vh;
 }

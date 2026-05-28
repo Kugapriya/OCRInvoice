@@ -103,6 +103,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }));
   }
 
+  // Pagination: show N date-groups per page
+  pageSize = 7;
+  currentPage = 0;
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.groupedFiles.length / this.pageSize));
+  }
+
+  get pagedGroups(): FileGroup[] {
+    const groups = this.groupedFiles;
+    const start = this.currentPage * this.pageSize;
+    return groups.slice(start, start + this.pageSize);
+  }
+
+  prevPage() { if (this.currentPage > 0) this.currentPage--; }
+  nextPage() { if (this.currentPage + 1 < this.totalPages) this.currentPage++; }
+  goToPage(n: number) { if (n >= 0 && n < this.totalPages) this.currentPage = n; }
+
   constructor(
     private http: HttpClient,
     private zone: NgZone,
@@ -214,6 +232,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           });
 
         this.uploadedFiles = [...sessionFiles, ...backendFiles];
+        this.currentPage = 0;
       },
       error: (err) => {
         this.alertService.showErrorToast(err?.error?.message || 'Could not load file history');
@@ -435,6 +454,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }));
 
     for (const f of batch) this.uploadedFiles.unshift(f);
+    this.currentPage = 0;
     this.pendingFiles = [];
     this.showPreviewModal = false;
     this.previewFileUrl = '';

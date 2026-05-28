@@ -43,7 +43,7 @@
 
     <!-- File groups — card layout -->
     <div *ngIf="uploadedFiles.length > 0">
-      <div *ngFor="let group of groupedFiles">
+      <div *ngFor="let group of pagedGroups">
         <div class="date-group-label">{{ group.label }}</div>
 
         <div class="file-list">
@@ -102,6 +102,34 @@
     </div>
 
   </div><!-- /files-card -->
+  <!-- Pagination controls for date groups -->
+  <div class="page-card pagination-card" *ngIf="totalPages > 1">
+    <div class="pagination-controls">
+      <ion-button fill="clear" size="small" class="pg-icon" (click)="goToPage(0)" [disabled]="currentPage === 0"
+        aria-label="First page" title="First page">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+
+      <ion-button fill="clear" size="small" class="pg-icon pg-nav" (click)="prevPage()" [disabled]="currentPage === 0"
+        aria-label="Previous page" title="Previous page">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+
+      <div class="pg-info"><span class="pg-label">Page </span>{{ currentPage + 1 }} / {{ totalPages }}</div>
+
+      <ion-button fill="clear" size="small" class="pg-icon pg-nav" (click)="nextPage()"
+        [disabled]="currentPage + 1 >= totalPages" aria-label="Next page" title="Next page">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+
+      <ion-button fill="clear" size="small" class="pg-icon" (click)="goToPage(totalPages - 1)"
+        [disabled]="currentPage + 1 >= totalPages" aria-label="Last page" title="Last page">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
 
   <div class="bottom-spacer"></div>
 

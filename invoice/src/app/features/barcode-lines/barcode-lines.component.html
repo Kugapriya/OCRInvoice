@@ -74,6 +74,7 @@
     <div class="table-wrap">
       <div class="tbl-header">
         <th class="td-line">Line</th>
+        <th class="td-code">Code</th>
         <th class="td-desc">Description</th>
         <th class="td-cp">Case Pack</th>
         <th class="td-us">Unit Size</th>
@@ -87,12 +88,12 @@
           [class.unsaved-line]="unsavedBarcodeIds.has(line.id)">
 
           <td class="td-line">{{ line.lineNo ?? '' }}</td>
+          <td class="td-code">{{ line.code || '' }}</td>
           <td class="td-desc" [title]="line.description ?? ''">{{ line.description || '' }}</td>
           <td class="td-cp">{{ line.casePack ?? '' }}</td>
           <td class="td-us" [title]="line.unitSize ?? ''">{{ line.unitSize || '' }}</td>
           <td class="td-qty">{{ line.qty ?? '' }}</td>
           <td class="td-price">{{ line.unitPrice !== null ? (line.unitPrice | number:'1.2-2') : '' }}</td>
-
           <!-- Line Net -->
           <!-- <td class="td-net">
             <span class="net-val" *ngIf="line.lineNet !== null">{{ line.lineNet | number:'1.2-2' }}</span>
