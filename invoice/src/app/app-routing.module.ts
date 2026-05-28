@@ -5,13 +5,10 @@ import { StoreListResolver } from './_resolvers/store-list.resolver';
 import { StoresComponent } from './stores/stores.component';
 import { AuthUserResolver } from './_resolvers/auth-user.resolver';
 import { BaseComponent } from './base/base.component';
-import { UploadedFilesComponent } from './features/uploaded-files/uploaded-files.component';
 import { AuthGuard } from './core/_guards/auth.guard';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { VerifyOtpComponent } from './verify-otp/verify-otp.component';
-import { InvoiceHeadersComponent } from './features/invoice-headers/invoice-headers.component';
-import { VendorsComponent } from './features/vendors/vendors.component';
 import { BarcodeLinesComponent } from './features/barcode-lines/barcode-lines.component';
 import { unsavedBarcodeGuard } from './core/_guards/unsaved-barcode.guard';
 
@@ -57,11 +54,7 @@ const routes: Routes = [
         path: 'home', runGuardsAndResolvers: 'always',
         component: BaseComponent,
         children: [
-          { path: '', loadChildren: () => import('./home/home.module').then(m => m.HomePageModule) },
-          // { path: 'customers', component: CustomerProfileComponent },
-          { path: 'uploadedfiles', component: UploadedFilesComponent },
-          { path: 'invoiceheaders', component: InvoiceHeadersComponent },
-          { path: 'vendors', component: VendorsComponent }
+          { path: '', loadChildren: () => import('./home/home.module').then(m => m.HomePageModule) }
         ]
       }
     ]
