@@ -83,7 +83,8 @@
         <th class="td-bc">Barcode</th>
       </div>
       <div class="line-rows">
-        <div class="line-row" *ngFor="let line of displayLines" [class.editing-row]="editingId === line.id" [class.unsaved-line]="unsavedBarcodeIds.has(line.id)">
+        <div class="line-row" *ngFor="let line of displayLines" [class.editing-row]="editingId === line.id"
+          [class.unsaved-line]="unsavedBarcodeIds.has(line.id)">
 
           <td class="td-line">{{ line.lineNo ?? '' }}</td>
           <td class="td-desc" [title]="line.description ?? ''">{{ line.description || '' }}</td>
@@ -101,8 +102,8 @@
           <!-- Barcode column -->
           <td class="td-bc">
 
-            <!-- Lines WITH a barcode: show value; click to edit -->
-            <ng-container *ngIf="line.barcode && editingId !== line.id">
+            <!-- Lines WITH a barcode: show value ONLY if no unsaved edit -->
+            <ng-container *ngIf="line.barcode && editingId !== line.id && !unsavedBarcodeIds.has(line.id)">
               <button class="bc-display bc-has" (click)="startEdit(line)" title="Click to edit">
                 <ion-icon name="barcode-outline"></ion-icon>
                 <span class="bc-val">{{ line.barcode }}</span>
@@ -110,26 +111,23 @@
               </button>
             </ng-container>
 
-            <!-- Input wrap: always visible for no-barcode lines; shown when editing a bc-has line -->
-            <div class="bc-edit-wrap" *ngIf="!line.barcode || editingId === line.id">
+            <!-- Input wrap: shown for no-barcode lines, unsaved edits, or when editing -->
+            <div class="bc-edit-wrap" *ngIf="!line.barcode || editingId === line.id || unsavedBarcodeIds.has(line.id)">
               <button class="bc-cam-btn" (click)="scanBarcode(line)" [disabled]="saving" title="Scan">
                 <ion-icon name="camera-outline"></ion-icon>
               </button>
               <div class="input-wrapper" [class.unsaved]="unsavedBarcodeIds.has(line.id)">
-                <input class="bc-input" [(ngModel)]="editValues[line.id]" placeholder="Barcode"
-                  size="13" maxlength="13"
-                  inputmode="numeric" (input)="filterDigits(line.id, $event)" (keyup.enter)="saveBarcode(line)"
+                <input class="bc-input" [(ngModel)]="editValues[line.id]" placeholder="Barcode" size="13" maxlength="13"
+                  inputmode="numeric" (input)="filterDigits(line.id, $event)" (keyup.enter)="cancelEdit(line)"
                   (keyup.escape)="cancelEdit(line)" />
-                <ion-icon *ngIf="unsavedBarcodeIds.has(line.id)" name="alert-circle-outline" class="unsaved-icon" title="Unsaved"></ion-icon>
+                <ion-icon *ngIf="unsavedBarcodeIds.has(line.id)" name="alert-circle-outline" class="unsaved-icon"
+                  title="Unsaved"></ion-icon>
               </div>
-              <button class="bc-save-btn" *ngIf="editValues[line.id]?.trim()" (click)="saveBarcode(line)"
-                [disabled]="saving" [class.unsaved]="unsavedBarcodeIds.has(line.id)">
-                <ion-icon name="checkmark-outline"></ion-icon>
-              </button>
               <button class="bc-cancel-btn" (click)="cancelEdit(line)" [disabled]="saving">
                 <ion-icon name="close-outline"></ion-icon>
               </button>
-              <ion-icon *ngIf="recentlySavedIds.has(line.id)" name="checkmark-circle" class="saved-checkmark" title="Saved"></ion-icon>
+              <ion-icon *ngIf="recentlySavedIds.has(line.id)" name="checkmark-circle" class="saved-checkmark"
+                title="Saved"></ion-icon>
             </div>
 
           </td>

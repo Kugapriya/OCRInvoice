@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, HostListener, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, NgZone, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertController, IonicModule } from '@ionic/angular';
@@ -78,7 +78,7 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
     if (this.unsavedBarcodeIds.size > 0) {
       return true;
     }
-    
+
     if (this.editingId !== null) {
       const line = this.allLines.find(l => l.id === this.editingId);
       if (line) {
@@ -88,7 +88,7 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
         if (editDirty) return true;
       }
     }
-    
+
     return false;
   }
 
@@ -100,6 +100,7 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
     private alertService: AlertService,
     private activityService: ActivityService,
     private repository: RepositoryService,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit(): void {
@@ -273,14 +274,14 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
     this.saving = false;
     this.noBarcode = this.allLines.filter(l => !l.barcode || l.barcode.trim() === '');
     this.withBarcode = this.allLines.filter(l => l.barcode && l.barcode.trim() !== '');
+    this.editingId = null;
+    this.cdr.detectChanges();
 
     if (failedCount === 0) {
       this.alertService.showSuccessToast(`${savedCount} barcode${savedCount > 1 ? 's' : ''} saved`);
     } else {
       this.alertService.showErrorToast(`Saved ${savedCount}, failed ${failedCount}`);
     }
-
-
   }
 
   async scanBarcode(line: InvoiceLine) {
@@ -310,7 +311,7 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
         const scanned = barcodes[0].rawValue ?? '';
         this.zone.run(() => {
           this.editValues[line.id] = scanned;
-          // Don't auto-mark as unsaved - let user manually save
+          this.unsavedBarcodeIds.add(line.id);  // Mark as unsaved for bulk save
         });
       }
     } catch {
@@ -353,9 +354,9 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
                 controls.stop();
                 this.webScannerActive = false;
               } else if (this.editingId !== null) {
-                // Barcode is valid - show in input, user saves manually
+                // Barcode is valid - show in input, user saves manually with Save All
                 this.editValues[this.editingId] = scannedBarcode;
-                // Don't auto-mark as unsaved - let user manually save
+                this.unsavedBarcodeIds.add(this.editingId);  // Mark for bulk save
                 controls.stop();
                 this.webScannerActive = false;
               }

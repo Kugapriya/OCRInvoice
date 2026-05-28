@@ -423,11 +423,16 @@ th {
     background: #f8faff;
   }
 
+  &.unsaved-line {
+    background: #feca8a;
+    border-left: 3px solid #ea580c;
+  }
+
   &.editing-row {
     background: #fef9f0;
   }
 
-  &.unsaved-line {
+  &.editing-row.unsaved-line {
     background: #feca8a;
     border-left: 3px solid #ea580c;
   }
