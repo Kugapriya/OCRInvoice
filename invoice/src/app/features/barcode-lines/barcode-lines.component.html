@@ -88,10 +88,10 @@
 
           <td class="td-line">{{ line.lineNo ?? '' }}</td>
           <td class="td-desc" [title]="line.description ?? ''">{{ line.description || '' }}</td>
-          <td class="td-cp">{{ line.casePack ?? '—' }}</td>
-          <td class="td-us" [title]="line.unitSize ?? ''">{{ line.unitSize || '—' }}</td>
-          <td class="td-qty">{{ line.qty ?? '—' }}</td>
-          <td class="td-price">{{ line.unitPrice !== null ? (line.unitPrice | number:'1.2-2') : '—' }}</td>
+          <td class="td-cp">{{ line.casePack ?? '' }}</td>
+          <td class="td-us" [title]="line.unitSize ?? ''">{{ line.unitSize || '' }}</td>
+          <td class="td-qty">{{ line.qty ?? '' }}</td>
+          <td class="td-price">{{ line.unitPrice !== null ? (line.unitPrice | number:'1.2-2') : '' }}</td>
 
           <!-- Line Net -->
           <!-- <td class="td-net">

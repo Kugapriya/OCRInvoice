@@ -47,7 +47,6 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
 
   allLines: InvoiceLine[] = [];
   noBarcode: InvoiceLine[] = [];
-  withBarcode: InvoiceLine[] = [];
 
   activeTab: 'nobarcode' | 'all' = 'nobarcode';
 
@@ -178,8 +177,10 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
     ).subscribe({
       next: (lines) => {
         this.allLines = lines || [];
-        this.noBarcode = this.allLines.filter(l => !l.barcode || l.barcode.trim() === '');
-        this.withBarcode = this.allLines.filter(l => l.barcode && l.barcode.trim() !== '');
+        this.noBarcode = this.allLines.filter(l => 
+          l.barcode == null || 
+          (typeof l.barcode === 'string' && l.barcode.trim() === '')
+        );
         this.editValues = {};
         this.noBarcode.forEach(l => { this.editValues[l.id] = ''; });
       },
@@ -222,8 +223,10 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
         delete this.editValues[line.id];
         this.saving = false;
         this.unsavedBarcodeIds.delete(line.id);  // Remove from unsaved after successful save
-        this.noBarcode = this.allLines.filter(l => !l.barcode || l.barcode.trim() === '');
-        this.withBarcode = this.allLines.filter(l => l.barcode && l.barcode.trim() !== '');
+        this.noBarcode = this.allLines.filter(l => 
+          l.barcode == null || 
+          (typeof l.barcode === 'string' && l.barcode.trim() === '')
+        );
       },
       error: (err) => {
         this.alertService.showErrorToast(err?.error?.message || 'Failed to save barcode');
@@ -276,8 +279,11 @@ export class BarcodeLinesComponent implements OnInit, OnDestroy, CanDeactivateBa
 
   private completeAllSave(savedCount: number, failedCount: number) {
     this.saving = false;
-    this.noBarcode = this.allLines.filter(l => !l.barcode || l.barcode.trim() === '');
-    this.withBarcode = this.allLines.filter(l => l.barcode && l.barcode.trim() !== '');
+    this.noBarcode = this.allLines.filter(l => 
+      l.barcode == null || 
+      (typeof l.barcode === 'string' && l.barcode.trim() === '')
+    );
+
     this.editingId = null;
     this.cdr.detectChanges();
 

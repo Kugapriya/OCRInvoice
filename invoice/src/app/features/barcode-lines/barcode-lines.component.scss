@@ -338,9 +338,9 @@
   }
 }
 
-// Column layout: Line | Desc | CasePk | UnitSz | Qty | UnitPrice | Barcode
+
 $c-line: 40px;
-$c-desc: minmax(150px, 1.5fr);
+$c-desc: minmax(100px, 1fr);
 $c-cp: 60px;
 $c-us: 70px;
 $c-qty: 45px;
@@ -483,6 +483,22 @@ th {
   white-space: normal;
   word-break: break-word;
   line-height: 1.4;
+  max-height: 80px;
+  overflow-y: auto;
+  padding-right: 6px;
+
+  &::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 /* Qty */

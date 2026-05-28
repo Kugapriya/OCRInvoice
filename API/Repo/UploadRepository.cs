@@ -326,7 +326,7 @@ public class UploadRepository
 
                 if (!string.IsNullOrWhiteSpace(file.InvoiceNumber))
                 {
-                    var (total, noBarcode) = await GetLineCountsAsync(file.InvoiceNumber);
+                    var (total, noBarcode) = await GetLineCountsAsync(file.InvoiceNumber, customerId);
                     try { dto.TotalLines = total; } catch { }
                     try { dto.NoBarcodeCount = noBarcode; } catch { }
                 }
@@ -342,7 +342,7 @@ public class UploadRepository
         }
     }
 
-    private async Task<(int total, int noBarcode)> GetLineCountsAsync(string invoiceNumber)
+    private async Task<(int total, int noBarcode)> GetLineCountsAsync(string invoiceNumber, string customerId)
     {
         try
         {
@@ -354,10 +354,11 @@ public class UploadRepository
                     COUNT(*) AS TotalLines,
                     SUM(CASE WHEN [Barcode] IS NULL OR LTRIM(RTRIM([Barcode])) = '' THEN 1 ELSE 0 END) AS NoBarcodeCount
                 FROM [DocMate_invoice_line_Data_Copy]
-                WHERE [doc_number] = @invoiceNumber;";
+                WHERE [doc_number] = @invoiceNumber AND [cms_customer_id] = @customerId;";
 
             await using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.Add(new SqlParameter("@invoiceNumber", SqlDbType.NVarChar, 255) { Value = invoiceNumber });
+            cmd.Parameters.Add(new SqlParameter("@invoiceNumber", SqlDbType.NVarChar,64) { Value = invoiceNumber });
+            cmd.Parameters.Add(new SqlParameter("@customerId", SqlDbType.NVarChar, 64) { Value = customerId });
 
             await using var rdr = await cmd.ExecuteReaderAsync();
             if (await rdr.ReadAsync())
@@ -397,8 +398,8 @@ public class UploadRepository
                 ORDER BY [line_no];";
 
             await using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.Add(new SqlParameter("@invoiceNumber", SqlDbType.NVarChar, 255) { Value = invoiceNumber });
-            cmd.Parameters.Add(new SqlParameter("@customerId", SqlDbType.NVarChar, 255) { Value = customerId });
+            cmd.Parameters.Add(new SqlParameter("@invoiceNumber", SqlDbType.NVarChar, 64) { Value = invoiceNumber });
+            cmd.Parameters.Add(new SqlParameter("@customerId", SqlDbType.NVarChar, 64) { Value = customerId });
 
             var rows = new List<DocMateInvoiceLineDto>();
             await using var rdr = await cmd.ExecuteReaderAsync();
@@ -465,7 +466,7 @@ public class UploadRepository
 
         await using var cmd = new SqlCommand(sql, conn);
         cmd.Parameters.Add(new SqlParameter("@lineId", SqlDbType.Int) { Value = lineId });
-        cmd.Parameters.Add(new SqlParameter("@barcode", SqlDbType.NVarChar, 255) { Value = barcode ?? (object)DBNull.Value });
+        cmd.Parameters.Add(new SqlParameter("@barcode", SqlDbType.NVarChar, 20) { Value = barcode ?? (object)DBNull.Value });
 
         var rowsAffected = await cmd.ExecuteNonQueryAsync();
         return rowsAffected > 0;
