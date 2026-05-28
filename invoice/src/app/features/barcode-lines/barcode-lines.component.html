@@ -104,7 +104,7 @@
           <td class="td-bc">
 
             <!-- Lines WITH a barcode: show value ONLY if no unsaved edit -->
-            <ng-container *ngIf="line.barcode && editingId !== line.id && !unsavedBarcodeIds.has(line.id)">
+            <ng-container *ngIf="hasBarcodeValue(line.barcode) && editingId !== line.id && !unsavedBarcodeIds.has(line.id)">
               <button class="bc-display bc-has" (click)="startEdit(line)" title="Click to edit">
                 <ion-icon name="barcode-outline"></ion-icon>
                 <span class="bc-val">{{ line.barcode }}</span>
@@ -113,7 +113,7 @@
             </ng-container>
 
             <!-- Input wrap: shown for no-barcode lines, unsaved edits, or when editing -->
-            <div class="bc-edit-wrap" *ngIf="!line.barcode || editingId === line.id || unsavedBarcodeIds.has(line.id)">
+            <div class="bc-edit-wrap" *ngIf="!hasBarcodeValue(line.barcode) || editingId === line.id || unsavedBarcodeIds.has(line.id)">
               <button class="bc-cam-btn" (click)="scanBarcode(line)" [disabled]="saving" title="Scan">
                 <ion-icon name="camera-outline"></ion-icon>
               </button>

@@ -339,8 +339,8 @@
 }
 
 
-$c-line: 40px;
-$c-code: 70px;
+$c-line: 48px;
+$c-code: 62px;
 $c-desc: minmax(140px, 1fr);
 $c-cp: 60px;
 $c-us: 70px;
@@ -351,7 +351,7 @@ $tbl-gap: 6px;
 $tbl-cols: $c-line $c-code $c-desc $c-cp $c-us $c-qty $c-price $c-bc;
 
 /* Table typography: enforce a single, consistent font size for all table text */
-$tbl-font-size: 12px;
+$tbl-font-size: 13px;
 
 .lines-card {
 
@@ -408,9 +408,15 @@ th {
   justify-content: center;
 }
 
+/* Make Code text slightly larger than the rest */
+.tbl-header .td-code,
+.line-row .td-code {
+  font-size: 12px !important;
+}
+
 
 .th {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;
   color: #fff;
@@ -486,6 +492,7 @@ th {
 /* Line No */
 .td-line {
   justify-content: center;
+  font-size: 12px !important;
 }
 
 .line-no-badge {
@@ -497,7 +504,7 @@ th {
   border-radius: 6px;
   background: #ede9fe;
   color: #4338ca;
-  font-size: 12px;
+  font-size: 12px !important;
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -561,14 +568,15 @@ th {
   gap: 4px;
 }
 
-/* Keep barcode cell sticky on the right so controls stay visible while horizontally scrolling */
+/* Barcode column follows normal horizontal scroll flow */
+.tbl-header .td-bc,
 .line-row .td-bc {
-  position: sticky;
-  right: 0;
-  z-index: 9998;
-  background: #fff;
-  box-shadow: -6px 0 8px -6px rgba(16, 24, 40, 0.06);
-  padding-right: 12px;
+  position: relative;
+  right: auto;
+  z-index: auto;
+  background: transparent;
+  box-shadow: none;
+  padding-right: 0;
   justify-content: flex-end;
 }
 
