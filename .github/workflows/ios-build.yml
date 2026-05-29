@@ -39,11 +39,18 @@ jobs:
         working-directory: invoice
         run: npx cap sync ios
 
-      - name: Install CocoaPods
+      - name: Ensure CocoaPods and update repos
+        working-directory: invoice
+        run: |
+          sudo gem install cocoapods || true
+          pod --version || true
+          pod repo update --silent || true
+
+      - name: Install iOS pods
         working-directory: invoice
         run: |
           cd ios/App
-          pod install
+          pod install --repo-update --verbose
 
       - name: Build iOS archive
         working-directory: invoice
