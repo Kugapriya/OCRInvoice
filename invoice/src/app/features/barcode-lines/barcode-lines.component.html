@@ -76,35 +76,26 @@
         <th class="td-line">Line</th>
         <th class="td-code">Code</th>
         <th class="td-desc">Description</th>
+        <th class="td-bc">Barcode</th>
         <th class="td-cp">Case Pack</th>
         <th class="td-us">Unit Size</th>
         <th class="td-qty">Qty</th>
         <th class="td-price">Unit Price</th>
         <!-- <th class="td-net">Net Price</th> -->
-        <th class="td-bc">Barcode</th>
       </div>
       <div class="line-rows">
         <div class="line-row" *ngFor="let line of displayLines" [class.editing-row]="editingId === line.id"
           [class.unsaved-line]="unsavedBarcodeIds.has(line.id)">
 
-          <td class="td-line">{{ line.lineNo ?? '' }}</td>
-          <td class="td-code">{{ line.code || '' }}</td>
-          <td class="td-desc" [title]="line.description ?? ''">{{ line.description || '' }}</td>
-          <td class="td-cp">{{ line.casePack ?? '' }}</td>
-          <td class="td-us" [title]="line.unitSize ?? ''">{{ line.unitSize || '' }}</td>
-          <td class="td-qty">{{ line.qty ?? '' }}</td>
-          <td class="td-price">{{ line.unitPrice !== null ? (line.unitPrice | number:'1.2-2') : '' }}</td>
-          <!-- Line Net -->
-          <!-- <td class="td-net">
-            <span class="net-val" *ngIf="line.lineNet !== null">{{ line.lineNet | number:'1.2-2' }}</span>
-            <span class="muted" *ngIf="line.lineNet === null">—</span>
-          </td> -->
-
-          <!-- Barcode column -->
-          <td class="td-bc">
+          <td class="td-line" data-label="Line">{{ line.lineNo ?? '' }}</td>
+          <td class="td-code" data-label="Code">{{ line.code || '' }}</td>
+          <td class="td-desc" data-label="Description" [title]="line.description ?? ''">{{ line.description || '' }}
+          </td>
+          <td class="td-bc" data-label="Barcode">
 
             <!-- Lines WITH a barcode: show value ONLY if no unsaved edit -->
-            <ng-container *ngIf="hasBarcodeValue(line.barcode) && editingId !== line.id && !unsavedBarcodeIds.has(line.id)">
+            <ng-container
+              *ngIf="hasBarcodeValue(line.barcode) && editingId !== line.id && !unsavedBarcodeIds.has(line.id)">
               <button class="bc-display bc-has" (click)="startEdit(line)" title="Click to edit">
                 <ion-icon name="barcode-outline"></ion-icon>
                 <span class="bc-val">{{ line.barcode }}</span>
@@ -113,7 +104,8 @@
             </ng-container>
 
             <!-- Input wrap: shown for no-barcode lines, unsaved edits, or when editing -->
-            <div class="bc-edit-wrap" *ngIf="!hasBarcodeValue(line.barcode) || editingId === line.id || unsavedBarcodeIds.has(line.id)">
+            <div class="bc-edit-wrap"
+              *ngIf="!hasBarcodeValue(line.barcode) || editingId === line.id || unsavedBarcodeIds.has(line.id)">
               <button class="bc-cam-btn" (click)="scanBarcode(line)" [disabled]="saving" title="Scan">
                 <ion-icon name="camera-outline"></ion-icon>
               </button>
@@ -132,6 +124,16 @@
             </div>
 
           </td>
+          <td class="td-cp" data-label="Case Pack">{{ line.casePack ?? '' }}</td>
+          <td class="td-us" data-label="Unit Size" [title]="line.unitSize ?? ''">{{ line.unitSize || '' }}</td>
+          <td class="td-qty" data-label="Qty">{{ line.qty ?? '' }}</td>
+          <td class="td-price" data-label="Unit Price">{{ line.unitPrice !== null ? (line.unitPrice | number:'1.2-2') :
+            '' }}</td>
+          <!-- Line Net -->
+          <!-- <td class="td-net">
+            <span class="net-val" *ngIf="line.lineNet !== null">{{ line.lineNet | number:'1.2-2' }}</span>
+            <span class="muted" *ngIf="line.lineNet === null">—</span>
+          </td> -->
 
         </div><!-- /line-row -->
       </div><!-- /line-rows -->

@@ -341,14 +341,14 @@
 
 $c-line: 48px;
 $c-code: 62px;
-$c-desc: minmax(140px, 1fr);
+$c-desc: minmax(110px, 0.85fr);
+$c-bc: 180px;
 $c-cp: 60px;
 $c-us: 70px;
 $c-qty: 45px;
 $c-price: 70px;
-$c-bc: 180px;
 $tbl-gap: 6px;
-$tbl-cols: $c-line $c-code $c-desc $c-cp $c-us $c-qty $c-price $c-bc;
+$tbl-cols: $c-line $c-code $c-desc $c-bc $c-cp $c-us $c-qty $c-price;
 
 /* Table typography: enforce a single, consistent font size for all table text */
 $tbl-font-size: 13px;
@@ -406,6 +406,12 @@ th {
 /* center the Description header text */
 .tbl-header .td-desc {
   justify-content: center;
+}
+
+.tbl-header .td-qty,
+.tbl-header .td-price {
+  justify-content: center;
+  text-align: center;
 }
 
 /* Make Code text slightly larger than the rest */
@@ -513,6 +519,8 @@ th {
 .td-cp,
 .td-us {
   justify-content: center;
+  align-items: center;
+  text-align: center;
   font-size: 12px;
   color: #000;
   white-space: normal;
@@ -535,6 +543,8 @@ th {
 /* Qty */
 .td-qty {
   justify-content: center;
+  align-items: center;
+  text-align: center;
   font-size: 12px;
   color: #000;
 }
@@ -548,7 +558,9 @@ th {
 /* Price / Net */
 .td-price,
 .td-net {
-  justify-content: flex-end;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   font-size: 12px;
 }
 
@@ -754,6 +766,107 @@ th {
 
 .bottom-spacer {
   height: 80px;
+}
+
+@media (max-width: 767px) {
+  .lines-card {
+    margin: 10px;
+    border-radius: 12px;
+  }
+
+  .table-wrap {
+    max-height: calc(100vh - 214px);
+    overflow-x: auto;
+  }
+
+  .tbl-header {
+    min-width: 900px;
+  }
+
+  .line-row {
+    min-width: 900px;
+    grid-template-columns: $tbl-cols;
+    gap: $tbl-gap;
+    padding: 12px 16px;
+    align-items: center;
+  }
+
+  .td {
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    font-size: 12px;
+    color: #334155;
+  }
+
+  .td::before {
+    content: none;
+  }
+
+  .td-line,
+  .td-code,
+  .td-desc,
+  .td-bc,
+  .td-cp,
+  .td-us,
+  .td-qty,
+  .td-price {
+    justify-content: flex-start;
+  }
+
+  .td-qty,
+  .td-price {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  .td-cp,
+  .td-us {
+    align-items: center;
+    text-align: center;
+  }
+
+  .td-desc,
+  .td-bc {
+    grid-column: auto;
+  }
+
+  .bc-display {
+    width: auto;
+    justify-content: center;
+    white-space: normal;
+  }
+
+  .bc-val {
+    max-width: none;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .bc-edit-wrap {
+    width: 100%;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .input-wrapper {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  .bc-input {
+    width: auto;
+    min-width: 110px;
+    font-size: 14px;
+  }
+
+  .bc-cam-btn,
+  .bc-cancel-btn,
+  .bc-save-btn {
+    width: 26px;
+    height: 26px;
+  }
 }
 
 /* ══════════════════════════════════════
