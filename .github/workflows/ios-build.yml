@@ -29,7 +29,7 @@ jobs:
           cache-dependency-path: invoice/package-lock.json
 
       # ─────────────────────────────────────────────────
-      # 3. INSTALL ALL NPM PACKAGES IN ONE STEP
+      # 3. INSTALL ALL NPM PACKAGES
       # ─────────────────────────────────────────────────
       - name: Install all dependencies
         working-directory: invoice
@@ -45,27 +45,26 @@ jobs:
         run: npm install -g @ionic/cli @capacitor/cli
 
       # ─────────────────────────────────────────────────
-      # 5. BUILD IONIC ANGULAR APP (creates www/ folder)
+      # 5. BUILD IONIC ANGULAR APP
+      # outputs to ../API/wwwroot per angular.json
       # ─────────────────────────────────────────────────
       - name: Build Ionic app
         working-directory: invoice
         run: npm run build
 
       # ─────────────────────────────────────────────────
-      # 6. VERIFY www/ FOLDER EXISTS
+      # 6. VERIFY BUILD OUTPUT EXISTS
+      # capacitor.config.ts webDir = ../API/wwwroot
       # ─────────────────────────────────────────────────
       - name: Verify build output
-        working-directory: invoice
         run: |
-          echo "=== Checking www/ or dist/ folder ==="
-          if [ -d "www" ]; then
-            echo "www/ folder found"
-            ls -la www/
-          elif [ -d "dist" ]; then
-            echo "dist/ folder found"
-            ls -la dist/
+          echo "=== Checking API/wwwroot ==="
+          if [ -d "API/wwwroot" ]; then
+            echo "Build output found!"
+            ls -la API/wwwroot/
           else
-            echo "ERROR: No build output folder found!"
+            echo "ERROR: API/wwwroot not found!"
+            echo "=== Repo root contents ==="
             ls -la
             exit 1
           fi
@@ -80,33 +79,32 @@ jobs:
             echo "ios/ not found — running cap add ios..."
             npx cap add ios
           else
-            echo "ios/ already exists — skipping cap add ios"
+            echo "ios/ already exists — skipping"
           fi
 
       # ─────────────────────────────────────────────────
-      # 8. SYNC CAPACITOR (copies www/ into ios project)
+      # 8. SYNC CAPACITOR
+      # reads webDir ../API/wwwroot → copies into ios
       # ─────────────────────────────────────────────────
       - name: Sync Capacitor to iOS
         working-directory: invoice
         run: npx cap sync ios
 
       # ─────────────────────────────────────────────────
-      # 9. FIND EXACT WORKSPACE PATH (auto-detect)
+      # 9. FIND EXACT WORKSPACE PATH
       # ─────────────────────────────────────────────────
       - name: Find Xcode workspace
         working-directory: invoice
         run: |
           echo "=== Searching for .xcworkspace ==="
           find ios/ -name "*.xcworkspace" 2>/dev/null
-
           echo "=== Searching for .xcodeproj ==="
           find ios/ -name "*.xcodeproj" 2>/dev/null
-
-          echo "=== Full ios/ folder tree ==="
+          echo "=== Full ios/ tree ==="
           find ios/ -maxdepth 5 -type d
 
       # ─────────────────────────────────────────────────
-      # 10. RESOLVE SPM PACKAGES (no CocoaPods needed)
+      # 10. RESOLVE SPM PACKAGES
       # ─────────────────────────────────────────────────
       - name: Resolve Swift Package Manager dependencies
         working-directory: invoice
@@ -114,7 +112,7 @@ jobs:
           XCWORKSPACE=$(find ios/ -name "*.xcworkspace" | grep -v "\.xcodeproj" | head -1)
 
           if [ -z "$XCWORKSPACE" ]; then
-            echo "No xcworkspace found, trying xcodeproj..."
+            echo "No xcworkspace — trying xcodeproj..."
             XCODEPROJ=$(find ios/ -name "*.xcodeproj" | head -1)
             echo "Using xcodeproj: $XCODEPROJ"
             xcodebuild \
@@ -132,7 +130,7 @@ jobs:
           fi
 
       # ─────────────────────────────────────────────────
-      # 11. INSTALL APPLE CERTIFICATE INTO KEYCHAIN
+      # 11. INSTALL APPLE CERTIFICATE
       # ─────────────────────────────────────────────────
       - name: Install Apple certificate
         env:
@@ -154,8 +152,7 @@ jobs:
             -A -t cert -f pkcs12 \
             -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
-
-          echo "Certificate installed successfully."
+          echo "Certificate installed."
 
       # ─────────────────────────────────────────────────
       # 12. INSTALL PROVISIONING PROFILE
@@ -165,13 +162,10 @@ jobs:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
         run: |
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-
           echo "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-
-          echo "Provisioning profile installed successfully."
+          echo "Provisioning profile installed."
 
       # ─────────────────────────────────────────────────
       # 13. BUILD iOS ARCHIVE
@@ -185,7 +179,6 @@ jobs:
 
           if [ -z "$XCWORKSPACE" ]; then
             echo "ERROR: No .xcworkspace found!"
-            find ios/ -maxdepth 5 -type d
             exit 1
           fi
 
@@ -206,7 +199,7 @@ jobs:
           echo "Archive built successfully."
 
       # ─────────────────────────────────────────────────
-      # 14. EXPORT IPA FROM ARCHIVE
+      # 14. EXPORT IPA
       # ─────────────────────────────────────────────────
       - name: Export Ad Hoc IPA
         working-directory: invoice
@@ -221,7 +214,7 @@ jobs:
           ls -la build/ipa/
 
       # ─────────────────────────────────────────────────
-      # 15. UPLOAD IPA — download from GitHub Actions tab
+      # 15. UPLOAD IPA
       # ─────────────────────────────────────────────────
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
@@ -231,7 +224,7 @@ jobs:
           retention-days: 30
 
       # ─────────────────────────────────────────────────
-      # 16. CLEANUP KEYCHAIN (always runs for security)
+      # 16. CLEANUP KEYCHAIN
       # ─────────────────────────────────────────────────
       - name: Cleanup keychain
         if: always()
