@@ -29,57 +29,40 @@ jobs:
       - name: Install Ionic and Capacitor CLI
         run: npm install -g @ionic/cli @capacitor/cli
 
+      # ── Fix version mismatch first ────────────────────
+      - name: Fix Capacitor version mismatch
+        working-directory: invoice
+        run: |
+          npm install @capacitor/core@8.3.4 --legacy-peer-deps
+
       - name: Build Ionic app
         working-directory: invoice
         run: npm run build
 
-      # ── KEY FIX: Install @capacitor/ios locally first ──
-      - name: Install Capacitor iOS package
+      - name: Install Capacitor iOS
         working-directory: invoice
-        run: |
-          npm install @capacitor/ios --legacy-peer-deps
+        run: npm install @capacitor/ios --legacy-peer-deps
 
-      # ── KEY FIX: Force add iOS platform ───────────────
       - name: Add iOS platform
         working-directory: invoice
         run: |
-          echo "Checking for iOS platform..."
           npx cap add ios
-          echo "Checking ios/App was created..."
-          ls -la ios/
+          echo "iOS folder contents:"
           ls -la ios/App/
-          echo "Checking Podfile exists..."
-          ls -la ios/App/Podfile
 
       - name: Sync Capacitor to iOS
         working-directory: invoice
         run: npx cap sync ios
 
-      # ── KEY FIX: Verify Podfile before pod install ─────
-      - name: Verify Podfile exists
+      # ── NO CocoaPods needed — project uses SPM ────────
+      - name: Resolve Swift Package dependencies
         working-directory: invoice
         run: |
-          if [ ! -f "ios/App/Podfile" ]; then
-            echo "ERROR: Podfile not found!"
-            echo "Contents of ios/:"
-            ls -la ios/ || echo "ios/ folder missing"
-            echo "Contents of ios/App/:"
-            ls -la ios/App/ || echo "ios/App/ folder missing"
-            exit 1
-          else
-            echo "Podfile found at ios/App/Podfile"
-            cat ios/App/Podfile
-          fi
-
-      - name: Setup CocoaPods
-        run: |
-          sudo gem install cocoapods || true
-          pod --version
-          pod repo update --silent || true
-
-      - name: Install iOS Pods
-        working-directory: invoice/ios/App
-        run: pod install --repo-update
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -resolvePackageDependencies \
+            -clonedSourcePackagesDirPath ios/App/SourcePackages
 
       - name: Install Apple certificate
         env:
@@ -102,6 +85,8 @@ jobs:
             -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
+          echo "Certificate installed."
+
       - name: Install provisioning profile
         env:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
@@ -110,6 +95,7 @@ jobs:
           echo "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "Provisioning profile installed."
 
       - name: Build iOS archive
         working-directory: invoice
@@ -122,6 +108,7 @@ jobs:
             -configuration Release \
             -sdk iphoneos \
             -archivePath build/app.xcarchive \
+            -clonedSourcePackagesDirPath ios/App/SourcePackages \
             DEVELOPMENT_TEAM=$APPLE_TEAM_ID \
             CODE_SIGN_STYLE=Manual \
             PRODUCT_BUNDLE_IDENTIFIER=com.subango.invoice \
