@@ -7,7 +7,7 @@ wwwroot
 invoice-service-key.json
 
 # Environment config
-appsettings.Development.json
+
 
 # IDE
 .vs/
