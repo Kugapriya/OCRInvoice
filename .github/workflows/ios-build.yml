@@ -1,0 +1,62 @@
+name: iOS Build CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: invoice/package-lock.json
+
+      - name: Install dependencies
+        working-directory: invoice
+        run: npm ci --legacy-peer-deps
+
+      - name: Build Ionic app
+        working-directory: invoice
+        run: npm run build
+
+      - name: Add iOS platform if needed
+        working-directory: invoice
+        run: |
+          if [ ! -d ios/App ]; then
+            npx cap add ios
+          fi
+
+      - name: Sync Capacitor
+        working-directory: invoice
+        run: npx cap sync ios
+
+      - name: Install CocoaPods
+        working-directory: invoice
+        run: |
+          cd ios/App
+          pod install
+
+      - name: Build iOS archive
+        working-directory: invoice
+        run: |
+          xcodebuild \
+          -workspace ios/App/App.xcworkspace \
+          -scheme App \
+          -configuration Release \
+          -archivePath build/app.xcarchive \
+          archive
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: invoice/build/app.xcarchive
