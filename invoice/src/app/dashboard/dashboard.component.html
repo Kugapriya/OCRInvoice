@@ -46,7 +46,8 @@
       <div *ngFor="let group of pagedGroups">
         <div class="date-group-label">{{ group.label }}</div>
 
-        <div class="file-list">
+        <div class="file-list" #fileListContainer [attr.data-group-date]="group.date"
+          (scroll)="onFileListScroll(group.date, fileListContainer)">
           <div class="file-card" *ngFor="let file of group.files" [class.card-success]="isSuccess(file)"
             [class.card-error]="isError(file)" [class.card-pending]="isPending(file)">
 

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -51,9 +51,10 @@ interface FileGroup {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
-export class DashboardComponent implements OnInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('imageInput') imageInput!: ElementRef<HTMLInputElement>;
+  @ViewChildren('fileListContainer') fileListContainers!: QueryList<ElementRef<HTMLDivElement>>;
 
   selectedInvoice = 'Purchase Invoice';
   role = '';
@@ -64,6 +65,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showUploadSheet = false;
   showGallerySubOptions = false;
   private refreshTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly dashboardStateKey = 'dashboard.fileListState';
+  private fileListScrollTops = new Map<string, number>();
 
   // Preview modal (before confirming add)
   showPreviewModal = false;
@@ -117,9 +120,34 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return groups.slice(start, start + this.pageSize);
   }
 
-  prevPage() { if (this.currentPage > 0) this.currentPage--; }
-  nextPage() { if (this.currentPage + 1 < this.totalPages) this.currentPage++; }
-  goToPage(n: number) { if (n >= 0 && n < this.totalPages) this.currentPage = n; }
+  prevPage() {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.saveDashboardState();
+      this.restoreVisibleFileListScrollPositionsLater();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage + 1 < this.totalPages) {
+      this.currentPage++;
+      this.saveDashboardState();
+      this.restoreVisibleFileListScrollPositionsLater();
+    }
+  }
+
+  goToPage(n: number) {
+    if (n >= 0 && n < this.totalPages) {
+      this.currentPage = n;
+      this.saveDashboardState();
+      this.restoreVisibleFileListScrollPositionsLater();
+    }
+  }
+
+  onFileListScroll(groupDate: string, container: HTMLDivElement) {
+    this.fileListScrollTops.set(groupDate, container.scrollTop);
+    this.saveDashboardState();
+  }
 
   constructor(
     private http: HttpClient,
@@ -131,6 +159,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.restoreDashboardState();
     this.repository.loadSelectedStoreFromStorage();
     this.repository.loadCustomerIdFromStorage();
 
@@ -153,8 +182,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.refreshTimer = setInterval(() => this.loadFromBackend(), 2 * 60 * 1000);
   }
 
+  ngAfterViewInit() {
+    this.restoreVisibleFileListScrollPositionsLater();
+  }
+
   ngOnDestroy() {
     if (this.refreshTimer) clearInterval(this.refreshTimer);
+    this.saveDashboardState();
   }
 
   isSuccess(file: UploadedFile) { return file.isProcess === 1 && file.noBarcodeCount === 0 && file.totalLines > 0; }
@@ -179,6 +213,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.alertService.showToast('No invoice number available for this file.', 3000, 'top');
       return;
     }
+    this.saveDashboardState();
     this.router.navigate(['/site/dashboard/barcode-lines'], {
       state: { invoiceNumber: file.invoiceNo, fileId: file.id, fileName: file.name, tab: 'nobarcode' }
     });
@@ -189,6 +224,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.alertService.showToast('No invoice number available for this file.', 3000, 'top');
       return;
     }
+    this.saveDashboardState();
     this.router.navigate(['/site/dashboard/barcode-lines'], {
       state: { invoiceNumber: file.invoiceNo, fileId: file.id, fileName: file.name, tab: 'all' }
     });
@@ -202,6 +238,54 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private formatGroupDate(isoDate: string): string {
     return new Intl.DateTimeFormat(undefined, { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(isoDate));
+  }
+
+  private restoreVisibleFileListScrollPositionsLater() {
+    setTimeout(() => this.restoreVisibleFileListScrollPositions(), 0);
+  }
+
+  private restoreVisibleFileListScrollPositions() {
+    if (!this.fileListContainers?.length) return;
+
+    this.fileListContainers.forEach((containerRef) => {
+      const container = containerRef.nativeElement;
+      const groupDate = container.getAttribute('data-group-date');
+      if (!groupDate) return;
+
+      const savedScrollTop = this.fileListScrollTops.get(groupDate);
+      if (savedScrollTop != null) {
+        container.scrollTop = savedScrollTop;
+      }
+    });
+  }
+
+  private saveDashboardState() {
+    sessionStorage.setItem(this.dashboardStateKey, JSON.stringify({
+      currentPage: this.currentPage,
+      fileListScrollTops: Array.from(this.fileListScrollTops.entries()),
+    }));
+  }
+
+  private restoreDashboardState() {
+    const rawState = sessionStorage.getItem(this.dashboardStateKey);
+    if (!rawState) return;
+
+    try {
+      const parsed = JSON.parse(rawState) as {
+        currentPage?: number;
+        fileListScrollTops?: Array<[string, number]>;
+      };
+
+      if (typeof parsed.currentPage === 'number' && parsed.currentPage >= 0) {
+        this.currentPage = parsed.currentPage;
+      }
+
+      if (Array.isArray(parsed.fileListScrollTops)) {
+        this.fileListScrollTops = new Map(parsed.fileListScrollTops);
+      }
+    } catch {
+      sessionStorage.removeItem(this.dashboardStateKey);
+    }
   }
 
   private loadFromBackend() {
@@ -232,7 +316,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
           });
 
         this.uploadedFiles = [...sessionFiles, ...backendFiles];
-        this.currentPage = 0;
+        this.currentPage = Math.min(this.currentPage, Math.max(0, this.totalPages - 1));
+        this.restoreVisibleFileListScrollPositionsLater();
       },
       error: (err) => {
         this.alertService.showErrorToast(err?.error?.message || 'Could not load file history');
